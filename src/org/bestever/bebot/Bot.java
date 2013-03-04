@@ -29,6 +29,11 @@ public class Bot extends PircBot {
 	public LinkedList<Server> servers;
 	
 	/**
+	 * Contains the runtime args
+	 */
+	public String[] args;
+	
+	/**
 	 * Set the bot up with the constructor
 	 */
 	public Bot(ConfigData cfg_data) {
@@ -197,7 +202,7 @@ public class Bot extends PircBot {
 		}
 		
 		// Start the bot
-		@SuppressWarnings("unused")
 		Bot bot = new Bot(cfg_data);
+		bot.args = args;
 	}
 }
