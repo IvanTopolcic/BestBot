@@ -172,6 +172,15 @@ public class Server implements Serializable {
 		if (keywords.length < 2)
 			return "Not enough parameters";
 		
+		// Make sure we have the proper amount of quotation marks (should be even)
+		int quotationCounter = 0;
+		char[] messageChars = message.toCharArray();
+		for (int c = 0; c < messageChars.length; c++)
+			if (messageChars[c] == '\"')
+				quotationCounter++;
+		if (quotationCounter % 2 != 0)
+			return "Invalid amount of quotation marks";
+		
 		// Iterate through every single keyword to construct the host thing except the first index since that's just ".host"
 		// For sanity's sake, please keep the keywords in *alphabetical* order
 		for (int i = 1; i < keywords.length; i++) {
@@ -227,6 +236,9 @@ public class Server implements Serializable {
 			}
 			
 			// gamemode
+			if (keywords[i].toLowerCase().startsWith("gamemode=")) {
+				server.gamemode = getGamemode(keywords[i]);
+			}
 			
 			// hostname
 			if (keywords[i].toLowerCase().startsWith("hostname=")) {
@@ -234,6 +246,9 @@ public class Server implements Serializable {
 			}
 			
 			// iwad
+			if (keywords[i].toLowerCase().startsWith("iwad=")) {
+				server.iwad = getIwad(keywords[i]);
+			}
 			
 			// mapwad
 			
@@ -246,6 +261,127 @@ public class Server implements Serializable {
 		return null;
 	}
 	
+	/**
+	 * Checks for the iwad based on the input
+	 * @param string The keyword with the iwad (ex: iwad=doom2.wad)
+	 * @return A string of the wad (lowercase), or null if there's no supported iwad name
+	 */
+	private static String getIwad(String string) {
+		// Split the string
+		String[] value = string.split("=");
+		
+		// If we don't have exactly 2 values, or the 2nd value is unusual, default to on
+		if (value.length != 2 || value[1] == "" || value[1] == null)
+			return null;
+		
+		// Check if in array, and if so return that value
+		switch (value[1].toLowerCase()) {
+			case "doom2":
+			case "doom2.wad":
+				return "doom2.wad";
+			case "doom":
+			case "doom.wad":
+				return "doom.wad";
+			case "tnt":
+			case "tnt.wad":
+				return "tnt.wad";
+			case "plutonia":
+			case "plutonia.wad":
+				return "plutonia.wad";
+			case "heretic":
+			case "heretic.wad":
+				return "heretic.wad";
+			case "hexen":
+			case "hexen.wad":
+				return "hexen.wad";
+			case "strife1":
+			case "strife1.wad":
+				return "strife1.wad";
+			case "sharewaredoom":
+			case "doom1":
+			case "doom1.wad":
+				return "doom1.wad";
+			case "hacx":
+			case "hacx.wad":
+				return "hacx.wad";
+			case "chex3":
+			case "chex3.wad":
+				return "chex3.wad";
+			case "megaman":
+			case "megagame":
+			case "megagame.wad":
+				return "megagame.wad";
+			case "freedm":
+			case "freedm.wad":
+				return "freedm.wad";
+			case "nerve":
+			case "nerve.wad":
+				return "nerve.wad";
+		}
+		
+		// If there's no match...
+		return null;
+	}
+
+	/**
+	 * Takes input to parse the gamemode 
+	 * @param string The keyword to check with the = sign (ex: gamemode=...)
+	 * @return A string of the gamemode, null if there was no such gamemode
+	 */
+	private static String getGamemode(String string) {
+		// Split the string
+		String[] value = string.split("=");
+		
+		// If we don't have exactly 2 values, or the 2nd value is unusual, default to on
+		if (value.length != 2 || value[1] == "" || value[1] == null)
+			return null;
+		
+		// Find out if the string we're given matches a game mode
+		switch (value[1].toLowerCase())
+		{
+			case "deathmatch":
+			case "dm":
+			case "ffa":
+				return "deathmatch";
+			case "ctf":
+				return "ctf";
+			case "tdm":
+			case "teamdeathmatch":
+				return "teamplay";
+			case "terminator":
+				return "terminator";
+			case "possession":
+				return "possession";
+			case "teampossession":
+				return "teampossession";
+			case "lms":
+			case "lastmanstanding":
+				return "lastmanstanding";
+			case "tlms":
+			case "teamlastmanstanding":
+				return "teamlastmanstanding";
+			case "skulltag":
+				return "skulltag";
+			case "duel":
+				return "duel";
+			case "teamgame":
+				return "teamgame";
+			case "domination":
+				return "domination";
+			case "coop":
+			case "co-op":
+			case "cooperative":
+				return "cooperative";
+			case "survival":
+				return "survival";
+			case "invasion":
+				return "invasion";
+		}
+		
+		// If the gametype is unknown, return null
+		return null;
+	}
+
 	// ** TO BE DONE **
 	private static String handleConfig(String string) {
 		return null;
