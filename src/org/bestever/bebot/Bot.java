@@ -39,7 +39,7 @@ public class Bot extends PircBot {
 		Logger.setLogFile(this.cfg_data.bot_logfile);
 		
 		// Set up MySQL information
-		MySQL.setMySQLInformation(this.cfg_data.mysql_host, this.cfg_data.mysql_user, this.cfg_data.mysql_pass, this.cfg_data.mysql_port);
+		MySQL.setMySQLInformation(this.cfg_data.mysql_host, this.cfg_data.mysql_user, this.cfg_data.mysql_pass, this.cfg_data.mysql_port, this.cfg_data.mysql_db);
 		
 		// Set up the bot and join the channel
 		logMessage("Initializing BestBot v" + getBestBotVersion());
@@ -127,10 +127,10 @@ public class Bot extends PircBot {
 		// So we don't need an else here
 		if (loggedIn) {
 			switch (keywords[0].toLowerCase()) {
+			// Registering an account
 			case "register":
 				if (keywords.length == 2) {
 					int value = MySQL.registerAccount(hostname, keywords[1]);
-					// Check the return values to see if it went through or not
 					switch (value) {
 					case -1:
 						sendMessage(sender, "Account already exists!");
@@ -145,6 +145,25 @@ public class Bot extends PircBot {
 				}
 				else
 					sendMessage(sender, "Incorrect syntax! Usage is /msg BestBot register <password>");
+				break;
+			// Changing user password
+			case "changepw":
+				int value = MySQL.changePassword(hostname, keywords[1]);
+				if (keywords.length == 2) {
+					switch (value) {
+					case -1:
+						sendMessage(sender, "You don't have an account!");
+						break;
+					case 0:
+						sendMessage(sender, "Error updating password.");
+						break;
+					case 1:
+						sendMessage(sender, "Success! Your password was changed to " + keywords[1]);
+						break;
+					}
+				}
+				else
+					sendMessage(sender, "Incorrect syntax! Usage is /msg BestBot changepw <new_password>");
 				break;
 			default:
 				break;
