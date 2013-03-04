@@ -27,7 +27,7 @@ public class ReverseLineInputStream extends InputStream {
 
         currentLineEnd = currentLineStart; 
 
-        // There are no more lines, since we are at the beginning of the file and no lines.
+        // Beginning of file
         if (currentLineEnd == 0) {
             currentLineEnd = -1;
             currentLineStart = -1;
@@ -37,10 +37,10 @@ public class ReverseLineInputStream extends InputStream {
 
         long filePointer = currentLineStart -1;
 
-         while ( true) {
+         while (true) {
              filePointer--;
 
-            // we are at start of file so this is the first line in the file.
+            // First line of the file
             if (filePointer < 0) {  
                 break; 
             }
@@ -48,12 +48,12 @@ public class ReverseLineInputStream extends InputStream {
             in.seek(filePointer);
             int readByte = in.readByte();
 
-            // We ignore last LF in file. search back to find the previous LF.
+            // Ignore the last LF and search back to find the previous LF
             if (readByte == 0xA && filePointer != lastPosInFile ) {   
                 break;
             }
          }
-         // we want to start at pointer +1 so we are after the LF we found or at 0 the start of the file.   
+         // Start at pointer + 1  
          currentLineStart = filePointer + 1;
          currentPos = currentLineStart;
     }
@@ -64,11 +64,12 @@ public class ReverseLineInputStream extends InputStream {
             in.seek(currentPos++);
             int readByte = in.readByte();
             return readByte;
-
         }
+        
         else if (currentPos < 0) {
             return -1;
         }
+        
         else {
             findPrevLine();
             return read();
