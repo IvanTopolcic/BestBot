@@ -15,8 +15,9 @@ public class Server implements Serializable {
 	
 	/**
 	 * If the server was created successfully and/or is running, this will be true
+	 * Set this to transient (no storage in the object file) because it's pointless in there
 	 */
-	public boolean active_server;
+	transient public boolean active_server;
 	
 	/**
 	 * Contains the port it is run on
@@ -72,6 +73,16 @@ public class Server implements Serializable {
 	 * The name of the config file (like rofl.cfg), will contain ".cfg" on the end of the string
 	 */
 	public String config;
+	
+	/**
+	 * Contains a list of all the wads used by the server separated by a space
+	 */
+	public String wads;
+
+	/**
+	 * Contains a list of all the wads separated by a space which will be searched for maps
+	 */
+	public String mapwads;
 
 	/**
 	 * This is for additional instructions the user may specify for one to two things to 
@@ -84,16 +95,21 @@ public class Server implements Serializable {
 	 * Ex: "./zandronum-server -file holycrapbatman_no.wad +duel 1 +customcommandhere"
 	 */
 	public String server_parameters;
-
-	/**
-	 * If this is true, it means the wad will be parsed for maps to add to the maplist
-	 */
-	public boolean mapwad;
-
+	
 	/**
 	 * If this is true, that means skulltag data will be enabled
 	 */
 	public boolean disable_skulltag_data;
+	
+	/**
+	 * If this is true, instagib will be enabled on the server
+	 */
+	public boolean instagib;
+	
+	/**
+	 * If this is true, buckshot will be enabled on the server
+	 */
+	public boolean buckshot;
 
 	/**
 	 * Contains flags for the server
@@ -254,10 +270,19 @@ public class Server implements Serializable {
 			
 			// wad
 		}
-
-		// Handle
 		
-		// If all went well, return null
+		// Now that we've indexed the string, check to see if we have what we need to start a server
+		if (server.iwad == null)
+			return "Incorrect/missing iwad";
+		if (server.gamemode == null)
+			return "Incorrect/missing gamemode";
+		if (server.hostname == null)
+			return "Error parsing hostname";
+		
+		// Since all went well, we have to hope the user didn't mess up and proceed to start up the server
+		
+		
+		// Since no errors occured, return a null (meaning no error message)
 		return null;
 	}
 	
@@ -439,7 +464,7 @@ public class Server implements Serializable {
 	}
 
 	
-	public static String getHostname(String keyword) {
+	private static String getHostname(String keyword) {
 		return null;
 	}
 	
@@ -454,6 +479,10 @@ public class Server implements Serializable {
 		
 		// Make sure the server and folderPath are valid
 		if (server == null)
+			return false;
+		
+		// Make sure the server is actually in some kind of working function
+		if (!server.active_server)
 			return false;
 		
 		// Set our file up
