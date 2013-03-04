@@ -27,7 +27,7 @@ public class ReverseLineInputStream extends InputStream {
 
         currentLineEnd = currentLineStart; 
 
-        // Beginning of file
+        // Beginning of file!
         if (currentLineEnd == 0) {
             currentLineEnd = -1;
             currentLineStart = -1;
