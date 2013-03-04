@@ -3,7 +3,7 @@ package org.bestever.bebot;
 import static org.bestever.bebot.Logger.logMessage;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
@@ -26,7 +26,7 @@ public class Bot extends PircBot {
 	/**
 	 * Contained a array list of all the servers
 	 */
-	public ArrayList<Server> servers;
+	public LinkedList<Server> servers;
 	
 	/**
 	 * Set the bot up with the constructor
@@ -58,7 +58,7 @@ public class Bot extends PircBot {
 		joinChannel(this.cfg_data.irc_channel);
 		
 		// Set up the server arrays
-		this.servers = new ArrayList<Server>(this.cfg_data.bot_max_port - this.cfg_data.bot_min_port);
+		this.servers = new LinkedList<Server>();
 		
 		// Clear mySQL table since we will fill it up with any serialized server information
 		if (!MySQL.clearActiveServerList())

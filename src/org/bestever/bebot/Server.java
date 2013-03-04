@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class Server implements Serializable {
 
@@ -172,7 +172,7 @@ public class Server implements Serializable {
 	 * @param message The message sent
 	 * @return Null if all went well, otherwise an error message to print to the bot
 	 */
-	public static String handleHostCommand(ArrayList<Server> servers, String channel, String sender, String login, String hostname, String message) {
+	public static String handleHostCommand(LinkedList<Server> servers, String channel, String sender, String login, String hostname, String message) {
 		// Initialize server without linking it to the arraylist
 		Server server = new Server();
 		
@@ -296,6 +296,8 @@ public class Server implements Serializable {
 		
 		// Since all went well, we have to hope the user didn't mess up and proceed to start up the server
 		
+		// Add the server to our linked list
+		servers.add(server);
 		
 		// Since no errors occured, return a null (meaning no error message)
 		return null;
