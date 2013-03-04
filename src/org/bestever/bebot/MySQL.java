@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import static org.bestever.bebot.Logger.logMessage;
 
@@ -87,9 +88,7 @@ public class MySQL {
 			(
 				Connection con = dbConnect();
 				PreparedStatement pst = con.prepareStatement(query);
-			)
-			{
-
+			){
 				// Prepare, bind & execute
 				pst.setString(1, Functions.getUserName(hostname));
 				ResultSet r = pst.executeQuery();
@@ -136,9 +135,7 @@ public class MySQL {
 			Connection con = dbConnect();
 			PreparedStatement cs = con.prepareStatement(checkQuery);
 			PreparedStatement xs = con.prepareStatement(executeQuery);
-		)
-		{
-			
+		){
 			// Query and check if see if the username exists
 			cs.setString(1, Functions.getUserName(hostname));
 			ResultSet r = cs.executeQuery();
@@ -173,7 +170,17 @@ public class MySQL {
 	 * with servers; it is cleared because if there was a shutdown error, the 
 	 * database will contain outdated junk
 	 */
-	public static void clearMySQLDatabase() {
-		// To be filled out
+	public static boolean clearActiveServerList() {
+		try (
+				Statement st = con.createStatement();
+				Connection con = dbConnect();
+			){
+			st.executeUpdate("TRUNCATE `active_server`");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logMessage("ERROR: SQL_ERROR in 'clearActiveServerList()'");
+			return false;
+		}
+		return true;
 	}
 }
