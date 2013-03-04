@@ -200,6 +200,10 @@ public class Server implements Serializable {
 		// Iterate through every single keyword to construct the host thing except the first index since that's just ".host"
 		// For sanity's sake, please keep the keywords in *alphabetical* order
 		for (int i = 1; i < keywords.length; i++) {
+			// buckshot
+			if (keywords[i].toLowerCase().startsWith("buckshot=")) {
+				server.buckshot = handleBuckshotOrInstagib(keywords[i]);
+			}
 			
 			// compatflags
 			if (keywords[i].toLowerCase().startsWith("compatflags=")) {
@@ -256,9 +260,14 @@ public class Server implements Serializable {
 				server.gamemode = getGamemode(keywords[i]);
 			}
 			
-			// hostname
-			if (keywords[i].toLowerCase().startsWith("hostname=")) {
-				server.hostname = getHostname(keywords[i]);
+			// hostname (Note: appended the quotation mark for the function)
+			if (keywords[i].toLowerCase().startsWith("hostname=\"")) {
+				server.hostname = getDataBetween("hostname=", message);
+			}
+			
+			// instagib
+			if (keywords[i].toLowerCase().startsWith("instagib=")) {
+				server.instagib = handleBuckshotOrInstagib(keywords[i]);
 			}
 			
 			// iwad
@@ -266,9 +275,15 @@ public class Server implements Serializable {
 				server.iwad = getIwad(keywords[i]);
 			}
 			
-			// mapwad
+			// mapwad (Note: appended the quotation mark for the function)
+			if (keywords[i].toLowerCase().startsWith("mapwad=\"")) {
+				server.hostname = getDataBetween("mapwad=", message);
+			}
 			
-			// wad
+			// wad (Note: appended the quotation mark for the function)
+			if (keywords[i].toLowerCase().startsWith("wad=\"")) {
+				server.hostname = getDataBetween("wad=", message);
+			}
 		}
 		
 		// Now that we've indexed the string, check to see if we have what we need to start a server
@@ -438,6 +453,32 @@ public class Server implements Serializable {
 		// Otherwise if something is wrong, just assume we need it
 		return true;
 	}
+	
+	/**
+	 * This handles the game modes with default to off
+	 * @param string The keyword to check
+	 * @return True if to use it, false if not
+	 */
+	private static boolean handleBuckshotOrInstagib(String string) {
+		// Split the string
+		String[] value = string.split("=");
+		
+		// If we don't have exactly 2 values, or the 2nd value is unusual, default to on
+		if (value.length != 2 || value[1] == "" || value[1] == null)
+			return false;
+		
+		// If the second keyword matches some known keywords, then disable it
+		switch (value[1].toLowerCase()) {
+			case "on":
+			case "true":
+			case "yes":
+			case "enable":
+				return true;
+		}
+		
+		// Otherwise if something is wrong, just assume we need it
+		return false;
+	}
 
 	/**
 	 * This handles dmflags/compatflags, returns 0xFFFFFFFF if there's an error (FLAGS_ERROR)
@@ -462,10 +503,47 @@ public class Server implements Serializable {
 		// If something went wrong, return an error
 		return FLAGS_ERROR;
 	}
-
 	
-	private static String getHostname(String keyword) {
-		return null;
+	/**
+	 * This will take your keyword and the main message, and between the two quotation marks it will find 
+	 * @param firstKeyword The keyword before the quotation mark (ex: hostname=)
+	 * @param fullMessage The entire sent message from the user
+	 * @return The string between the two quotes, or null if something went wrong
+	 */
+	private static String getDataBetween(String firstKeyword, String fullMessage) {
+		// Find out the starting place for the keyword
+		int startIndex = fullMessage.indexOf(firstKeyword);
+		
+		// If the keyword isn't in the message or is at the very end, it doesn't exist/is messed up
+		if (startIndex == -1 || startIndex + firstKeyword.length() >= fullMessage.length())
+			return null;
+		
+		// Now make startIndex start from the quotation mark
+		startIndex = startIndex + firstKeyword.length() + 1;
+		
+		// Start looking from (start index + word length + 1 char for the quotation mark) to the end
+		int endIndex = -1;
+		char[] fullMessageChars = fullMessage.toCharArray();
+		for (int c = startIndex; c < fullMessageChars.length; c++) {
+			if (fullMessageChars[c] == '"') {
+				endIndex = c;
+				break;
+			}
+		}
+		
+		// If something goes wrong, return null
+		if (endIndex == -1 || endIndex - startIndex <= 0)
+			return null;
+		
+		// Set up the return string, handle possible errors
+		String returnString = null;
+		try {
+			returnString = fullMessage.substring(startIndex, endIndex);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	
+		return returnString; 
 	}
 	
 	/**
