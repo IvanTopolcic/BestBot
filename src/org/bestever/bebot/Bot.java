@@ -59,6 +59,9 @@ public class Bot extends PircBot {
 		
 		// Set up the server arrays
 		this.servers = new ArrayList<Server>(this.cfg_data.bot_max_port - this.cfg_data.bot_min_port);
+		
+		// Clear mySQL table since we will fill it up with any serialized server information
+		
 	}
 	
 	/**

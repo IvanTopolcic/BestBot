@@ -167,4 +167,13 @@ public class MySQL {
 			return -1;
 		}
 	}
+	
+	/**
+	 * This clears the MySQL database at startup so that we can fill it up later
+	 * with servers; it is cleared because if there was a shutdown error, the 
+	 * database will contain outdated junk
+	 */
+	public static void clearMySQLDatabase() {
+		// To be filled out
+	}
 }
