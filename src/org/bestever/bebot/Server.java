@@ -14,12 +14,6 @@ public class Server implements Serializable {
 	////////////
 	
 	/**
-	 * If the server was created successfully and/or is running, this will be true
-	 * Set this to transient (no storage in the object file) because it's pointless in there
-	 */
-	transient public boolean active_server;
-	
-	/**
 	 * Contains the port it is run on
 	 */
 	public short port;
@@ -153,13 +147,6 @@ public class Server implements Serializable {
 	/////////////////////////////
 	// Method and Constructors //
 	/////////////////////////////
-	
-	/**
-	 * Default constructor should be an inactive server
-	 */
-	public Server() {
-		this.active_server = false;
-	}
 	
 	/**
 	 * This will take ".host ...", parse it and pass it off safely to anything else
@@ -565,10 +552,6 @@ public class Server implements Serializable {
 		
 		// Make sure the server and folderPath are valid
 		if (server == null)
-			return false;
-		
-		// Make sure the server is actually in some kind of working function
-		if (!server.active_server)
 			return false;
 		
 		// Set our file up

@@ -221,4 +221,15 @@ public class MySQL {
 		}
 		return true;
 	}
+	
+	/**
+	 * This is invoked to request mysql to add the server object to the database
+	 * How it should be handled is all the fields in the Server class will be entered
+	 * into the database
+	 * @param server The Server object to add to the database
+	 * @return An integer constant stating success/failure/other (maybe convert to boolean later if theres only 2 return codes)
+	 */
+	public static int addServerToDatabase(Server server) {
+		return 0;
+	}
 }
