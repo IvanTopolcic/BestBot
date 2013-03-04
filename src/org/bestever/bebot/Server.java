@@ -277,12 +277,12 @@ public class Server implements Serializable {
 			
 			// mapwad (Note: appended the quotation mark for the function)
 			if (keywords[i].toLowerCase().startsWith("mapwad=\"")) {
-				server.hostname = getDataBetween("mapwad=", message);
+				server.mapwads = getDataBetween("mapwad=", message);
 			}
 			
 			// wad (Note: appended the quotation mark for the function)
 			if (keywords[i].toLowerCase().startsWith("wad=\"")) {
-				server.hostname = getDataBetween("wad=", message);
+				server.wads = getDataBetween("wad=", message);
 			}
 		}
 		
