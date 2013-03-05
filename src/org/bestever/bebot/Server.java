@@ -12,6 +12,8 @@ public class Server implements Serializable {
 	////////////
 	// Fields //
 	////////////
+	@SuppressWarnings("unused")
+	private transient ServerProcess serverprocess;
 	
 	/**
 	 * Contains the port it is run on
