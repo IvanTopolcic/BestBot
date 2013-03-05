@@ -14,14 +14,9 @@ import org.jibble.pircbot.PircBot;
 public class Bot extends PircBot {
 	
 	/**
-	 * Contains the version constant for the bot
-	 */
-	public static final String BESTBOT_VERSION = "0.1.1";
-	
-	/**
 	 * Contains the config data
 	 */
-	public static ConfigData cfg_data;
+	public ConfigData cfg_data;
 	
 	/**
 	 * Contained a array list of all the servers
@@ -47,7 +42,7 @@ public class Bot extends PircBot {
 		MySQL.setMySQLInformation(cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
 		
 		// Set up the bot and join the channel
-		logMessage("Initializing BestBot v" + getBestBotVersion());
+		logMessage("Initializing BestBot v" + cfg_data.irc_version);
 		setVerbose(cfg_data.bot_verbose);
 		setName(cfg_data.irc_name);
 		setLogin(cfg_data.irc_user);
@@ -69,14 +64,6 @@ public class Bot extends PircBot {
 		if (!MySQL.clearActiveServerList())
 			logMessage("ERROR: Could not clear active server list.");
 	}
-	
-	/**
-	 * Returns the version of the bestbot running
-	 * @return A string containing the version (probably a double in string format)
-	 */
-	public String getBestBotVersion() {
-		return BESTBOT_VERSION;
-	}
 
 	/**
 	 * Have the bot handle message events
@@ -93,31 +80,31 @@ public class Bot extends PircBot {
 			// Perform only the logged in stuff
 			if (loggedIn) {
 				switch (keywords[0].toLowerCase()) {
-				case ".host":
-					{
-						// We should not use the host result for anything else other than debugging, so I'm having it go out of scope asap
-						String hostResult = Server.handleHostCommand(servers, channel, sender, login, hostname, message); // Have this function handle everything
+					case ".host":
+						String hostResult = Server.handleHostCommand(this, servers, channel, sender, login, hostname, message); // Have this function handle everything
 						// Null means nothing went wrong, so don't send anything
 						if (hostResult != null)
 							sendMessage(cfg_data.irc_channel, hostResult);
-					}
-					break;
-				default:
-					break;
+						break;
+					case ".quit":
+						this.disconnect();
+						System.exit(0);
+					default:
+						break;
 				}
 			// Else if not logged in, perform these
 			} else {
 				switch (keywords[0].toLowerCase()) {
-				case ".help":
-					sendMessage(cfg_data.irc_channel, "Please visit http://www.best-ever.org/ for a tutorial on how to set up servers.");
-					break;
-				default:
-					break;
+					case ".help":
+						sendMessage(cfg_data.irc_channel, "Please visit http://www.best-ever.org/ for a tutorial on how to set up servers.");
+						break;	
+					default:
+						break;
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * Have the bot handle private message events
 	 */

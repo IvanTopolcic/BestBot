@@ -12,12 +12,20 @@ public class Server implements Serializable {
 	////////////
 	// Fields //
 	////////////
+	/**
+	 * Contains the thread of the server process
+	 */
 	private transient ServerProcess serverprocess;
+	
+	/**
+	 * Contains the reference to the bot
+	 */
+	public transient Bot bot;
 	
 	/**
 	 * Contains the port it is run on
 	 */
-	public short port;
+	public int port;
 	
 	/**
 	 * The time the server was started
@@ -40,7 +48,7 @@ public class Server implements Serializable {
 	public String channel;
 	
 	/**
-	 * Contains the hostname used, this will NOT contain " :: [BE] New York "
+	 * This is the host's hostname on irc
 	 */
 	public String hostname;
 	
@@ -53,6 +61,11 @@ public class Server implements Serializable {
 	 * Contains the entire ".host" command
 	 */
 	public String host_command;
+	
+	/**
+	 * Contains the hostname used, this will NOT contain " :: [BE] New York "
+	 */
+	public String sv_hostname;
 
 	/**
 	 * This is the iwad used
@@ -154,9 +167,12 @@ public class Server implements Serializable {
 	 * @param message The message sent
 	 * @return Null if all went well, otherwise an error message to print to the bot
 	 */
-	public static String handleHostCommand(LinkedList<Server> servers, String channel, String sender, String login, String hostname, String message) {
+	public static String handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String login, String hostname, String message) {
 		// Initialize server without linking it to the arraylist
 		Server server = new Server();
+		
+		// Reference server to bot
+		server.bot = botReference;
 		
 		// Input basic values
 		server.channel = channel;
@@ -205,12 +221,13 @@ public class Server implements Serializable {
 			
 			// config
 			if (keywords[i].toLowerCase().startsWith("config=")) {
-				server.config = handleConfig(keywords[i]);
+				server.config = getDataBetween("config=", message);
 			}
 			
 			// data
 			if (keywords[i].toLowerCase().startsWith("data=")) {
-				server.disable_skulltag_data = handleSkulltagData(keywords[i]);
+				server.disable_skulltag_data = handleDisableSkulltagData(keywords[i]);
+				System.out.println("Disable skulltag data = " + server.disable_skulltag_data);
 			}
 			
 			// dmflags
@@ -244,7 +261,7 @@ public class Server implements Serializable {
 			
 			// hostname (Note: appended the quotation mark for the function)
 			if (keywords[i].toLowerCase().startsWith("hostname=\"")) {
-				server.hostname = getDataBetween("hostname=", message);
+				server.sv_hostname = getDataBetween("hostname=", message);
 			}
 			
 			// instagib
@@ -264,7 +281,7 @@ public class Server implements Serializable {
 			
 			// wad (Note: appended the quotation mark for the function)
 			if (keywords[i].toLowerCase().startsWith("wad=\"")) {
-				server.wads = getDataBetween("wad=", message);
+				server.wads = getDataBetween("wad=", message).replace(',', ' '); // Support for quotation marks only right now, also none for spaces in file names
 			}
 		}
 		
@@ -273,8 +290,16 @@ public class Server implements Serializable {
 			return "Incorrect/missing iwad";
 		if (server.gamemode == null)
 			return "Incorrect/missing gamemode";
-		if (server.hostname == null)
+		if (server.sv_hostname == null)
 			return "Error parsing hostname";
+		
+		// Generate the ID [hardcoded banlist, fix in future maybe?]
+		server.server_id = Functions.getUniqueID(server.bot.cfg_data.bot_directory_path + "/banlist/");
+		
+		// Get a proper port
+		server.port = Functions.getFirstAvailablePort(server.bot.cfg_data.bot_min_port, server.bot.cfg_data.bot_max_port);
+		if (server.port == 0)
+			return "No ports available for run a server from";
 		
 		// Since all went well, we have to hope the user didn't mess up and proceed to start up the server
 		server.serverprocess = new ServerProcess(server);
@@ -408,23 +433,18 @@ public class Server implements Serializable {
 		return null;
 	}
 
-	// ** TO BE DONE **
-	private static String handleConfig(String string) {
-		return null;
-	}
-
 	/**
 	 * This handles the skulltag data boolean
 	 * @param string The keyword to check
 	 * @return True if to use it, false if not
 	 */
-	private static boolean handleSkulltagData(String string) {
+	private static boolean handleDisableSkulltagData(String string) {
 		// Split the string
 		String[] value = string.split("=");
 		
 		// If we don't have exactly 2 values, or the 2nd value is unusual, default to on
 		if (value.length != 2 || value[1] == "" || value[1] == null)
-			return true;
+			return false;
 		
 		// If the second keyword matches some known keywords, then disable it
 		switch (value[1].toLowerCase()) {
@@ -433,11 +453,11 @@ public class Server implements Serializable {
 			case "no":
 			case "disable":
 			case "remove":
-				return false;
+				return true;
 		}
 		
 		// Otherwise if something is wrong, just assume we need it
-		return true;
+		return false;
 	}
 	
 	/**
