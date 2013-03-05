@@ -21,7 +21,7 @@ public class Bot extends PircBot {
 	/**
 	 * Contains the config data
 	 */
-	public ConfigData cfg_data;
+	public static ConfigData cfg_data;
 	
 	/**
 	 * Contained a array list of all the servers
@@ -36,31 +36,31 @@ public class Bot extends PircBot {
 	/**
 	 * Set the bot up with the constructor
 	 */
-	public Bot(ConfigData cfg_data) {
+	public Bot(ConfigData cfgfile) {
 		// Point our config data to what we created back in RunMe.java
-		this.cfg_data = cfg_data;
+		cfg_data = cfgfile;
 		
 		// Set up the logger
-		Logger.setLogFile(this.cfg_data.bot_logfile);
+		Logger.setLogFile(cfg_data.bot_logfile);
 		
 		// Set up MySQL information
-		MySQL.setMySQLInformation(this.cfg_data.mysql_host, this.cfg_data.mysql_user, this.cfg_data.mysql_pass, this.cfg_data.mysql_port, this.cfg_data.mysql_db);
+		MySQL.setMySQLInformation(cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
 		
 		// Set up the bot and join the channel
 		logMessage("Initializing BestBot v" + getBestBotVersion());
-		setVerbose(this.cfg_data.bot_verbose);
-		setName(this.cfg_data.irc_name);
-		setLogin(this.cfg_data.irc_user);
-		setVersion(this.cfg_data.irc_version);
+		setVerbose(cfg_data.bot_verbose);
+		setName(cfg_data.irc_name);
+		setLogin(cfg_data.irc_user);
+		setVersion(cfg_data.irc_version);
 		try {
-			connect(this.cfg_data.irc_network, this.cfg_data.irc_port, this.cfg_data.irc_pass);
+			connect(cfg_data.irc_network, cfg_data.irc_port, cfg_data.irc_pass);
 		} catch (IOException | IrcException e) {
 			logMessage("Exception occured while connecting to the network, terminating bot");
 			disconnect();
 			System.exit(0);
 			e.printStackTrace();
 		}
-		joinChannel(this.cfg_data.irc_channel);
+		joinChannel(cfg_data.irc_channel);
 		
 		// Set up the server arrays
 		this.servers = new LinkedList<Server>();

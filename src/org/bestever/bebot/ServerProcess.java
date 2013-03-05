@@ -50,6 +50,8 @@ public class ServerProcess implements Runnable {
 		
 		String runCommand = "zandronum";
 		
+		runCommand += " -port " + server.port;
+		
 		if (server.iwad != null)
 			runCommand += " -iwad " + server.iwad;
 		
@@ -62,25 +64,38 @@ public class ServerProcess implements Runnable {
 				runCommand += server.wads; // No space needed, taken care of earlier
 		}
 		
+		if (server.config != null)
+			runCommand += " +exec \"" + server.config + "\"";
+		
 		if (server.gamemode != null)
 			runCommand += " +" + server.gamemode + " 1";
 		
-		if (server.config != null)
-			runCommand += " +" + server.config;
+		if (server.dmflags > 0)
+			runCommand += " +dmflags " + server.dmflags;
+		
+		if (server.dmflags2 > 0)
+			runCommand += " +dmflags2 " + server.dmflags2;
+		
+		if (server.dmflags3 > 0)
+			runCommand += " +dmflags3 " + server.dmflags3;
+		
+		if (server.compatflags > 0)
+			runCommand += " +compatflags " + server.compatflags;
+		
+		if (server.compatflags2 > 0)
+			runCommand += " +compatflags2 " + server.compatflags2;
+		
+		if (server.hostname != null)
+			runCommand += " +sv_hostname \"" + server.hostname + "\"";
+		
+		// These must be added; could be extended by config
+		runCommand += " +sv_rconpassword " + server.server_id;
+		runCommand += " +sv_banfile banlist/ " + server.server_id + ".txt";
+		runCommand += " +sv_adminlistfile adminlist/ " + server.server_id + ".txt";
+		runCommand += " +sv_banexemptionfile whitelist/ " + server.server_id + ".txt";
 		
 		/*
-				-iwad file
-				+exec [configdir/config].cfg
 			+addmap map
-				-file [skulltag_data.pk3 skulltag_actors.pk3] wad
-				+[gamemode] 1
-			+sv_hostname [name]
-			+[dmflags] #
-			-port #
-			+sv_rconpassword id
-			+sv_banfile banlist/[id].txt
-			+sv_adminlistfile adminlist/[id].txt
-			+sv_banexemptionfile whitelist/[id].txt
 		 */
 		
 		return runCommand;
