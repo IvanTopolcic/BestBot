@@ -12,7 +12,6 @@ public class Server implements Serializable {
 	////////////
 	// Fields //
 	////////////
-	@SuppressWarnings("unused")
 	private transient ServerProcess serverprocess;
 	
 	/**
@@ -79,12 +78,6 @@ public class Server implements Serializable {
 	 * Contains a list of all the wads separated by a space which will be searched for maps
 	 */
 	public String mapwads;
-
-	/**
-	 * This is for additional instructions the user may specify for one to two things to 
-	 * circumvent having to make and upload a whole new config
-	 */
-	public String additional_parameters;
 	
 	/**
 	 * This contains the actual instructions that the server will run at the very end
@@ -269,11 +262,6 @@ public class Server implements Serializable {
 				server.mapwads = getDataBetween("mapwad=", message);
 			}
 			
-			// parameter (Note: appended the quotation mark for the function)
-			if (keywords[i].toLowerCase().startsWith("parameter=\"")) {
-				server.additional_parameters = getDataBetween("parameter=", message);
-			}
-			
 			// wad (Note: appended the quotation mark for the function)
 			if (keywords[i].toLowerCase().startsWith("wad=\"")) {
 				server.wads = getDataBetween("wad=", message);
@@ -289,7 +277,8 @@ public class Server implements Serializable {
 			return "Error parsing hostname";
 		
 		// Since all went well, we have to hope the user didn't mess up and proceed to start up the server
-		
+		server.serverprocess = new ServerProcess(server);
+		server.serverprocess.run();
 		
 		// Add the server to our linked list
 		servers.add(server);

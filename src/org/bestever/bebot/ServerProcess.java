@@ -31,18 +31,59 @@ public class ServerProcess implements Runnable {
 	
 	/**
 	 * This should be called before starting run
-	 * @param commands The commands to be run through processbuilder as one string
 	 * @param serverReference A reference to the server it is connected to (establishing a back/forth relationship to access its data)
 	 */
-	public void init(String commands, Server serverReference) {
-		// Do not initialize if its null
-		if (commands == null)
-			return;
-		
-		// Set up fields
-		this.serverRunCommand = commands;
-		this.initialized = true;
+	public ServerProcess(Server serverReference) {
 		this.server = serverReference;
+		this.serverRunCommand = processServerRunCommand();
+		this.initialized = (this.server != null && this.serverRunCommand != null);
+	}
+	
+	/**
+	 * The Server object is taken and
+	 * @return The hostbuilder string based on the data in the Server object
+	 */
+	private String processServerRunCommand() {
+		// This shouldn't happen but you never know
+		if (server == null)
+			return null;
+		
+		String runCommand = "zandronum";
+		
+		if (server.iwad != null)
+			runCommand += " -iwad " + server.iwad;
+		
+		// If we have either wads or skulltag_data, then prepare files
+		if (server.wads != null || !server.disable_skulltag_data) {
+			runCommand += " -file ";
+			if (!server.disable_skulltag_data)
+				runCommand += "skulltag_data.pk3 skulltag_actors.pk3 ";
+			if (server.wads != null)
+				runCommand += server.wads; // No space needed, taken care of earlier
+		}
+		
+		if (server.gamemode != null)
+			runCommand += " +" + server.gamemode + " 1";
+		
+		if (server.config != null)
+			runCommand += " +" + server.config;
+		
+		/*
+				-iwad file
+				+exec [configdir/config].cfg
+			+addmap map
+				-file [skulltag_data.pk3 skulltag_actors.pk3] wad
+				+[gamemode] 1
+			+sv_hostname [name]
+			+[dmflags] #
+			-port #
+			+sv_rconpassword id
+			+sv_banfile banlist/[id].txt
+			+sv_adminlistfile adminlist/[id].txt
+			+sv_banexemptionfile whitelist/[id].txt
+		 */
+		
+		return runCommand;
 	}
 	
 	@Override
