@@ -48,7 +48,7 @@ public class ServerProcess implements Runnable {
 		if (server == null)
 			return null;
 		
-		String runCommand = "zandronum";
+		String runCommand = Bot.cfg_data.bot_executable;
 		
 		runCommand += " -port " + server.port;
 		
@@ -88,7 +88,7 @@ public class ServerProcess implements Runnable {
 		if (server.hostname != null)
 			runCommand += " +sv_hostname \"" + server.hostname + "\"";
 		
-		// These must be added; could be extended by config
+		// These must be added; could be extended by config; these are hardcoded for now
 		runCommand += " +sv_rconpassword " + server.server_id;
 		runCommand += " +sv_banfile banlist/ " + server.server_id + ".txt";
 		runCommand += " +sv_adminlistfile adminlist/ " + server.server_id + ".txt";

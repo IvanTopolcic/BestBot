@@ -91,7 +91,7 @@ public class ConfigData {
 	public String bot_logfile;
 	
 	/**
-	 * Contains a path to the root directory for the
+	 * Contains a path to the root directory for the bot (ex: /home/zandronum/)
 	 */
 	public String bot_directory_path;
 	
@@ -106,7 +106,7 @@ public class ConfigData {
 	public String bot_cfg_directory_path;
 	
 	/**
-	 * Contains the file name of the executable, in linux this would be "zandronum-server" for example, or in windows "zandronum.exe"
+	 * Contains the file name of the executable, in linux this would be "./zandronum-server" for example, or in windows "zandronum.exe"
 	 */
 	public String bot_executable;
 	
