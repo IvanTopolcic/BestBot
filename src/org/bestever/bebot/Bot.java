@@ -3,7 +3,6 @@ package org.bestever.bebot;
 import static org.bestever.bebot.Logger.logMessage;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 import org.jibble.pircbot.IrcException;
@@ -28,11 +27,6 @@ public class Bot extends PircBot {
 	 * Contains the runtime args
 	 */
 	public String[] args;
-	
-	/**
-	 * A list of active ports that cannot be used
-	 */
-	public ArrayList<Boolean> used_ports;
 	
 	/**
 	 * The lowest port (the base port) that the bot uses
