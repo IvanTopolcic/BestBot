@@ -67,7 +67,7 @@ public enum AccountType {
     
 	/**
 	 * This will return the object if you have the enumeration index number
-	 * @param index The number constant
+	 * @param name The name to check
 	 * @return The object type that matches up with the index
 	 */
 	AccountType getAccountTypeFromName(String name) {

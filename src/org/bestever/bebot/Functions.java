@@ -155,7 +155,7 @@ public class Functions {
 	 * Function that takes a time in seconds
 	 * and converts it to a string with days, hours, minutes
 	 * and seconds.
-	 * @param Seconds in long format
+	 * @param seconds in long format
 	 * @return A String in a readable format
 	 */
 	public static String calculateTime(long seconds)

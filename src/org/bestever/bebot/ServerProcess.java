@@ -164,6 +164,7 @@ public class ServerProcess implements Runnable {
 				
 				// If we see this, the server started
 				if (strLine.equalsIgnoreCase("UDP Initialized.")) {
+					server.bot.servers.add(server); // Add the server to the linked list since it's fully operational now
 					server.bot.sendMessage(server.channel, "Server started successfully.");
 					server.bot.sendMessage(server.sender, "To kill your server, type .killmine (this will kill all of your servers), or .kill " + server.port);
 				}

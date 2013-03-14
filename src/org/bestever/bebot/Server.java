@@ -162,7 +162,8 @@ public class Server implements Serializable {
 	 * In addition, all servers will be passed onto a server queue that will use a
 	 * thread which processes them one by one from the queue to prevent two servers
 	 * attempting to use the same port at the same time
-	 * @param The arraylits of servers for us to add on a server if successful
+	 * @param botReference The reference to the running bot
+	 * @param servers The linkedlist of servers for us to add on a server if successful
 	 * @param channel The channel it was sent from
 	 * @param sender The sender
 	 * @param login The login of the sender
@@ -483,7 +484,7 @@ public class Server implements Serializable {
 
 	/**
 	 * This handles dmflags/compatflags, returns 0xFFFFFFFF if there's an error (FLAGS_ERROR)
-	 * @param string The keyword to check
+	 * @param keyword The keyword to check
 	 * @return A number of what it is
 	 */
 	private static int handleGameFlags(String keyword) {

@@ -4,6 +4,7 @@ import static org.bestever.bebot.Logger.logMessage;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
@@ -108,6 +109,24 @@ public class Bot extends PircBot {
 			return true; // Don't change anything
 		this.max_port = max_port;
 		return true;
+	}
+	
+	/**
+	 * This function goes through the linkedlist of servers and removes servers
+	 * @param server
+	 */
+	public void removeServerFromLinkedList(Server server) {
+		if (servers == null || servers.isEmpty())
+			return;
+		ListIterator<Server> it = servers.listIterator();
+		while (it.hasNext()) {
+			// Check if they refer to the exact same object
+			if (it.next() == server) {
+				it.remove();
+				server.bot.sendMessage(server.channel, "Debug: Successfully removed server from linkedlist ^_^   ~Your truly, BestBot++");
+				return;
+			}
+		}
 	}
 
 	/**
