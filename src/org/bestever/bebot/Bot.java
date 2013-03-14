@@ -3,6 +3,7 @@ package org.bestever.bebot;
 import static org.bestever.bebot.Logger.logMessage;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import org.jibble.pircbot.IrcException;
@@ -27,6 +28,21 @@ public class Bot extends PircBot {
 	 * Contains the runtime args
 	 */
 	public String[] args;
+	
+	/**
+	 * A list of active ports that cannot be used
+	 */
+	public ArrayList<Boolean> used_ports;
+	
+	/**
+	 * The lowest port (the base port) that the bot uses
+	 */
+	private int min_port;
+	
+	/**
+	 * The highest included port number that the bot uses
+	 */
+	private int max_port;
 	
 	/**
 	 * Set the bot up with the constructor
@@ -57,6 +73,10 @@ public class Bot extends PircBot {
 		}
 		joinChannel(cfg_data.irc_channel);
 		
+		// Set initial ports
+		this.min_port = cfg_data.bot_min_port;
+		this.max_port = cfg_data.bot_max_port;
+		
 		// Set up the server arrays
 		this.servers = new LinkedList<Server>();
 		
@@ -64,7 +84,34 @@ public class Bot extends PircBot {
 		if (!MySQL.clearActiveServerList())
 			logMessage("ERROR: Could not clear active server list.");
 	}
+	
+	/**
+	 * Gets the minimum port to be used by the bot
+	 * @return An integer containing the minimum port used
+	 */
+	public int getMinport() {
+		return min_port;
+	}
 
+	/**
+	 * Returns the max port used by the bot
+	 * @return An integer containing the max port used
+	 */
+	public int getMaxport() {
+		return max_port;
+	}
+
+	/**
+	 * This method attempts to set the max port to the specified value, if there
+	 * is an odd number entered (<= min_port) then it will not set it
+	 * @param max_port The desired change to a maximum port
+	 */
+	public void setMaxport(int max_port) {
+		if (max_port <= min_port)
+			return;
+		this.max_port = max_port;
+	}
+	
 	/**
 	 * Have the bot handle message events
 	 */
@@ -103,6 +150,16 @@ public class Bot extends PircBot {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * When starting a server, a thread is called that attempts to access this method. This is done so
+	 * because it's possible that more than one server can be requested at once and attempt to use the
+	 * same port. Therefore access to starting a server is handled one at a time.
+	 * @param server
+	 */
+	public synchronized void startServer(Server server) {
+		
 	}
 
 	/**

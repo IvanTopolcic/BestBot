@@ -15,7 +15,7 @@ public class Server implements Serializable {
 	/**
 	 * Contains the thread of the server process
 	 */
-	private transient ServerProcess serverprocess;
+	public transient ServerProcess serverprocess;
 	
 	/**
 	 * Contains the reference to the bot
@@ -158,7 +158,10 @@ public class Server implements Serializable {
 	
 	/**
 	 * This will take ".host ...", parse it and pass it off safely to anything else
-	 * that needs the information to create/run the servers and the mysql database
+	 * that needs the information to create/run the servers and the mysql database.
+	 * In addition, all servers will be passed onto a server queue that will use a
+	 * thread which processes them one by one from the queue to prevent two servers
+	 * attempting to use the same port at the same time
 	 * @param The arraylits of servers for us to add on a server if successful
 	 * @param channel The channel it was sent from
 	 * @param sender The sender
@@ -295,18 +298,6 @@ public class Server implements Serializable {
 		
 		// Generate the ID [hardcoded banlist, fix in future maybe?]
 		server.server_id = Functions.getUniqueID(server.bot.cfg_data.bot_directory_path + "/banlist/");
-		
-		// Get a proper port
-		server.port = Functions.getFirstAvailablePort(server.bot.cfg_data.bot_min_port, server.bot.cfg_data.bot_max_port);
-		if (server.port == 0)
-			return "No ports available for run a server from";
-		
-		// Since all went well, we have to hope the user didn't mess up and proceed to start up the server
-		server.serverprocess = new ServerProcess(server);
-		server.serverprocess.run();
-		
-		// Add the server to our linked list
-		servers.add(server);
 		
 		// Since no errors occured, return a null (meaning no error message)
 		return null;
@@ -560,7 +551,6 @@ public class Server implements Serializable {
 	 * @return True if successful in writing the object, false if not
 	 */
 	public static boolean serializeServer(Server server, String folderPath, String extension) {
-		
 		// Make sure the server and folderPath are valid
 		if (server == null)
 			return false;

@@ -12,6 +12,11 @@ import java.util.concurrent.TimeUnit;
 public class Functions {
 	
 	/**
+	 * If no port is available, this is returned
+	 */
+	public static final int NO_AVAILABLE_PORT = 0;
+	
+	/**
 	 * Checks the array to see if a string is found inside of it
 	 * @param array The array of strings (if null or index < 0 returns false)
 	 * @param s The string to check (case sensitive)

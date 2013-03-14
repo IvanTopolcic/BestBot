@@ -1,14 +1,11 @@
 package org.bestever.bebot;
 
-/*
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-*/
 
 /**
  * This class is specifically for running the server only and notifying the 
@@ -119,45 +116,43 @@ public class ServerProcess implements Runnable {
 		if (!initialized)
 			return;
 		
-		server.bot.sendMessage(server.channel, this.serverRunCommand);
-		
-		/*
-		// Set up the server
-		ProcessBuilder pb = new ProcessBuilder(serverRunCommand);
-		pb.redirectErrorStream(true);
-		try
-		{		
+		// Attempt to start up the server
+		try {
+			server.bot.sendMessage(server.channel, this.serverRunCommand); // DEBUG
+			// Set up the server
+			ProcessBuilder pb = new ProcessBuilder(serverRunCommand);
+			pb.redirectErrorStream(true);		
 			Process proc = pb.start();
-
+			
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			String strLine = null;
 			
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss");
 			String dateNow = "";
-
+		
 			FileWriter fstream = new FileWriter("/home/auto/skulltag/public_html/logs/" + server.server_id + ".txt");
 			BufferedWriter file = new BufferedWriter(fstream);
-
+		
 			file.write("_______               __           _______                     \n");
 			file.write("|   __ \\.-----.-----.|  |_        |    ___|.--.--.-----.----.  \n");
 			file.write("|   __ <|  -__|__ --||   _|__     |    ___||  |  |  -__|   _|_ \n");
 			file.write("|______/|_____|_____||____|__|    |_______| \\___/|_____|__||__|\n");
 			file.write("________________________________________________________________________________________________________\n\n");
 			file.flush();
-
+		
 			server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using send_password. You can view your server's logfile at http://www.best-ever.org/logs/" + server.server_id + ".txt");
-
+		
 			long start = System.nanoTime();
 			
 			while ((strLine = br.readLine()) != null) {
 				if (strLine.equalsIgnoreCase("UDP Initialized.")) {
-					server.bot.sendMessage(server.channel, "Server started successfully.");
-					server.bot.sendMessage(server.sender, "To kill your server, type .killmine (this will kill all of your servers), or .kill " + server.port);
+				server.bot.sendMessage(server.channel, "Server started successfully.");
+				server.bot.sendMessage(server.sender, "To kill your server, type .killmine (this will kill all of your servers), or .kill " + server.port);
 				}
 				
 				Calendar currentDate = Calendar.getInstance();
 				dateNow = formatter.format(currentDate.getTime());
-
+		
 				file.write(dateNow + " " + strLine + "\n");
 				file.flush();
 			}
@@ -170,12 +165,10 @@ public class ServerProcess implements Runnable {
 			file.close();
 			fstream.close();
 			server.bot.sendMessage(server.channel, "Server stopped on port " + server.port +"! Server ran for " + Functions.calculateTime(uptime / 1000000000));
-
-			Thread.currentThread().interrupt();
-		}
-		catch (IOException e) {
+		
+			//Thread.currentThread().interrupt(); // Is this needed?
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		*/
 	}
 }
