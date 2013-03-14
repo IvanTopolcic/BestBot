@@ -99,13 +99,17 @@ public class Bot extends PircBot {
 	 * This method attempts to set the max port to the specified value, if there
 	 * is an odd number entered (<= min_port) then it will not set it
 	 * @param max_port The desired change to a maximum port
+	 * @return True if the port was changed, false if there was an error
 	 */
-	public void setMaxport(int max_port) {
+	public boolean setMaxport(int max_port) {
 		if (max_port <= min_port)
-			return;
+			return false;
+		else if (max_port == this.max_port)
+			return true; // Don't change anything
 		this.max_port = max_port;
+		return true;
 	}
-	
+
 	/**
 	 * Have the bot handle message events
 	 */
@@ -144,16 +148,6 @@ public class Bot extends PircBot {
 				}
 			}
 		}
-	}
-	
-	/**
-	 * When starting a server, a thread is called that attempts to access this method. This is done so
-	 * because it's possible that more than one server can be requested at once and attempt to use the
-	 * same port. Therefore access to starting a server is handled one at a time.
-	 * @param server
-	 */
-	public synchronized void startServer(Server server) {
-		
 	}
 
 	/**

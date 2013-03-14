@@ -24,18 +24,20 @@ public class ServerProcess implements Runnable {
 	private Server server;
 	
 	/**
-	 * This is for initialization being indicated as complete
-	 */
-	private boolean initialized;
-	
-	/**
 	 * This should be called before starting run
 	 * @param serverReference A reference to the server it is connected to (establishing a back/forth relationship to access its data)
 	 */
 	public ServerProcess(Server serverReference) {
 		this.server = serverReference;
 		this.serverRunCommand = processServerRunCommand();
-		this.initialized = (this.server != null && this.serverRunCommand != null);
+	}
+	
+	/** 
+	 * Is used to indicate if the ServerProcess was initialized properly
+	 * @return True if it was initialized properly, false if something went wrong
+	 */
+	private boolean isInitialized() {
+		return this.server != null && this.serverRunCommand != null;
 	}
 	
 	/**
@@ -49,7 +51,7 @@ public class ServerProcess implements Runnable {
 		
 		String runCommand = server.bot.cfg_data.bot_executable;
 		
-		runCommand += " -port " + server.port;
+		runCommand += " -port " + Integer.toString(server.bot.cfg_data.bot_min_port); // Always start on the minimum port and let zandronum handle the rest
 		
 		if (server.iwad != null)
 			runCommand += " -iwad " + server.iwad;
@@ -104,7 +106,7 @@ public class ServerProcess implements Runnable {
 		runCommand += " +sv_banexemptionfile whitelist/" + server.server_id + ".txt";
 		
 		/*
-			+addmap map from mapwad
+			+addmap map from mapwad goes here
 		 */
 		
 		return runCommand;
@@ -113,51 +115,66 @@ public class ServerProcess implements Runnable {
 	@Override
 	public void run() {
 		// If we have not initialized the process, do not set up a server (to prevent errors)
-		if (!initialized)
+		if (!isInitialized()) {
+			server.bot.sendMessage(server.channel, "Warning: Initialization error for server thread; please contact an administrator.");
 			return;
+		}
 		
 		// Attempt to start up the server
+		String portNumber = ""; // This will hold the port number
 		try {
 			server.bot.sendMessage(server.channel, this.serverRunCommand); // DEBUG
 			// Set up the server
 			ProcessBuilder pb = new ProcessBuilder(serverRunCommand);
 			pb.redirectErrorStream(true);		
 			Process proc = pb.start();
-			
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			String strLine = null;
-			
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss");
 			String dateNow = "";
-		
 			FileWriter fstream = new FileWriter("/home/auto/skulltag/public_html/logs/" + server.server_id + ".txt");
 			BufferedWriter file = new BufferedWriter(fstream);
-		
 			file.write("_______               __           _______                     \n");
 			file.write("|   __ \\.-----.-----.|  |_        |    ___|.--.--.-----.----.  \n");
 			file.write("|   __ <|  -__|__ --||   _|__     |    ___||  |  |  -__|   _|_ \n");
 			file.write("|______/|_____|_____||____|__|    |_______| \\___/|_____|__||__|\n");
 			file.write("________________________________________________________________________________________________________\n\n");
 			file.flush();
-		
 			server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using send_password. You can view your server's logfile at http://www.best-ever.org/logs/" + server.server_id + ".txt");
-		
 			long start = System.nanoTime();
+			Calendar currentDate;
 			
+			// Handle the output of the server
 			while ((strLine = br.readLine()) != null) {
-				if (strLine.equalsIgnoreCase("UDP Initialized.")) {
-				server.bot.sendMessage(server.channel, "Server started successfully.");
-				server.bot.sendMessage(server.sender, "To kill your server, type .killmine (this will kill all of your servers), or .kill " + server.port);
+				// Make sure to get the port [Server using alternate port 10666.]
+				if (strLine.startsWith("Server using alternate port ")) {
+					portNumber = strLine.replace("Server using alternate port ", "").replace(".", "").trim();
+					if (Functions.isNumeric(portNumber))
+						server.port = Integer.parseInt(portNumber);
+					else
+						server.bot.sendMessage(server.channel, "Warning: port parsing error when setting up server [1]; contact an administrator.");
+				// If the port is used [NETWORK_Construct: Couldn't bind to 10666. Binding to 10667 instead...]
+				} else if (strLine.startsWith("NETWORK_Construct: Couldn't bind to ")) {
+					portNumber = strLine.replace(new String("NETWORK_Construct: Couldn't bind to " + portNumber + ". Binding to "), "").replace(" instead...", "").trim();
+					if (Functions.isNumeric(portNumber))
+						server.port = Integer.parseInt(portNumber);
+					else
+						server.bot.sendMessage(server.channel, "Warning: port parsing error when setting up server [2]; contact an administrator.");
 				}
 				
-				Calendar currentDate = Calendar.getInstance();
+				// If we see this, the server started
+				if (strLine.equalsIgnoreCase("UDP Initialized.")) {
+					server.bot.sendMessage(server.channel, "Server started successfully.");
+					server.bot.sendMessage(server.sender, "To kill your server, type .killmine (this will kill all of your servers), or .kill " + server.port);
+				}
+				
+				currentDate = Calendar.getInstance();
 				dateNow = formatter.format(currentDate.getTime());
-		
 				file.write(dateNow + " " + strLine + "\n");
 				file.flush();
 			}
 			
-			Calendar currentDate = Calendar.getInstance();
+			currentDate = Calendar.getInstance();
 			dateNow = formatter.format(currentDate.getTime());
 			long end = System.nanoTime();
 			long uptime = end - start;
@@ -165,7 +182,6 @@ public class ServerProcess implements Runnable {
 			file.close();
 			fstream.close();
 			server.bot.sendMessage(server.channel, "Server stopped on port " + server.port +"! Server ran for " + Functions.calculateTime(uptime / 1000000000));
-		
 			//Thread.currentThread().interrupt(); // Is this needed?
 		} catch (Exception e) {
 			e.printStackTrace();

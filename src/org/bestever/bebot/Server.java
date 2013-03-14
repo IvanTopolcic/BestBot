@@ -299,6 +299,10 @@ public class Server implements Serializable {
 		// Generate the ID [hardcoded banlist, fix in future maybe?]
 		server.server_id = Functions.getUniqueID(server.bot.cfg_data.bot_directory_path + "/banlist/");
 		
+		// Assign and start a new thread
+		server.serverprocess = new ServerProcess(server);
+		server.serverprocess.run();
+		
 		// Since no errors occured, return a null (meaning no error message)
 		return null;
 	}
