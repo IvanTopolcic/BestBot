@@ -302,7 +302,7 @@ public class Server implements Serializable {
 		
 		// Assign and start a new thread
 		server.serverprocess = new ServerProcess(server);
-		server.serverprocess.run();
+		server.serverprocess.start();
 		
 		// Since no errors occured, return a null (meaning no error message)
 		return null;

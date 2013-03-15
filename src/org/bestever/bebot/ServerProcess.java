@@ -2,6 +2,7 @@ package org.bestever.bebot;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
@@ -11,7 +12,7 @@ import java.util.Calendar;
  * This class is specifically for running the server only and notifying the 
  * bot when the server is closed, or when to be terminated; nothing more
  */
-public class ServerProcess implements Runnable {
+public class ServerProcess extends Thread {
 
 	/**
 	 * This contains the strings that will run in the process builder
@@ -54,8 +55,7 @@ public class ServerProcess implements Runnable {
 		runCommand += " -port " + Integer.toString(server.bot.cfg_data.bot_min_port); // Always start on the minimum port and let zandronum handle the rest
 		
 		if (server.iwad != null)
-			runCommand += " -iwad " + server.iwad;
-		
+			runCommand += " -iwad " + server.bot.cfg_data.bot_directory_path + "iwads/" + server.iwad;
 		// If we have either wads or skulltag_data, then prepare files
 		if (server.wads != null || !server.disable_skulltag_data) {
 			runCommand += " -file ";
@@ -101,9 +101,12 @@ public class ServerProcess implements Runnable {
 		
 		// These must be added; could be extended by config; these are hardcoded for now
 		runCommand += " +sv_rconpassword " + server.server_id;
-		runCommand += " +sv_banfile banlist/" + server.server_id + ".txt";
-		runCommand += " +sv_adminlistfile adminlist/" + server.server_id + ".txt";
-		runCommand += " +sv_banexemptionfile whitelist/" + server.server_id + ".txt";
+		
+		/*
+		//runCommand += " +sv_banfile banlist/" + server.server_id + ".txt";
+		//runCommand += " +sv_adminlistfile adminlist/" + server.server_id + ".txt";
+		//runCommand += " +sv_banexemptionfile whitelist/" + server.server_id + ".txt";
+		*/
 		
 		/*
 			+addmap map from mapwad goes here
@@ -125,13 +128,18 @@ public class ServerProcess implements Runnable {
 		try {
 			server.bot.sendMessage(server.channel, this.serverRunCommand); // DEBUG
 			// Set up the server
-			ProcessBuilder pb = new ProcessBuilder(serverRunCommand);
-			pb.redirectErrorStream(true);		
+			ProcessBuilder pb = new ProcessBuilder(serverRunCommand.split(" ")); // Need to split it to get it to work
+			pb.redirectErrorStream(true);
 			Process proc = pb.start();
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			String strLine = null;
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss");
 			String dateNow = "";
+			// DEBUG CREATE THE FILE
+			File f = new File("/home/auto/skulltag/public_html/logs/" + server.server_id + ".txt");
+			if (!f.exists())
+				f.createNewFile();
+			// Resume
 			FileWriter fstream = new FileWriter("/home/auto/skulltag/public_html/logs/" + server.server_id + ".txt");
 			BufferedWriter file = new BufferedWriter(fstream);
 			file.write("_______               __           _______                     \n");
@@ -143,7 +151,6 @@ public class ServerProcess implements Runnable {
 			server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using send_password. You can view your server's logfile at http://www.best-ever.org/logs/" + server.server_id + ".txt");
 			long start = System.nanoTime();
 			Calendar currentDate;
-			
 			// Handle the output of the server
 			while ((strLine = br.readLine()) != null) {
 				// Make sure to get the port [Server using alternate port 10666.]

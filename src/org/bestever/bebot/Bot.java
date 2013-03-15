@@ -128,12 +128,30 @@ public class Bot extends PircBot {
 			}
 		}
 	}
+	
+	
+	public void debug() {
+		if (servers.isEmpty()) {
+			sendMessage(cfg_data.irc_channel, "No servers in the LinkedList.");
+			return;
+		}
+		ListIterator<Server> it = servers.listIterator();
+		Server itServer = null;
+		while (it.hasNext()) {
+			itServer = it.next();
+			if (itServer == null)
+				break;
+			sendMessage(cfg_data.irc_channel, "Hostname: " + itServer.sv_hostname);
+		}
+		sendMessage(cfg_data.irc_channel, "Done debug.");
+	}
 
 	/**
 	 * Have the bot handle message events
 	 */
 	public void onMessage(String channel, String sender, String login, String hostname, String message) {
 		// Perform these only if the message starts with a period (to save processing time on trivial chat)
+		System.out.println("RECEIVED: " + message);
 		if (message.startsWith(".")) {
 			// Generate an array of keywords from the message
 			String[] keywords = message.split(" ");
@@ -153,6 +171,9 @@ public class Bot extends PircBot {
 					case ".quit":
 						this.disconnect();
 						System.exit(0);
+					case ".debug":
+						debug();
+						break;
 					default:
 						break;
 				}
