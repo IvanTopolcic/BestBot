@@ -25,6 +25,11 @@ public class ServerProcess extends Thread {
 	private Server server;
 	
 	/**
+	 * This can be invoked by a method externally to kill the thread
+	 */
+	private boolean terminateThread = false;
+	
+	/**
 	 * This should be called before starting run
 	 * @param serverReference A reference to the server it is connected to (establishing a back/forth relationship to access its data)
 	 */
@@ -39,6 +44,13 @@ public class ServerProcess extends Thread {
 	 */
 	private boolean isInitialized() {
 		return this.server != null && this.serverRunCommand != null;
+	}
+	
+	/** 
+	 * This method can be invoked to signal the thread to kill itself and the process
+	 */
+	public void terminateThread() {
+		terminateThread = true;
 	}
 	
 	/**
@@ -126,7 +138,6 @@ public class ServerProcess extends Thread {
 		// Attempt to start up the server
 		String portNumber = ""; // This will hold the port number
 		try {
-			server.bot.sendMessage(server.channel, this.serverRunCommand); // DEBUG
 			// Set up the server
 			ProcessBuilder pb = new ProcessBuilder(serverRunCommand.split(" ")); // Need to split it to get it to work
 			pb.redirectErrorStream(true);
@@ -135,11 +146,9 @@ public class ServerProcess extends Thread {
 			String strLine = null;
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss");
 			String dateNow = "";
-			// DEBUG CREATE THE FILE
 			File f = new File("/home/auto/skulltag/public_html/logs/" + server.server_id + ".txt");
 			if (!f.exists())
 				f.createNewFile();
-			// Resume
 			FileWriter fstream = new FileWriter("/home/auto/skulltag/public_html/logs/" + server.server_id + ".txt");
 			BufferedWriter file = new BufferedWriter(fstream);
 			file.write("_______               __           _______                     \n");
@@ -151,8 +160,9 @@ public class ServerProcess extends Thread {
 			server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using send_password. You can view your server's logfile at http://www.best-ever.org/logs/" + server.server_id + ".txt");
 			long start = System.nanoTime();
 			Calendar currentDate;
+			
 			// Handle the output of the server
-			while ((strLine = br.readLine()) != null) {
+			while ((strLine = br.readLine()) != null && !terminateThread) {
 				// Make sure to get the port [Server using alternate port 10666.]
 				if (strLine.startsWith("Server using alternate port ")) {
 					portNumber = strLine.replace("Server using alternate port ", "").replace(".", "").trim();
@@ -160,6 +170,7 @@ public class ServerProcess extends Thread {
 						server.port = Integer.parseInt(portNumber);
 					else
 						server.bot.sendMessage(server.channel, "Warning: port parsing error when setting up server [1]; contact an administrator.");
+					
 				// If the port is used [NETWORK_Construct: Couldn't bind to 10666. Binding to 10667 instead...]
 				} else if (strLine.startsWith("NETWORK_Construct: Couldn't bind to ")) {
 					portNumber = strLine.replace(new String("NETWORK_Construct: Couldn't bind to " + portNumber + ". Binding to "), "").replace(" instead...", "").trim();
@@ -182,6 +193,7 @@ public class ServerProcess extends Thread {
 				file.flush();
 			}
 			
+			// Handle cleanup
 			currentDate = Calendar.getInstance();
 			dateNow = formatter.format(currentDate.getTime());
 			long end = System.nanoTime();
@@ -190,6 +202,7 @@ public class ServerProcess extends Thread {
 			file.close();
 			fstream.close();
 			server.bot.sendMessage(server.channel, "Server stopped on port " + server.port +"! Server ran for " + Functions.calculateTime(uptime / 1000000000));
+			// REMOVE THE SERVER FROM LINKEDLIST HERE
 			//Thread.currentThread().interrupt(); // Is this needed?
 		} catch (Exception e) {
 			e.printStackTrace();
