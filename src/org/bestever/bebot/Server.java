@@ -171,7 +171,7 @@ public class Server implements Serializable {
 	 * @param message The message sent
 	 * @return Null if all went well, otherwise an error message to print to the bot
 	 */
-	public static String handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String login, String hostname, String message) {
+	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String login, String hostname, String message) {
 		// Initialize server without linking it to the arraylist
 		Server server = new Server();
 		
@@ -187,8 +187,10 @@ public class Server implements Serializable {
 		
 		// Break up the message, if we have 1 or less keywords then something is wrong 
 		String[] keywords = message.split(" ");
-		if (keywords.length < 2)
-			return "Not enough parameters";
+		if (keywords.length < 2) {
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Not enough parameters");
+			return;
+		}
 		
 		// Make sure we have the proper amount of quotation marks (should be even)
 		int quotationCounter = 0;
@@ -196,9 +198,11 @@ public class Server implements Serializable {
 		for (int c = 0; c < messageChars.length; c++)
 			if (messageChars[c] == '\"')
 				quotationCounter++;
-		if (quotationCounter % 2 != 0)
-			return "Invalid amount of quotation marks";
-		
+		if (quotationCounter % 2 != 0) {
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Invalid amount of quotation marks");
+			return;
+		}
+
 		// Iterate through every single keyword to construct the host thing except the first index since that's just ".host"
 		// For sanity's sake, please keep the keywords in *alphabetical* order
 		for (int i = 1; i < keywords.length; i++) {
@@ -210,16 +214,20 @@ public class Server implements Serializable {
 			// compatflags
 			if (keywords[i].toLowerCase().startsWith("compatflags=")) {
 				server.compatflags = handleGameFlags(keywords[i]);
-				if (server.compatflags == FLAGS_ERROR)
-					return "Problem with parsing compatflags";
+				if (server.compatflags == FLAGS_ERROR) {
+					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing compatflags");
+					return;
+				}	
 				continue;
 			}
 			
 			// compatflags2
 			if (keywords[i].toLowerCase().startsWith("compatflags2=")) {
 				server.compatflags2 = handleGameFlags(keywords[i]);
-				if (server.compatflags2 == FLAGS_ERROR)
-					return "Problem with parsing compatflags2";
+				if (server.compatflags2 == FLAGS_ERROR) {
+					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing compatflags2");
+					return;
+				}
 				continue;
 			}
 			
@@ -237,24 +245,30 @@ public class Server implements Serializable {
 			// dmflags
 			if (keywords[i].toLowerCase().startsWith("dmflags=")) {
 				server.dmflags = handleGameFlags(keywords[i]);
-				if (server.dmflags == FLAGS_ERROR)
-					return "Problem with parsing dmflags";
+				if (server.dmflags == FLAGS_ERROR) {
+					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing dmflags");
+					return;
+				}
 				continue;
 			}
 			
 			// dmflags2
 			if (keywords[i].toLowerCase().startsWith("dmflags2=")) {
 				server.dmflags2 = handleGameFlags(keywords[i]);
-				if (server.dmflags2 == FLAGS_ERROR)
-					return "Problem with parsing dmflags2";
+				if (server.dmflags2 == FLAGS_ERROR) {
+					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing dmflags2");
+					return;
+				}
 				continue;
 			}
 			
 			// dmflags3 
 			if (keywords[i].toLowerCase().startsWith("dmflags3=")) {
 				server.dmflags3 = handleGameFlags(keywords[i]);
-				if (server.dmflags3 == FLAGS_ERROR)
-					return "Problem with parsing dmflags3";
+				if (server.dmflags3 == FLAGS_ERROR) {
+					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing dmflags3");
+					return;
+				}
 				continue;
 			}
 			
@@ -290,12 +304,18 @@ public class Server implements Serializable {
 		}
 		
 		// Now that we've indexed the string, check to see if we have what we need to start a server
-		if (server.iwad == null)
-			return "Incorrect/missing iwad";
-		if (server.gamemode == null)
-			return "Incorrect/missing gamemode";
-		if (server.sv_hostname == null)
-			return "Error parsing hostname";
+		if (server.iwad == null) {
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Incorrect/missing iwad");
+			return;
+		}
+		if (server.gamemode == null) {
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Incorrect/missing gamemode");
+			return;
+		}
+		if (server.sv_hostname == null) {
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Error parsing hostname");
+			return;
+		}
 		
 		// Generate the ID [hardcoded banlist, fix in future maybe?]
 		server.server_id = Functions.getUniqueID(server.bot.cfg_data.bot_directory_path + "/banlist/");
@@ -303,9 +323,6 @@ public class Server implements Serializable {
 		// Assign and start a new thread
 		server.serverprocess = new ServerProcess(server);
 		server.serverprocess.start();
-		
-		// Since no errors occured, return a null (meaning no error message)
-		return null;
 	}
 	
 	/**

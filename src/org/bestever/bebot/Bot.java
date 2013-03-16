@@ -129,7 +129,7 @@ public class Bot extends PircBot {
 		}
 	}
 	
-	
+	// Debugging purposes only for now
 	public void debug() {
 		if (servers.isEmpty()) {
 			sendMessage(cfg_data.irc_channel, "No servers in the LinkedList.");
@@ -145,13 +145,50 @@ public class Bot extends PircBot {
 		}
 		sendMessage(cfg_data.irc_channel, "Done debug.");
 	}
+	
+	/**
+	 * This searches through the linkedlist to kill the server on that port,
+	 * the method does not actually kill it, but signals a boolean to terminate
+	 * which the thread that is running it will handle the termination itself and
+	 * removal from the linkedlist.
+	 * @param port The port desired to kill
+	 */
+	private void killServer(String portString) {
+		// Ensure it is a valid port
+		if (!Functions.isNumeric(portString)) {
+			sendMessage(cfg_data.irc_channel, "Invalid port number (" + portString + "), not terminating server.");
+			return;
+		}
+		
+		// Since our port is numeric, parse it
+		int port = Integer.parseInt(portString);
+		
+		// Handle users sending in a small value (thus saving time 
+		if (port < min_port) {
+			sendMessage(cfg_data.irc_channel, "Invalid port number (ports start at " + min_port + "), not terminating server.");
+			return;
+		}
+		
+		// See if the port is in our linked list, if so signify for it to die
+		ListIterator<Server> it = servers.listIterator();
+		Server targetServer;
+		while (it.hasNext()) {
+			targetServer = it.next();
+			if (targetServer.port == port) {
+				System.out.println(targetServer.hostname + " @ " + targetServer.port + " found! Terminating...");
+				targetServer.serverprocess.terminateServer();
+				return;
+			} else {
+				System.out.println(targetServer.hostname + " @ " + targetServer.port + " does not match.");
+			}
+		}
+	}
 
 	/**
 	 * Have the bot handle message events
 	 */
 	public void onMessage(String channel, String sender, String login, String hostname, String message) {
 		// Perform these only if the message starts with a period (to save processing time on trivial chat)
-		System.out.println("RECEIVED: " + message);
 		if (message.startsWith(".")) {
 			// Generate an array of keywords from the message
 			String[] keywords = message.split(" ");
@@ -163,14 +200,16 @@ public class Bot extends PircBot {
 			if (loggedIn) {
 				switch (keywords[0].toLowerCase()) {
 					case ".host":
-						String hostResult = Server.handleHostCommand(this, servers, channel, sender, login, hostname, message); // Have this function handle everything
-						// Null means nothing went wrong, so don't send anything
-						if (hostResult != null)
-							sendMessage(cfg_data.irc_channel, hostResult);
+						Server.handleHostCommand(this, servers, channel, sender, login, hostname, message); // Have this function handle everything
 						break;
 					case ".quit":
 						this.disconnect();
 						System.exit(0);
+					case ".kill":
+						sendMessage(cfg_data.irc_channel, "Attempting to kill: '" + keywords[1] + "'");
+						killServer(keywords[1]); // Can pass string, will process it in the method safely if something goes wrong
+						killServer(keywords[1].trim());
+						break;
 					case ".debug":
 						debug();
 						break;
