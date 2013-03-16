@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -137,20 +138,29 @@ public class ServerProcess extends Thread {
 		
 		// Attempt to start up the server
 		String portNumber = ""; // This will hold the port number
+		FileWriter fstream = null;
+		BufferedWriter file = null;
+		Calendar currentDate;
+		File logFile;
+		long start = System.nanoTime();
+		String strLine = null;
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss");
+		String dateNow = "";
 		try {
 			// Set up the server
 			ProcessBuilder pb = new ProcessBuilder(serverRunCommand.split(" ")); // Need to split it to get it to work
 			pb.redirectErrorStream(true);
 			Process proc = pb.start();
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-			String strLine = null;
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss");
-			String dateNow = "";
-			File f = new File("/home/auto/skulltag/public_html/logs/" + server.server_id + ".txt");
-			if (!f.exists())
-				f.createNewFile();
-			FileWriter fstream = new FileWriter("/home/auto/skulltag/public_html/logs/" + server.server_id + ".txt");
-			BufferedWriter file = new BufferedWriter(fstream);
+			
+			// Set up file/IO
+			logFile = new File("/home/auto/skulltag/public_html/logs/" + server.server_id + ".txt");
+			fstream = new FileWriter("/home/auto/skulltag/public_html/logs/" + server.server_id + ".txt");
+			file = new BufferedWriter(fstream);
+			
+			// Write header in the file
+			if (!logFile.exists())
+				logFile.createNewFile();
 			file.write("_______               __           _______                     \n");
 			file.write("|   __ \\.-----.-----.|  |_        |    ___|.--.--.-----.----.  \n");
 			file.write("|   __ <|  -__|__ --||   _|__     |    ___||  |  |  -__|   _|_ \n");
@@ -158,11 +168,9 @@ public class ServerProcess extends Thread {
 			file.write("________________________________________________________________________________________________________\n\n");
 			file.flush();
 			server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using send_password. You can view your server's logfile at http://www.best-ever.org/logs/" + server.server_id + ".txt");
-			long start = System.nanoTime();
-			Calendar currentDate;
 			
 			// Handle the output of the server
-			while ((strLine = br.readLine()) != null && !terminateThread) {
+			while ((strLine = br.readLine()) != null) {
 				// Make sure to get the port [Server using alternate port 10666.]
 				if (strLine.startsWith("Server using alternate port ")) {
 					portNumber = strLine.replace("Server using alternate port ", "").replace(".", "").trim();
@@ -191,6 +199,9 @@ public class ServerProcess extends Thread {
 				dateNow = formatter.format(currentDate.getTime());
 				file.write(dateNow + " " + strLine + "\n");
 				file.flush();
+				
+				if (terminateThread)
+					break;
 			}
 			
 			// Handle cleanup
@@ -199,13 +210,29 @@ public class ServerProcess extends Thread {
 			long end = System.nanoTime();
 			long uptime = end - start;
 			file.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime / 1000000000));
+			
+			// Close the streams before terminating the process
 			file.close();
 			fstream.close();
+			
+			// If we requested termination, then do so:
+			if (terminateThread)
+				proc.destroy();
+			
+			// Notify the main channel
 			server.bot.sendMessage(server.channel, "Server stopped on port " + server.port +"! Server ran for " + Functions.calculateTime(uptime / 1000000000));
-			// REMOVE THE SERVER FROM LINKEDLIST HERE
-			//Thread.currentThread().interrupt(); // Is this needed?
+
+			// Remove the server from the linked list
+			System.out.println("Removing server status: " + server.bot.servers.remove(server));
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				file.close();
+				fstream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }
