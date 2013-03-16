@@ -141,7 +141,7 @@ public class Server implements Serializable {
 	/**
 	 * Contains the number of players
 	 */
-	public byte players = 0;
+	public transient byte players = 0;
 	
 	/**
 	 * Contains the RCON Password

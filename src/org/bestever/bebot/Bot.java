@@ -123,27 +123,27 @@ public class Bot extends PircBot {
 			// Check if they refer to the exact same object
 			if (it.next() == server) {
 				it.remove();
-				server.bot.sendMessage(server.channel, "Debug: Successfully removed server from linkedlist ^_^   ~Your truly, BestBot++");
 				return;
 			}
 		}
 	}
 	
-	// Debugging purposes only for now
-	public void debug() {
-		if (servers.isEmpty()) {
-			sendMessage(cfg_data.irc_channel, "No servers in the LinkedList.");
-			return;
-		}
+	/**
+	 * Returns a Server from the linked list based on the port number provided
+	 * @param port The port to check
+	 * @return The server object reference if it exists, null if there's no such object
+	 */
+	public Server getServer(int port) {
+		if (servers == null | servers.isEmpty()) 
+			return null;
 		ListIterator<Server> it = servers.listIterator();
-		Server itServer = null;
+		Server desiredServer = null;
 		while (it.hasNext()) {
-			itServer = it.next();
-			if (itServer == null)
-				break;
-			sendMessage(cfg_data.irc_channel, "Hostname: " + itServer.sv_hostname);
+			desiredServer = it.next();
+			if (desiredServer.port == port)
+				return desiredServer;
 		}
-		sendMessage(cfg_data.irc_channel, "Done debug.");
+		return null;
 	}
 	
 	/**
@@ -170,32 +170,31 @@ public class Bot extends PircBot {
 		}
 		
 		// See if the port is in our linked list, if so signify for it to die
-		ListIterator<Server> it = servers.listIterator();
-		Server targetServer;
-		while (it.hasNext()) {
-			targetServer = it.next();
-			if (targetServer.port == port) {
-				System.out.println(targetServer.hostname + " @ " + targetServer.port + " found! Terminating...");
-				targetServer.serverprocess.terminateServer();
-				return;
-			} else {
-				System.out.println(targetServer.hostname + " @ " + targetServer.port + " does not match.");
-			}
-		}
+		Server targetServer = getServer(port);
+		if (targetServer != null)
+			targetServer.serverprocess.terminateServer();
+		else
+			sendMessage(cfg_data.irc_channel, "Could not find a server with the port " + port + "!");
 	}
 	
+	/**
+	 * Counts the number of players active on a port
+	 * @param portString The port to check
+	 */
 	private void countPlayers(String portString) {
-		
-		int port = Integer.parseInt(portString);
-		
-		ListIterator<Server> it = servers.listIterator();
-		Server targetServer;
-		while (it.hasNext()) {
-			targetServer = it.next();
-			if (targetServer.port == port) {
-				sendMessage(cfg_data.irc_channel, "Number of players: " + targetServer.players);
-			}
+		// Ensure it is a valid port
+		if (!Functions.isNumeric(portString)) {
+			sendMessage(cfg_data.irc_channel, "Invalid port number (" + portString + "), not terminating server.");
+			return;
 		}
+		
+		// Search the port
+		int port = Integer.parseInt(portString);
+		Server targetServer = getServer(port);
+		if (targetServer != null)
+			sendMessage(cfg_data.irc_channel, "Number of players: " + targetServer.players);
+		else
+			sendMessage(cfg_data.irc_channel, "Unable to get server at port " + port + ".");
 	}
 
 	/**
@@ -225,7 +224,6 @@ public class Bot extends PircBot {
 						killServer(keywords[1].trim());
 						break;
 					case ".debug":
-						debug();
 						break;
 					case ".players":
 						countPlayers(keywords[1]);
