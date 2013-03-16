@@ -42,17 +42,17 @@ public class Server implements Serializable {
 	/**
 	 * The channel it was hosted from
 	 */
-	public String channel;
+	public String irc_channel;
 	
 	/**
 	 * This is the host's hostname on irc
 	 */
-	public String hostname;
+	public String irc_hostname;
 	
 	/**
 	 * This is the login name used
 	 */
-	public String login;
+	public String irc_login;
 	
 	/**
 	 * Contains the entire ".host" command
@@ -62,7 +62,7 @@ public class Server implements Serializable {
 	/**
 	 * Contains the hostname used, this will NOT contain " :: [BE] New York "
 	 */
-	public String sv_hostname;
+	public String servername;
 
 	/**
 	 * This is the iwad used
@@ -178,9 +178,9 @@ public class Server implements Serializable {
 		server.bot = botReference;
 		
 		// Input basic values
-		server.channel = channel;
-		server.login = login;
-		server.hostname = hostname;
+		server.irc_channel = channel;
+		server.irc_login = login;
+		server.irc_hostname = hostname;
 		server.sender = sender;
 		server.host_command = message;
 		
@@ -278,7 +278,7 @@ public class Server implements Serializable {
 			
 			// hostname (Note: appended the quotation mark for the function)
 			if (keywords[i].toLowerCase().startsWith("hostname=\"")) {
-				server.sv_hostname = getDataBetween("hostname=", message);
+				server.servername = getDataBetween("hostname=", message);
 			}
 			
 			// instagib
@@ -311,7 +311,7 @@ public class Server implements Serializable {
 			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Incorrect/missing gamemode");
 			return;
 		}
-		if (server.sv_hostname == null) {
+		if (server.servername == null) {
 			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Error parsing hostname");
 			return;
 		}

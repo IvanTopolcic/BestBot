@@ -117,8 +117,9 @@ public class ServerProcess extends Thread {
 		if (server.buckshot)
 			runCommand.add("+buckshot 1");
 		
-		if (server.hostname != null)
-			runCommand.add("+sv_hostname \"" + server.sv_hostname + "\"");
+		// Add BE here later
+		if (server.servername != null)
+			runCommand.add("+sv_hostname \"" + server.servername + "\"");
 		
 		// These must be added; could be extended by config; these are hardcoded for now
 		runCommand.add("+sv_rconpassword " + server.server_id);
@@ -142,7 +143,7 @@ public class ServerProcess extends Thread {
 	public void run() {
 		// If we have not initialized the process, do not set up a server (to prevent errors)
 		if (!isInitialized()) {
-			server.bot.sendMessage(server.channel, "Warning: Initialization error for server thread; please contact an administrator.");
+			server.bot.sendMessage(server.irc_channel, "Warning: Initialization error for server thread; please contact an administrator.");
 			return;
 		}
 		
@@ -183,9 +184,8 @@ public class ServerProcess extends Thread {
 					portNumber = strLine.replace("Server using alternate port ", "").replace(".", "").trim();
 					if (Functions.isNumeric(portNumber)) {
 						server.port = Integer.parseInt(portNumber);
-						server.bot.sendMessage(server.channel, "First port set to: " + server.port);
 					} else
-						server.bot.sendMessage(server.channel, "Warning: port parsing error when setting up server [1]; contact an administrator.");
+						server.bot.sendMessage(server.irc_channel, "Warning: port parsing error when setting up server [1]; contact an administrator.");
 					
 				// If the port is used [NETWORK_Construct: Couldn't bind to 10666. Binding to 10667 instead...]
 				} else if (strLine.startsWith("NETWORK_Construct: Couldn't bind to ")) {
@@ -193,16 +193,15 @@ public class ServerProcess extends Thread {
 					portNumber = strLine.replace(new String("NETWORK_Construct: Couldn't bind to " + portNumber + ". Binding to "), "").replace(" instead...", "").trim();
 					if (Functions.isNumeric(portNumber)) {
 						server.port = Integer.parseInt(portNumber);
-						server.bot.sendMessage(server.channel, "Last port set to: " + server.port);
 					} else
-						server.bot.sendMessage(server.channel, "Warning: port parsing error when setting up server [2]; contact an administrator.");
+						server.bot.sendMessage(server.irc_channel, "Warning: port parsing error when setting up server [2]; contact an administrator.");
 				}
 				
 				// If we see this, the server started
 				if (strLine.equalsIgnoreCase("UDP Initialized.")) {
 					System.out.println(strLine);
 					server.bot.servers.add(server); // Add the server to the linked list since it's fully operational now
-					server.bot.sendMessage(server.channel, "Server started successfully.");
+					server.bot.sendMessage(server.irc_channel, "Server started successfully on port " + server.port + "!");
 					server.bot.sendMessage(server.sender, "To kill your server, type .killmine (this will kill all of your servers), or .kill " + server.port);
 				}
 				
@@ -229,7 +228,7 @@ public class ServerProcess extends Thread {
 			bufferedLogWriter.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime / 1000000000));
 			
 			// Notify the main channel
-			server.bot.sendMessage(server.channel, "Server stopped on port " + server.port +"! Server ran for " + Functions.calculateTime(uptime / 1000000000));
+			server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port +"! Server ran for " + Functions.calculateTime(uptime / 1000000000));
 
 			// Remove the server from the linked list
 			System.out.println("Removing server status: " + server.bot.servers.remove(server));
