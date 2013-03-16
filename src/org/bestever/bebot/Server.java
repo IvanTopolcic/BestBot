@@ -9,9 +9,6 @@ import java.util.LinkedList;
 
 public class Server implements Serializable {
 
-	////////////
-	// Fields //
-	////////////
 	/**
 	 * Contains the thread of the server process
 	 */
@@ -148,10 +145,6 @@ public class Server implements Serializable {
 	 */
 	public String rcon_password;
 	
-	///////////////
-	// Constants //
-	///////////////
-	
 	/**
 	 *  Random generated ID for serialization
 	 */
@@ -161,10 +154,6 @@ public class Server implements Serializable {
 	 * If there's an error with processing of numbers, return this
 	 */
 	public static final int FLAGS_ERROR = 0xFFFFFFFF;
-	
-	/////////////////////////////
-	// Method and Constructors //
-	/////////////////////////////
 	
 	/**
 	 * This will take ".host ...", parse it and pass it off safely to anything else

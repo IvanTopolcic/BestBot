@@ -3,6 +3,7 @@ package org.bestever.bebot;
 import static org.bestever.bebot.Logger.logMessage;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -221,9 +222,9 @@ public class Bot extends PircBot {
 					case ".kill":
 						sendMessage(cfg_data.irc_channel, "Attempting to kill: '" + keywords[1] + "'");
 						killServer(keywords[1]); // Can pass string, will process it in the method safely if something goes wrong
-						killServer(keywords[1].trim());
 						break;
-					case ".debug":
+					case ".reflect":
+						reflect(keywords); // portNumber, fieldToGet
 						break;
 					case ".players":
 						countPlayers(keywords[1]);
@@ -240,6 +241,39 @@ public class Bot extends PircBot {
 						break;
 				}
 			}
+		}
+	}
+	
+	/**
+	 * This is a debug function to get fields, it will iterate through the keywords and get methods.
+	 * This method is not complete at all yet; also very messy
+	 * @param keywords The keywords passed to the reflect function (keyword[0] should be ".reflect")
+	 */
+	private void reflect(String[] keywords) {
+		if (keywords.length < 3) {
+			sendMessage(cfg_data.irc_channel, ".reflect usage: .reflect <port> <field/class> [subfield/subclass...]");
+			return;
+		}
+		// Ensure it is a valid port
+		if (!Functions.isNumeric(keywords[1])) {
+			sendMessage(cfg_data.irc_channel, "Invalid port number (" + keywords[1] + ").");
+			return;
+		}
+		
+		// Search the port
+		int port = Integer.parseInt(keywords[1]);
+		Server server = getServer(port);
+		try {
+			Field targetField = server.getClass().getDeclaredField(keywords[2]);
+			try {
+				sendMessage(cfg_data.irc_channel, "Reflected (" + port + ") [ " + keywords[2] + " = Field: " + targetField.get(server).toString() + " ]");
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (NoSuchFieldException nsfe) {
+			sendMessage(cfg_data.irc_channel, "No such field to reflect.");
 		}
 	}
 
