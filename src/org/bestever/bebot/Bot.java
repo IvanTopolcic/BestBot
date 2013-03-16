@@ -183,6 +183,20 @@ public class Bot extends PircBot {
 			}
 		}
 	}
+	
+	private void countPlayers(String portString) {
+		
+		int port = Integer.parseInt(portString);
+		
+		ListIterator<Server> it = servers.listIterator();
+		Server targetServer;
+		while (it.hasNext()) {
+			targetServer = it.next();
+			if (targetServer.port == port) {
+				sendMessage(cfg_data.irc_channel, "Number of players: " + targetServer.players);
+			}
+		}
+	}
 
 	/**
 	 * Have the bot handle message events
@@ -213,6 +227,8 @@ public class Bot extends PircBot {
 					case ".debug":
 						debug();
 						break;
+					case ".players":
+						countPlayers(keywords[1]);
 					default:
 						break;
 				}

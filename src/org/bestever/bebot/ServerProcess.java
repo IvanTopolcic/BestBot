@@ -153,7 +153,6 @@ public class ServerProcess extends Thread {
 		String strLine = null;
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss");
 		String dateNow = "";
-		Calendar currentDate;
 		try {
 			// Set up the server
 			System.out.println("Running process: " + serverRunCommands);
@@ -207,15 +206,24 @@ public class ServerProcess extends Thread {
 					server.bot.sendMessage(server.sender, "To kill your server, type .killmine (this will kill all of your servers), or .kill " + server.port);
 				}
 				
-				currentDate = Calendar.getInstance();
-				dateNow = formatter.format(currentDate.getTime());
+				if (!strLine.startsWith("CHAT")) {
+					if (strLine.endsWith("has connected."))
+						server.players += 1;
+					else if (strLine.endsWith("disconnected."))
+						server.players -= 1;
+				}
+				
+				if (strLine.startsWith("-> map")) {
+					server.players = 0;
+				}
+				
+				dateNow = formatter.format(Calendar.getInstance().getTime());
 				bufferedLogWriter.write(dateNow + " " + strLine + "\n");
 				bufferedLogWriter.flush();
 			}
 			
 			// Handle cleanup
-			currentDate = Calendar.getInstance();
-			dateNow = formatter.format(currentDate.getTime());
+			dateNow = formatter.format(Calendar.getInstance().getTime());
 			long end = System.nanoTime();
 			long uptime = end - start;
 			bufferedLogWriter.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime / 1000000000));

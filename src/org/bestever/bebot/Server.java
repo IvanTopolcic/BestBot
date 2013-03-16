@@ -138,6 +138,16 @@ public class Server implements Serializable {
 	 */
 	public int compatflags2;
 	
+	/**
+	 * Contains the number of players
+	 */
+	public byte players = 0;
+	
+	/**
+	 * Contains the RCON Password
+	 */
+	public String rcon_password;
+	
 	///////////////
 	// Constants //
 	///////////////
