@@ -83,7 +83,7 @@ public class MySQL {
 	 * @throws ClassNotFoundException 
 	 * @throws SQLException 
 	 */
-	public int getLevel(String hostname) throws ClassNotFoundException, SQLException {
+	public int getLevel(String hostname) {
 		if (Functions.checkLoggedIn(hostname)) {
 			String query = "SELECT `level` FROM " + mysql_db + ".`login` WHERE `username` = ?";
 			try
