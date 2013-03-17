@@ -16,6 +16,11 @@ import org.jibble.pircbot.PircBot;
 public class Bot extends PircBot {
 	
 	/**
+	 * Contains the MySQL information
+	 */
+	public MySQL mysql;
+	
+	/**
 	 * Contains the config data
 	 */
 	public ConfigData cfg_data;
@@ -50,9 +55,6 @@ public class Bot extends PircBot {
 		// Set up the logger
 		Logger.setLogFile(cfg_data.bot_logfile);
 		
-		// Set up MySQL information
-		MySQL.setMySQLInformation(cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
-		
 		// Set up the bot and join the channel
 		logMessage("Initializing BestBot v" + cfg_data.irc_version);
 		setVerbose(cfg_data.bot_verbose);
@@ -74,11 +76,13 @@ public class Bot extends PircBot {
 		this.max_port = cfg_data.bot_max_port;
 		
 		// Set up the server arrays
-		this.servers = new LinkedList<Server>();
+		this.servers = new LinkedList<Server>();	
+		
+		// Set up MySQL
+		mysql = new MySQL(this, cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
 		
 		// Clear mySQL table since we will fill it up with any serialized server information
-		if (!MySQL.clearActiveServerList())
-			logMessage("ERROR: Could not clear active server list.");
+		mysql.clearActiveServerList();
 	}
 	
 	/**
@@ -228,6 +232,10 @@ public class Bot extends PircBot {
 						break;
 					case ".players":
 						countPlayers(keywords[1]);
+						break;
+					case ".level":
+						//sendMessage(cfg_data.irc_channel, mysql.getLevel(hostname)+"");
+						break;
 					default:
 						break;
 				}
@@ -293,39 +301,15 @@ public class Bot extends PircBot {
 			switch (keywords[0].toLowerCase()) {
 			// Registering an account
 			case "register":
-				if (keywords.length == 2) {
-					int value = MySQL.registerAccount(hostname, keywords[1]);
-					switch (value) {
-					case -1:
-						sendMessage(sender, "Account already exists!");
-						break;
-					case 0:
-						sendMessage(sender, "Error adding your account to the database.");
-						break;
-					case 1:
-						sendMessage(sender, "Account registration successful! Your username is " + Functions.getUserName(hostname) + " and your password is " + keywords[1]);
-						break;
-					}
-				}
+				if (keywords.length == 2)
+					mysql.registerAccount(hostname, keywords[1], sender);
 				else
 					sendMessage(sender, "Incorrect syntax! Usage is /msg BestBot register <password>");
 				break;
 			// Changing user password
 			case "changepw":
-				int value = MySQL.changePassword(hostname, keywords[1]);
-				if (keywords.length == 2) {
-					switch (value) {
-					case -1:
-						sendMessage(sender, "You don't have an account!");
-						break;
-					case 0:
-						sendMessage(sender, "Error updating password.");
-						break;
-					case 1:
-						sendMessage(sender, "Success! Your password was changed to " + keywords[1]);
-						break;
-					}
-				}
+				if (keywords.length == 2)
+					mysql.changePassword(hostname, keywords[1], sender);
 				else
 					sendMessage(sender, "Incorrect syntax! Usage is /msg BestBot changepw <new_password>");
 				break;

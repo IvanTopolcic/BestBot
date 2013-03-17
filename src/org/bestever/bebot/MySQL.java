@@ -15,78 +15,79 @@ import static org.bestever.bebot.Logger.logMessage;
 public class MySQL {
 	
 	/**
+	 * Holds the Connection
+	 */
+	public Connection con;
+	
+	/**
+	 * Holds the Bot
+	 */
+	public Bot bot;
+	
+	/**
 	 * Holds the MySQL hostname
 	 */
-	public static String mysqlhost;
+	public String mysql_host;
 	
 	/**
 	 * Holds the MySQL username
 	 */
-	public static String mysqluser;
+	public String mysql_user;
 	
 	/**
 	 * Holds the MySQL password
 	 */
-	public static String mysqlpass;
+	public String mysql_pass;
 	
 	/**
 	 * Holds the MySQL port
 	 */
-	public static int mysqlport;
+	public int mysql_port;
 	
 	/**
 	 * Holds the MySQL database
 	 */
-	public static String mysqldb;
-	
+	public String mysql_db;
 	
 	/**
-	 * Method to set the MySQL Information
+	 * Constructor for the MySQL Object
+	 * @param bot
 	 * @param host
 	 * @param user
 	 * @param pass
 	 * @param port
 	 * @param db
 	 */
-	public static void setMySQLInformation(String host, String user, String pass, int port, String db) {
-		// Sets the MySQL Information with given parameters
-		mysqlhost = host;
-		mysqluser = user;
-		mysqlpass = pass;
-		mysqlport = port;
-		mysqldb = db;
-	}
-
-	/**
-	 * Attempts to connect to the database
-	 * @return con
-	 */
-	public static Connection dbConnect() {
-		// Connect to the MySQL Databas
+	public MySQL(Bot bot, String host, String user, String pass, int port, String db) {
+		this.bot = bot;
+		this.mysql_host = host;
+		this.mysql_user = user;
+		this.mysql_pass = pass;
+		this.mysql_port = port;
+		this.mysql_db = db;
         try {
         	Class.forName("com.mysql.jdbc.Driver");
-			Connection con = DriverManager.getConnection("jdbc:mysql://" + mysqlhost + ":"+mysqlport+"/", mysqluser, mysqlpass);
-			return con;
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + mysql_host + ":"+mysql_port+"/", mysql_user, mysql_pass);
+			this.con = connection;
 		} catch (SQLException | ClassNotFoundException e) {
 			System.out.println("Could not connect to MySQL Database!");
 			logMessage("Error connecting to database");
 			e.printStackTrace();
 		}
-        return null;
 	}
 	
 	/**
 	 * Queries the database and returns the level of the user
 	 * @param hostname
 	 * @return level for success, 0 for fail, -1 for non-existant username
+	 * @throws ClassNotFoundException 
+	 * @throws SQLException 
 	 */
-	public static int getLevel(String hostname) {
+	public int getLevel(String hostname) throws ClassNotFoundException, SQLException {
 		if (Functions.checkLoggedIn(hostname)) {
-			// Query that gets the level from the passed hostname (user)
-			String query = "SELECT `level` FROM " + mysqldb + ".`login` WHERE `username` = ?";	
+			String query = "SELECT `level` FROM " + mysql_db + ".`login` WHERE `username` = ?";
 			try
 			(
-				Connection con = dbConnect();
 				PreparedStatement pst = con.prepareStatement(query);
 			){
 				// Prepare, bind & execute
@@ -119,15 +120,14 @@ public class MySQL {
 	 * @param password
 	 * @return 1 for success, 0 for fail, -1 account already registered, -2 if not logged in
 	 */
-	public static int registerAccount(String hostname, String password) {	
+	public void registerAccount(String hostname, String password, String sender) {	
 		// Query to check if the username already exists
-		String checkQuery = "SELECT `username` FROM " + mysqldb + ".`login` WHERE `username` = ?";
+		String checkQuery = "SELECT `username` FROM " + mysql_db + ".`login` WHERE `username` = ?";
 		
 		// Query to add entry to database
-		String executeQuery = "INSERT INTO " + mysqldb + ".`login` ( `username`, `password`, `level`, `activated` ) VALUES ( ?, ?, 0, 1 )";
+		String executeQuery = "INSERT INTO " + mysql_db + ".`login` ( `username`, `password`, `level`, `activated` ) VALUES ( ?, ?, 0, 1 )";
 		try
 		(
-			Connection con = dbConnect();
 			PreparedStatement cs = con.prepareStatement(checkQuery);
 			PreparedStatement xs = con.prepareStatement(executeQuery);
 		){
@@ -137,7 +137,7 @@ public class MySQL {
 			
 			// The username already exists!
 			if (r.next())
-				return -1;
+				bot.sendMessage(sender, "Account already exists!");
 			
 			else {
 				// Prepare, bind & execute
@@ -145,16 +145,16 @@ public class MySQL {
 				// Hash the PW with BCrypt
 				xs.setString(2, BCrypt.hashpw(password, BCrypt.gensalt(14)));
 				if (xs.executeUpdate() == 1)
-					return 1;
+					this.bot.sendMessage(sender, "Account created! Your username is " + r.getString("username") + " and your password is " + password);
 				else
-					return 0;
+					this.bot.sendMessage(sender, "There was an error registering your account.");
 				}
 			}
 		catch (SQLException e) {
 			System.out.println("ERROR: SQL_ERROR in 'registerAccount()'");
 			logMessage("ERROR: SQL_ERROR in 'registerAccount()'");
 			e.printStackTrace();
-			return 0;
+			bot.sendMessage(sender, "There was an error registering your account.");
 		}
 	}
 	
@@ -165,15 +165,14 @@ public class MySQL {
 	 * @param password
 	 * @return -1 username doesn't exist, 0 General problem/SQL error, 1 success
 	 */
-	public static int changePassword(String hostname, String password) {
+	public void changePassword(String hostname, String password, String sender) {
 		// Query to check if the username already exists
-		String checkQuery = "SELECT `username` FROM " + mysqldb + ".`login` WHERE `username` = ?";
+		String checkQuery = "SELECT `username` FROM " + mysql_db + ".`login` WHERE `username` = ?";
 		
 		// Query to update password
-		String executeQuery = "UPDATE " + mysqldb + ".`login` SET `password` = ? WHERE `username` = ?";
+		String executeQuery = "UPDATE " + mysql_db + ".`login` SET `password` = ? WHERE `username` = ?";
 		try
 		(
-			Connection con = dbConnect();
 			PreparedStatement cs = con.prepareStatement(checkQuery);
 			PreparedStatement xs = con.prepareStatement(executeQuery);
 		){
@@ -183,23 +182,23 @@ public class MySQL {
 			
 			// The username doesn't exist!
 			if (!r.next())
-				return -1;
+				bot.sendMessage(bot.cfg_data.irc_channel, "User does not exist.");
 			
 			else {
 				// Prepare, bind & execute
 				xs.setString(1, BCrypt.hashpw(password, BCrypt.gensalt(14)));
 				xs.setString(2, r.getString("username"));
 				if (xs.executeUpdate() == 1)
-					return 1;
+					bot.sendMessage(sender, "Successfully changed your password.");
 				else
-					return 0;
+					bot.sendMessage(sender, "There was an error changing your password.");
 				}
 			}
 		catch (SQLException e) {
 			System.out.println("ERROR: SQL_ERROR in 'changePassword()'");
 			logMessage("ERROR: SQL_ERROR in 'changePassword()'");
 			e.printStackTrace();
-			return 0;
+			bot.sendMessage(sender, "There was an error changing your password account.");
 		}
 	}
 	
@@ -208,18 +207,15 @@ public class MySQL {
 	 * with servers; it is cleared because if there was a shutdown error, the 
 	 * database will contain outdated junk
 	 */
-	public static boolean clearActiveServerList() {
+	public void clearActiveServerList() {
 		try (
-				Connection con = dbConnect();
 				Statement st = con.createStatement();
 			){
-			st.executeUpdate("TRUNCATE " + mysqldb + ".`active_servers`");
+			st.executeUpdate("TRUNCATE " + mysql_db + ".`active_servers`");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			logMessage("ERROR: SQL_ERROR in 'clearActiveServerList()'");
-			return false;
 		}
-		return true;
 	}
 	
 	/**

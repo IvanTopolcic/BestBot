@@ -146,7 +146,7 @@ public class ConfigData {
 		// Set up the file
 		File configFile = new File(this.filepath);
 		
-		// Load from fiile
+		// Load from file
 		ini.load(new FileReader(configFile));
 		
 		// Load the IRC section

@@ -205,6 +205,7 @@ public class ServerProcess extends Thread {
 					server.bot.sendMessage(server.sender, "To kill your server, type .killmine (this will kill all of your servers), or .kill " + server.port);
 				}
 				
+				// Handle the player number if someone connects
 				if (!strLine.startsWith("CHAT")) {
 					if (strLine.endsWith("has connected."))
 						server.players += 1;
@@ -212,6 +213,7 @@ public class ServerProcess extends Thread {
 						server.players -= 1;
 				}
 				
+				// Reset players to 0 when somebody disconnects
 				if (strLine.startsWith("-> map")) {
 					server.players = 0;
 				}
