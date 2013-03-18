@@ -17,34 +17,13 @@ public class Functions {
 	public static final int NO_AVAILABLE_PORT = 0;
 	
 	/**
-	 * Checks the array to see if a string is found inside of it
-	 * @param array The array of strings (if null or index < 0 returns false)
-	 * @param s The string to check (case sensitive)
-	 * @return True if found, false if not/or error
-	 */
-	public static boolean stringArrayContains(String[] array, String s) {
-		// Safety check
-		if (array == null || array.length < 1)
-			return false;
-		
-		// For each element, check if it equals
-		for (String index : array)
-			if (index.equals("#" + s))
-				return true;
-			
-		// If nothing, return false
-		return false;
-	}
-	
-	/**
 	 * Generates a unique ID
 	 * Updated to remove file creation
 	 * Unique ID is a 12 character MD5 hash
 	 * @param banlist_directory The directory to check for clashing ID's
 	 * @return A string containing the uniqueID
 	 */
-	public static String getUniqueID(String banlist_directory)
-	{
+	public static String getUniqueID(String banlist_directory) {
 		String temp = Long.toString(System.nanoTime());
 		String ID = "";
 		try {
@@ -59,7 +38,6 @@ public class Functions {
 				md.update(temp.getBytes());
 				hash = new BigInteger(1, md.digest());
 				ID = hash.toString(16);
-				ID = ID.substring(0, Math.min(ID.length(), 10));
 				f = new File(banlist_directory + ID + ".txt");
 			}
 		} catch (NoSuchAlgorithmException e1) {
@@ -74,8 +52,7 @@ public class Functions {
 	 * @param hostname The user's host name
 	 * @return username The user's actual IRC name
 	 */
-	public static String getUserName(String hostname)
-	{
+	public static String getUserName(String hostname) {
 		return hostname.replace(".users.zandronum.com", "");
 	}
 	
@@ -95,8 +72,7 @@ public class Functions {
 	 * @param maybeid The String to check (does parse double)
 	 * @return True if it is a number, false if it's not
 	 */
-	public static boolean isNumeric(String maybeid)
-	{
+	public static boolean isNumeric(String maybeid) {
 		try {
 			Double.parseDouble(maybeid);
 		} catch (NumberFormatException nfe)	{
@@ -112,8 +88,7 @@ public class Functions {
 	 * @param checkport The port to check
 	 * @return True if it's available, false if not
 	 */
-	public static boolean checkIfPortAvailable(int checkport)
-	{
+	public static boolean checkIfPortAvailable(int checkport) {
 		ServerSocket ss = null;
 		DatagramSocket ds = null;
 		try {
@@ -158,8 +133,7 @@ public class Functions {
 	 * @param seconds in long format
 	 * @return A String in a readable format
 	 */
-	public static String calculateTime(long seconds)
-	{
+	public static String calculateTime(long seconds) {
 		int day = (int)TimeUnit.SECONDS.toDays(seconds);        
 		long hours = TimeUnit.SECONDS.toHours(seconds) - (day *24);
 		long minute = TimeUnit.SECONDS.toMinutes(seconds) - (TimeUnit.SECONDS.toHours(seconds)* 60);

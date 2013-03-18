@@ -78,6 +78,10 @@ public class Bot extends PircBot {
 		// Set up the server arrays
 		this.servers = new LinkedList<Server>();	
 		
+		// Set up the uptime checker
+		// Thread r = new Thread(new Uptime(this));
+		// r.start();
+		
 		// Set up MySQL
 		mysql = new MySQL(this, cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
 		
@@ -148,6 +152,20 @@ public class Bot extends PircBot {
 			if (desiredServer.port == port)
 				return desiredServer;
 		}
+		return null;
+	}
+	
+	/**
+	 * Returns all of the servers in the linked list
+	 * @return The server object
+	 */
+	public Server getAllServers() {
+		if (servers == null || servers.isEmpty())
+			return null;
+		ListIterator<Server> it = servers.listIterator();
+		Server desiredServer = null;
+		while (it.hasNext())
+			return desiredServer;
 		return null;
 	}
 	

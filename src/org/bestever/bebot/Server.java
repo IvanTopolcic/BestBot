@@ -141,6 +141,11 @@ public class Server implements Serializable {
 	public transient byte players = 0;
 	
 	/**
+	 * Contains the play_time in percentage
+	 */
+	public long play_time = 0;
+	
+	/**
 	 * Contains the RCON Password
 	 */
 	public String rcon_password;
