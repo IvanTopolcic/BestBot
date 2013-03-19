@@ -83,13 +83,10 @@ public class MySQL {
 	 * @throws ClassNotFoundException 
 	 * @throws SQLException 
 	 */
-	public int getLevel(String hostname) {
+	public int getLevel (String hostname) {
 		if (Functions.checkLoggedIn(hostname)) {
 			String query = "SELECT `level` FROM " + mysql_db + ".`login` WHERE `username` = ?";
-			try
-			(
-				PreparedStatement pst = con.prepareStatement(query);
-			){
+			try ( PreparedStatement pst = con.prepareStatement(query); ) {
 				// Prepare, bind & execute
 				pst.setString(1, Functions.getUserName(hostname));
 				ResultSet r = pst.executeQuery();
@@ -99,18 +96,13 @@ public class MySQL {
 					return r.getInt("level");
 				else
 					return 0;
-			}
-			catch (SQLException e) {
+			} catch (SQLException e) {
 				System.out.println("ERROR: SQL_ERROR in 'getLevel()'");
 				logMessage("ERROR: SQL_ERROR in 'getLevel()'");
 				e.printStackTrace();
 			}
 		}
-		else {
-			// Username doesn't exist
-			return -1;
-		}
-		return 0;
+		return AccountType.GUEST; // Return 0, which is a guest and means it was not found; also returns this if not logged in
 	}
 	
 	/**

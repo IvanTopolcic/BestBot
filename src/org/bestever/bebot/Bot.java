@@ -1,6 +1,7 @@
 package org.bestever.bebot;
 
 import static org.bestever.bebot.Logger.logMessage;
+import static org.bestever.bebot.AccountType.*;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -229,43 +230,66 @@ public class Bot extends PircBot {
 			// Generate an array of keywords from the message
 			String[] keywords = message.split(" ");
 			
-			// Check if the hoster is logged in
-			boolean loggedIn = Functions.checkLoggedIn(hostname);
-			
-			// Perform only the logged in stuff
-			if (loggedIn) {
-				switch (keywords[0].toLowerCase()) {
-					case ".host":
+			// Perform function based on input (note: login is handled by the MySQL function/class
+			int userLevel = mysql.getLevel(hostname);
+			switch (keywords[0].toLowerCase()) {
+				case ".commands":
+					break;
+				case ".file":
+					break;
+				case ".givememoney":
+					break;
+				case ".help":
+					sendMessage(cfg_data.irc_channel, "Please visit http://www.best-ever.org/ for a tutorial on how to set up servers.");
+					break;	
+				case ".host":
+					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 						Server.handleHostCommand(this, servers, channel, sender, login, hostname, message); // Have this function handle everything
-						break;
-					case ".quit":
-						this.disconnect();
-						System.exit(0);
-					case ".kill":
+					}
+					break;
+				case ".kill":
+					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 						sendMessage(cfg_data.irc_channel, "Attempting to kill: '" + keywords[1] + "'");
 						killServer(keywords[1]); // Can pass string, will process it in the method safely if something goes wrong
-						break;
-					case ".reflect":
-						reflect(keywords); // portNumber, fieldToGet
-						break;
-					case ".players":
-						countPlayers(keywords[1]);
-						break;
-					case ".level":
-						//sendMessage(cfg_data.irc_channel, mysql.getLevel(hostname)+"");
-						break;
-					default:
-						break;
-				}
-			// Else if not logged in, perform these
-			} else {
-				switch (keywords[0].toLowerCase()) {
-					case ".help":
-						sendMessage(cfg_data.irc_channel, "Please visit http://www.best-ever.org/ for a tutorial on how to set up servers.");
-						break;	
-					default:
-						break;
-				}
+					}
+					break;
+				case ".killall":
+					break; 
+				case ".killmine":
+					break; 
+				case ".level":
+					sendMessage(cfg_data.irc_channel, mysql.getLevel(hostname) + "");
+					break;
+				case ".load":
+					break;
+				case ".off":
+					break;
+				case ".on":
+					break;
+				case ".owner":
+					break;
+				case ".players":
+					countPlayers(keywords[1]);
+					break;
+				case ".rcon":
+					break;
+				case ".save":
+					break;
+				case ".slot":
+					break;
+				case ".quit":
+					if (isAccountTypeOf(userLevel, ADMIN)) {
+						this.disconnect();
+						System.exit(0);
+					}
+					break;
+				case ".reflect":
+					if (isAccountTypeOf(userLevel, ADMIN)) {
+						reflect(keywords);
+					}
+					break;
+				default:
+					break;
 			}
 		}
 	}
