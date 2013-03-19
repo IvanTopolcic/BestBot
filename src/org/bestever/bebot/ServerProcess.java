@@ -78,8 +78,10 @@ public class ServerProcess extends Thread {
 		
 		// Create an arraylist with all our strings
 		ArrayList<String> runCommand = new ArrayList<>();
+		
 		runCommand.add(server.bot.cfg_data.bot_executable); // This must always be first
-		runCommand.add("-port " + Integer.toString(server.bot.cfg_data.bot_min_port)); // Always start on the minimum port and let zandronum handle the rest
+		
+		runCommand.add("-port " + Integer.toString(server.bot.getMinPort())); // Always start on the minimum port and let zandronum handle the rest
 		
 		if (server.iwad != null)
 			runCommand.add("-iwad iwads/" + server.iwad);
@@ -123,9 +125,9 @@ public class ServerProcess extends Thread {
 		
 		// These must be added; could be extended by config; these are hardcoded for now
 		runCommand.add("+sv_rconpassword " + server.server_id);
-		//runCommand += " +sv_banfile banlist/" + server.server_id + ".txt";
-		//runCommand += " +sv_adminlistfile adminlist/" + server.server_id + ".txt";
-		//runCommand += " +sv_banexemptionfile whitelist/" + server.server_id + ".txt";
+		runCommand.add("+sv_banfile banlist/" + server.server_id + ".txt");
+		runCommand.add("+sv_adminlistfile adminlist/" + server.server_id + ".txt");
+		runCommand.add("+sv_banexemptionfile whitelist/" + server.server_id + ".txt");
 		
 		//+addmap map from mapwad goes here
 		

@@ -93,7 +93,7 @@ public class Bot extends PircBot {
 	 * Gets the minimum port to be used by the bot
 	 * @return An integer containing the minimum port used
 	 */
-	public int getMinport() {
+	public int getMinPort() {
 		return min_port;
 	}
 
@@ -101,7 +101,7 @@ public class Bot extends PircBot {
 	 * Returns the max port used by the bot
 	 * @return An integer containing the max port used
 	 */
-	public int getMaxport() {
+	public int getMaxPort() {
 		return max_port;
 	}
 
@@ -111,7 +111,7 @@ public class Bot extends PircBot {
 	 * @param max_port The desired change to a maximum port
 	 * @return True if the port was changed, false if there was an error
 	 */
-	public boolean setMaxport(int max_port) {
+	public boolean setMaxPort(int max_port) {
 		if (max_port <= min_port)
 			return false;
 		else if (max_port == this.max_port)
