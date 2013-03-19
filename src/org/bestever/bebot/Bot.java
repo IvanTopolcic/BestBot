@@ -47,6 +47,11 @@ public class Bot extends PircBot {
 	private int max_port;
 	
 	/**
+	 * A toggle variable for allowing hosting
+	 */
+	public boolean botEnabled = true;
+	
+	/**
 	 * Set the bot up with the constructor
 	 */
 	public Bot(ConfigData cfgfile) {
@@ -230,7 +235,8 @@ public class Bot extends PircBot {
 			// Generate an array of keywords from the message
 			String[] keywords = message.split(" ");
 			
-			// Perform function based on input (note: login is handled by the MySQL function/class
+			// Perform function based on input (note: login is handled by the MySQL function/class)
+			// Also mostly in alphabetical order for convenience
 			int userLevel = mysql.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
 				case ".commands":
@@ -243,8 +249,10 @@ public class Bot extends PircBot {
 					sendMessage(cfg_data.irc_channel, "Please visit http://www.best-ever.org/ for a tutorial on how to set up servers.");
 					break;	
 				case ".host":
-					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
-						Server.handleHostCommand(this, servers, channel, sender, login, hostname, message); // Have this function handle everything
+					if (botEnabled) {
+						if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+							Server.handleHostCommand(this, servers, channel, sender, login, hostname, message); // Have this function handle everything
+						}
 					}
 					break;
 				case ".kill":
@@ -263,8 +271,20 @@ public class Bot extends PircBot {
 				case ".load":
 					break;
 				case ".off":
+					if (botEnabled) {
+						if (isAccountTypeOf(userLevel, ADMIN)) {
+							botEnabled = true;
+							sendMessage(cfg_data.irc_channel, "Bot disabled.");
+						}
+					}
 					break;
 				case ".on":
+					if (!botEnabled) {
+						if (isAccountTypeOf(userLevel, ADMIN)) {
+							botEnabled = true;
+							sendMessage(cfg_data.irc_channel, "Bot enabled.");
+						}
+					}
 					break;
 				case ".owner":
 					break;
