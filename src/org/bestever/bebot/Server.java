@@ -414,6 +414,8 @@ public class Server implements Serializable {
 			case "ctf":
 				return "ctf";
 			case "tdm":
+			case "teamdm":
+			case "tdeathmatch":
 			case "teamdeathmatch":
 				return "teamplay";
 			case "terminator":
