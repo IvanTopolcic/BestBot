@@ -194,12 +194,14 @@ public class DoomFile {
 	/**
 	 * This is a debug function
 	 */
-	public void outputData() {
+	public String toString() {
+		String output = "[ ";
 		if (this.fileOffset == null) {
 			System.out.println("Cannot print data since fileOffset is null");
-			return;
+			return "[Error]";
 		}
 		for (int i = 0; i < this.fileOffset.length; i++)
-			System.out.println(this.lumpName[i] + "\n" + this.fileOffset[i] + "\n" + this.fileSize[i] + "\n");
+			output += this.lumpName[i] + ", " + this.fileOffset[i] + ", " + this.fileSize[i] + "; ";
+		return output + " ]";
 	}
 }
