@@ -20,6 +20,11 @@ public class Server implements Serializable {
 	public transient Bot bot;
 	
 	/**
+	 * Contains the number of players
+	 */
+	public transient byte players = 0;
+	
+	/**
 	 * Contains the port it is run on
 	 */
 	public int port;
@@ -134,11 +139,6 @@ public class Server implements Serializable {
 	 * Contains flags for the server
 	 */
 	public int compatflags2;
-	
-	/**
-	 * Contains the number of players
-	 */
-	public transient byte players = 0;
 	
 	/**
 	 * Contains the play_time in percentage
