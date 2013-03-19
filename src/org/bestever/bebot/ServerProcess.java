@@ -123,7 +123,7 @@ public class ServerProcess extends Thread {
 		if (server.servername != null)
 			runCommand.add("+sv_hostname \"" + server.servername + "\"");
 		
-		// These must be added; could be extended by config; these are hardcoded for now
+		// Add rcon/file based stuff
 		runCommand.add("+sv_rconpassword " + server.server_id);
 		runCommand.add("+sv_banfile banlist/" + server.server_id + ".txt");
 		runCommand.add("+sv_adminlistfile adminlist/" + server.server_id + ".txt");
@@ -151,14 +151,27 @@ public class ServerProcess extends Thread {
 		
 		// Attempt to start up the server
 		String portNumber = ""; // This will hold the port number
-		File logFile = null;
+		File logFile = null,
+			 banlist = null, 
+			 whitelist = null, 
+			 adminlist = null;
 		long start = System.nanoTime();
 		String strLine = null;
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss");
 		String dateNow = "";
 		try {
+			// Ensure we have the files created
+			banlist = new File("banlist/" + server.server_id + ".txt");
+			if (!banlist.exists())
+				banlist.createNewFile();
+			whitelist = new File("whitelist/" + server.server_id + ".txt");
+			if (!whitelist.exists())
+				whitelist.createNewFile();
+			adminlist = new File("adminlist/" + server.server_id + ".txt");
+			if (!adminlist.exists())
+				adminlist.createNewFile();
+					
 			// Set up the server
-			System.out.println("Running process: " + serverRunCommands);
 			proc = Runtime.getRuntime().exec(serverRunCommands);
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			
