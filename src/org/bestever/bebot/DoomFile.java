@@ -69,7 +69,7 @@ public class DoomFile {
 		this.headerPointerToDirectory = Utility.bytesToInt(wadData[8], wadData[9], wadData[10], wadData[11]);
 		System.out.println("Wad data: " + this.headerType + ", " + this.headerTotalLumps + " total lumps, " + this.headerPointerToDirectory + " directory offset");
 		parseDirectory(wadData);
-		getLevelNames(wadData);
+		parseLevelNames(wadData);
 		System.gc(); // There may be a fair amount of junk to remove after getting the level names
 	}
 	
@@ -146,7 +146,7 @@ public class DoomFile {
 	 * This goes through and gets the level names from the wad's data
 	 * @param wadData The data of the wad
 	 */
-	public void getLevelNames(byte[] wadData) {
+	private void parseLevelNames(byte[] wadData) {
 		String[] temp = new String[this.lumpName.length];
 		Arrays.fill(temp, "");
 		int tempIndex = 0;
@@ -165,6 +165,19 @@ public class DoomFile {
 		for (int j = 0; j < tempIndex; j++)
 			this.levelNames[j] = temp[j];
 		Arrays.sort(this.levelNames);
+	}
+	
+	/**
+	 * This method will return the level names in a nice string format
+	 * @param appendAddmap If the user wants +addmap [maphere] in front of them for creating servers
+	 * @return The string of all the level names
+	 */
+	public String getLevelNames(boolean appendAddmap) {
+		String output = "";
+		for (String s : levelNames)
+			if (s != null)
+				output += (appendAddmap ? "+addmap " : "") + s + " ";
+		return output;
 	}
 	
 	/**
