@@ -3,9 +3,9 @@ package org.bestever.bebot;
 public class AccountType {
 	
 	/**
-	 * These are generic unknown accounts that have just registered
+	 * These are generic unknown accounts that have not registered
 	 */
-	public static final int GUEST = 0; // 0
+	public static final int GUEST = 0;
 	
 	/**
 	 * Admin users have access to everything
@@ -30,18 +30,12 @@ public class AccountType {
 	 * @param types A list of constants (see AccountType enumerations)
 	 * @return True if one of the types is met, false if none are
 	 */
-	public static boolean isAccountTypeOfAny(int accountType, int... types) {
+	public static boolean isAccountTypeOf(int accountType, int... types) {
 		for (int i = 0; i < types.length; i++) {
-			// If we ask for the GUEST mask, then it will always return true as that's the default one
-			if (types[i] == GUEST)
-				return true;
-			
-			// Check and see if the accountType matches our desired type
 			if ((accountType & types[i]) == types[i])
 				return true;
 		}
-		
-		// If we didn't find any matches, then they don't match
+		// If we didn't find any matches at all
 		return false;
 	}
 }
