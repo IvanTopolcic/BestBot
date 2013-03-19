@@ -18,9 +18,9 @@ public class AccountType {
 	public static final int MODERATOR = 1 << 1; // 2
 	
 	/**
-	 * Trusted users may have access to things most users don't have access to (ex: IRC bots...etc)
+	 * This is the basic state people register for
 	 */
-	public static final int TRUSTED = 1 << 2; // 4
+	public static final int REGISTERED = 1 << 2; // 4
 	
 	/**
 	 * To check for different masks, this method searches to see if you contain one of them.
