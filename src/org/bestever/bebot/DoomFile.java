@@ -12,18 +12,57 @@ import java.util.zip.ZipFile;
  */
 public class DoomFile {
 	
+	/**
+	 * Signifies what the header is (IWAD or PWAD)
+	 */
 	public String headerType;
+	
+	/**
+	 * Contains the number of lumps in the file
+	 */
 	public int headerTotalLumps;
+	
+	/**
+	 * Contains a pointer (offset) to the directory of the wad
+	 */
 	public int headerPointerToDirectory;
+	
+	/**
+	 * Shows the file offset for all the wad files
+	 */
 	public int[] fileOffset;
+	
+	/**
+	 * Contains the filesize for the files at each offset
+	 */
 	public int[] fileSize;
+	
+	/**
+	 * An index of all the lump names
+	 */
 	public String[] lumpName;
+	
+	/**
+	 * An index of the level names
+	 */
 	public String[] levelNames;
+	
+	/**
+	 * If theres a location finding error
+	 */
 	public static final int LOCATION_NOT_FOUND = -1;
+	
+	/**
+	 * Common map lumps that are required are enumerated here
+	 */
 	public static final String[] lumpMapNames = { "THINGS", "LINEDEFS", "SIDEDEFS", "VERTEXES", "SEGS", "SSECTORS", "REJECT", "BLOCKMAP", "GL_VERT", "GL_SEGS", "GL_SSECT", "GL_NODES" };
 
-	public DoomFile (String path) throws IOException
-	{
+	/**
+	 * Accepts a path to the wad file and will parse it upon invoking the constructor
+	 * @param path String path to a file
+	 * @throws IOException If there is a problem with reading the file
+	 */
+	public DoomFile (String path) throws IOException {
 		byte[] wadData = Utility.getByteArrayFromFile(path);
 
 		this.headerType = Utility.bytesToString(Arrays.copyOfRange(wadData, 0, 4));
@@ -68,8 +107,11 @@ public class DoomFile {
 		return mapNames;
 	}
 
-	private void parseDirectory(byte[] wadData)
-	{
+	/**
+	 * Takes the byte data and parses the directory
+	 * @param wadData The files data in bytes
+	 */
+	private void parseDirectory(byte[] wadData) {
 		this.fileOffset = new int[this.headerTotalLumps];
 		this.fileSize = new int[this.headerTotalLumps];
 		this.lumpName = new String[this.headerTotalLumps];
@@ -83,8 +125,12 @@ public class DoomFile {
 		}
 	}
 
-	public int findLumpLocation(String lumpname)
-	{
+	/**
+	 * Will search through the wad to find the offset of the lump's location
+	 * @param lumpname The name of the lump to find (it is converted to uppercase in the function)
+	 * @return The index of the lump
+	 */
+	public int findLumpLocation(String lumpname) {
 		String name = lumpname.toUpperCase();
 		int index = -1;
 		for (int i = 0; i < this.lumpName.length; i++) {
@@ -99,14 +145,16 @@ public class DoomFile {
 		return -1;
 	}
 
-	public void getLevelNames(byte[] wadData)
-	{
+	/**
+	 * This goes through and gets the level names from the wad's data
+	 * @param wadData The data of the wad
+	 */
+	public void getLevelNames(byte[] wadData) {
 		String[] temp = new String[this.lumpName.length];
 		Arrays.fill(temp, "");
 		int tempIndex = 0;
 		List<String> listMapNames = Arrays.asList(lumpMapNames);
-		for (int i = 0; i < this.lumpName.length; i++)
-		{
+		for (int i = 0; i < this.lumpName.length; i++) {
 			if ((i != this.lumpName.length - 1) && (this.fileSize[i] == 0) && (listMapNames.contains(this.lumpName[(i + 1)])) && (!listMapNames.contains(this.lumpName[i])) && (!this.lumpName[i].startsWith("GL_"))) {
 				temp[tempIndex] = this.lumpName[i];
 				tempIndex++;
@@ -117,15 +165,15 @@ public class DoomFile {
 			return;
 		}
 		this.levelNames = new String[tempIndex];
-		for (int j = 0; j < tempIndex; j++) {
+		for (int j = 0; j < tempIndex; j++)
 			this.levelNames[j] = temp[j];
-		}
 		Arrays.sort(this.levelNames);
-		System.gc();
 	}
 
-	public void outputData()
-	{
+	/**
+	 * This is a debug function
+	 */
+	public void outputData() {
 		if (this.fileOffset == null) {
 			System.out.println("Cannot print data since fileOffset is null");
 			return;
