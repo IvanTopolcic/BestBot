@@ -246,9 +246,6 @@ public class ServerProcess extends Thread {
 			
 			// Notify the main channel
 			server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port +"! Server ran for " + Functions.calculateTime(uptime / 1000000000));
-
-			// Remove the server from the linked list
-			System.out.println("Removing server status: " + server.bot.servers.remove(server));
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
