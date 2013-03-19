@@ -64,16 +64,13 @@ public class DoomFile {
 	 */
 	public DoomFile (String path) throws IOException {
 		byte[] wadData = Utility.getByteArrayFromFile(path);
-
 		this.headerType = Utility.bytesToString(Arrays.copyOfRange(wadData, 0, 4));
 		this.headerTotalLumps = Utility.bytesToInt(wadData[4], wadData[5], wadData[6], wadData[7]);
 		this.headerPointerToDirectory = Utility.bytesToInt(wadData[8], wadData[9], wadData[10], wadData[11]);
 		System.out.println("Wad data: " + this.headerType + ", " + this.headerTotalLumps + " total lumps, " + this.headerPointerToDirectory + " directory offset");
-
 		parseDirectory(wadData);
 		getLevelNames(wadData);
-
-		System.gc();
+		System.gc(); // There may be a fair amount of junk to remove after getting the level names
 	}
 	
 	/**
@@ -168,6 +165,17 @@ public class DoomFile {
 		for (int j = 0; j < tempIndex; j++)
 			this.levelNames[j] = temp[j];
 		Arrays.sort(this.levelNames);
+	}
+	
+	/**
+	 * Nulls everything in an attempt to prepare it for garbage collection
+	 */
+	public void prepareForGarbageCollection() {
+		this.headerType = null;
+		this.fileOffset = null;
+		this.fileSize = null;
+		this.lumpName = null;
+		this.levelNames = null;
 	}
 
 	/**
