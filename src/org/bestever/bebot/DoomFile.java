@@ -53,9 +53,9 @@ public class DoomFile {
 	public static final int LOCATION_NOT_FOUND = -1;
 	
 	/**
-	 * Common map lumps that are required are enumerated here
+	 * Common map lumps that are required are enumerated here, added support for UDMF
 	 */
-	public static final String[] lumpMapNames = { "THINGS", "LINEDEFS", "SIDEDEFS", "VERTEXES", "SEGS", "SSECTORS", "REJECT", "BLOCKMAP", "GL_VERT", "GL_SEGS", "GL_SSECT", "GL_NODES" };
+	public static final String[] lumpMapNames = { "THINGS", "LINEDEFS", "SIDEDEFS", "VERTEXES", "SEGS", "SSECTORS", "REJECT", "BLOCKMAP", "GL_VERT", "GL_SEGS", "GL_SSECT", "GL_NODES", "TEXTMAP", "ZNODES", "DIALOGUE", "ENDMAP" };
 
 	/**
 	 * Accepts a path to the wad file and will parse it upon invoking the constructor

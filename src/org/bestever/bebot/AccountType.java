@@ -25,12 +25,12 @@ public class AccountType {
 	/**
 	 * To check for different masks, this method searches to see if you contain one of them.
 	 * Usage of this function would be similar to: isAccountType(accountHere, AccountType.ADMIN, AccounType.TRUSTED);
-	 * to check if they are either an admin or trusted user.
+	 * to check if they are either an admin or trusted user
 	 * @param accountType The bitmask to check of the account
 	 * @param types A list of constants (see AccountType enumerations)
 	 * @return True if one of the types is met, false if none are
 	 */
-	public static boolean isAccountTypeOf(int accountType, int... types) {
+	public static boolean isAccountTypeOfAny(int accountType, int... types) {
 		for (int i = 0; i < types.length; i++) {
 			// If we ask for the GUEST mask, then it will always return true as that's the default one
 			if (types[i] == GUEST)
