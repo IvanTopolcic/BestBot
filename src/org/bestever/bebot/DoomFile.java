@@ -99,13 +99,12 @@ public class DoomFile {
 		return -1;
 	}
 
-	@SuppressWarnings("all")
 	public void getLevelNames(byte[] wadData)
 	{
 		String[] temp = new String[this.lumpName.length];
 		Arrays.fill(temp, "");
 		int tempIndex = 0;
-		List listMapNames = Arrays.asList(lumpMapNames);
+		List<String> listMapNames = Arrays.asList(lumpMapNames);
 		for (int i = 0; i < this.lumpName.length; i++)
 		{
 			if ((i != this.lumpName.length - 1) && (this.fileSize[i] == 0) && (listMapNames.contains(this.lumpName[(i + 1)])) && (!listMapNames.contains(this.lumpName[i])) && (!this.lumpName[i].startsWith("GL_"))) {
