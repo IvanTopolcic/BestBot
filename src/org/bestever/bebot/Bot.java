@@ -205,26 +205,6 @@ public class Bot extends PircBot {
 		else
 			sendMessage(cfg_data.irc_channel, "Could not find a server with the port " + port + "!");
 	}
-	
-	/**
-	 * Counts the number of players active on a port
-	 * @param portString The port to check
-	 */
-	private void countPlayers(String portString) {
-		// Ensure it is a valid port
-		if (!Functions.isNumeric(portString)) {
-			sendMessage(cfg_data.irc_channel, "Invalid port number (" + portString + "), not terminating server.");
-			return;
-		}
-		
-		// Search the port
-		int port = Integer.parseInt(portString);
-		Server targetServer = getServer(port);
-		if (targetServer != null)
-			sendMessage(cfg_data.irc_channel, "Number of players: " + targetServer.players);
-		else
-			sendMessage(cfg_data.irc_channel, "Unable to get server at port " + port + ".");
-	}
 
 	/**
 	 * Have the bot handle message events
@@ -239,26 +219,13 @@ public class Bot extends PircBot {
 			int userLevel = mysql.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
 				case ".commands":
-					displayCommands(userLevel);
+					processCommands(userLevel);
 					break;
 				case ".file":
+					processFile(userLevel, keywords);
 					break;
 				case ".get":
-					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
-						if (keywords.length != 3) {
-							sendMessage(cfg_data.irc_channel, "Proper syntax: .get <port> <property> -- see http://www.best-ever.org for what properties you can get");
-							break;
-						}
-						if (!Functions.isNumeric(keywords[1])) {
-							sendMessage(cfg_data.irc_channel, "Port is not a valid number");
-							break;
-						}
-						Server tempServer = getServer(Integer.parseInt(keywords[1]));
-						if (tempServer == null) {
-							break;
-						}
-						sendMessage(cfg_data.irc_channel, tempServer.getField(keywords[1]));
-					}
+					processGet(userLevel, keywords);
 					break;
 				case ".givememoney":
 					sendMessage(cfg_data.irc_channel, Functions.giveMeMoney());
@@ -267,89 +234,49 @@ public class Bot extends PircBot {
 					sendMessage(cfg_data.irc_channel, "Please visit http://www.best-ever.org/ for a tutorial on how to set up servers.");
 					break;	
 				case ".host":
-					if (botEnabled) {
-						if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
-							Server.handleHostCommand(this, servers, channel, sender, login, hostname, message); // Have this function handle everything
-						}
-					}
+					processHost(userLevel, channel, sender, login, hostname, message);
 					break;
 				case ".kill":
-					if (keywords.length != 2) {
-						sendMessage(cfg_data.irc_channel, "Proper syntax: .kill <port>");
-						break;
-					}
-					// Registered can only kill their own servers
-					if (isAccountTypeOf(userLevel, REGISTERED)) {
-						if (Functions.isNumeric(keywords[1])) {
-							Server server = getServer(Integer.parseInt(keywords[1]));
-							if (server != null)
-								if (server.sender.toLowerCase().equals(sender))
-									if (server.serverprocess != null)
-										server.serverprocess.terminateServer();
-									else
-										sendMessage(cfg_data.irc_channel, "Error: Server process is null, contact an administrator");
-								else
-									sendMessage(cfg_data.irc_channel, "Error: You do not own this server!");
-							else
-								sendMessage(cfg_data.irc_channel, "Error getting server, please contact an administrator.");
-						} else 
-							sendMessage(cfg_data.irc_channel, "Improper port number.");
-					// Admins/mods can kill anything
-					} else if (isAccountTypeOf(userLevel, ADMIN, MODERATOR)) {
-						sendMessage(cfg_data.irc_channel, "Attempting to kill: '" + keywords[1] + "'");
-						killServer(keywords[1]); // Can pass string, will process it in the method safely if something goes wrong
-					}
+					processKill(userLevel, keywords, sender);
 					break;
 				case ".killall":
-					if (isAccountTypeOf(userLevel, ADMIN)) {
-					}
+					processKillAll(userLevel, keywords);
 					break; 
 				case ".killmine":
+					processKillMine(userLevel, keywords);
 					break; 
 				case ".level":
-					sendMessage(cfg_data.irc_channel, mysql.getLevel(hostname) + "");
+					processLevel(userLevel, keywords);
 					break;
 				case ".load":
+					processLoad(userLevel, keywords);
 					break;
 				case ".off":
-					if (botEnabled) {
-						if (isAccountTypeOf(userLevel, ADMIN)) {
-							botEnabled = true;
-							sendMessage(cfg_data.irc_channel, "Bot disabled.");
-						}
-					}
+					processOff(userLevel);
 					break;
 				case ".on":
-					if (!botEnabled) {
-						if (isAccountTypeOf(userLevel, ADMIN)) {
-							botEnabled = true;
-							sendMessage(cfg_data.irc_channel, "Bot enabled.");
-						}
-					}
+					processOn(userLevel);
 					break;
 				case ".owner":
+					processOwner(userLevel, keywords);
 					break;
 				case ".players":
-					countPlayers(keywords[1]);
-					break;
-				case ".rcon":
-					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
-					}
-					break;
-				case ".save":
-					break;
-				case ".slot":
+					processPlayers(userLevel, keywords);
 					break;
 				case ".quit":
-					if (isAccountTypeOf(userLevel, ADMIN)) {
-						this.disconnect();
-						System.exit(0);
-					}
+					processQuit(userLevel);
+					break;
+				case ".rcon":
+					processRcon(userLevel, keywords);
+					break;
+				case ".save":
+					processSave(userLevel, keywords);
+					break;
+				case ".slot":
+					processSlot(userLevel, keywords);
 					break;
 				case ".reflect":
-					if (isAccountTypeOf(userLevel, ADMIN)) {
-						reflect(keywords);
-					}
+					processReflect(userLevel, keywords);
 					break;
 				default:
 					break;
@@ -358,10 +285,10 @@ public class Bot extends PircBot {
 	}
 
 	/**
-	 * This 
+	 * This displays commands available for the user
 	 * @param userLevel The level based on AccountType enumeration
 	 */
-	private String displayCommands(int userLevel) {
+	private String processCommands(int userLevel) {
 		switch (userLevel) {
 		case GUEST:
 			return "";
@@ -374,17 +301,148 @@ public class Bot extends PircBot {
 		}
 		return "Undocumented type. Contact an administrator.";
 	}
-
+	
+	private void processFile(int userLevel, String[] keywords) {
+	}
+	
 	/**
-	 * This is a debug function to get fields, it will iterate through the keywords and get methods.
-	 * This method is not complete at all yet; also very messy
-	 * @param keywords The keywords passed to the reflect function (keyword[0] should be ".reflect")
+	 * Gets a field requested by the user
+	 * @param userLevel The user's bitmask level
+	 * @param keywords The field the user wants
 	 */
-	private void reflect(String[] keywords) {
-		if (keywords.length < 3) {
-			sendMessage(cfg_data.irc_channel, ".reflect usage: .reflect <port> <field/class> [subfield/subclass...]");
+	private void processGet(int userLevel, String[] keywords) {
+		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+			if (keywords.length != 3) {
+				sendMessage(cfg_data.irc_channel, "Proper syntax: .get <port> <property> -- see http://www.best-ever.org for what properties you can get");
+				return;
+			}
+			if (!Functions.isNumeric(keywords[1])) {
+				sendMessage(cfg_data.irc_channel, "Port is not a valid number");
+				return;
+			}
+			Server tempServer = getServer(Integer.parseInt(keywords[1]));
+			if (tempServer == null) {
+				return;
+			}
+			sendMessage(cfg_data.irc_channel, tempServer.getField(keywords[1]));
+		}
+	}
+	
+	/**
+	 * Passes the host command off to a static method to create the server
+	 * @param userLevel The user's bitmask level
+	 * @param channel IRC data associated with the sender
+	 * @param sender IRC data associated with the sender
+	 * @param login IRC data associated with the sender
+	 * @param hostname IRC data associated with the sender
+	 * @param message The entire message to be processed
+	 */
+	private void processHost(int userLevel, String channel, String sender, String login, String hostname, String message) {
+		if (botEnabled) {
+			if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+				Server.handleHostCommand(this, servers, channel, sender, login, hostname, message); // Have this function handle everything
+			}
+		}
+	}
+	
+	/**
+	 * Attempts to kill a server based on the port
+	 * @param userLevel The user's bitmask level
+	 * @param keywords The keywords to be processed
+	 * @param sender The person sending the request
+	 */
+	private void processKill(int userLevel, String[] keywords, String sender) {
+		// Ensure proper syntax
+		if (keywords.length != 2) {
+			sendMessage(cfg_data.irc_channel, "Proper syntax: .kill <port>");
 			return;
 		}
+		
+		// Safety net
+		if (servers == null) {
+			sendMessage(cfg_data.irc_channel, "Major error: Linkedlist is null, contact an administrator.");
+			return;
+		}
+		
+		// If server list is empty
+		if (servers.isEmpty()) { 
+			sendMessage(cfg_data.irc_channel, "There are currently no servers running!");
+			return;
+		}
+		
+		// Registered can only kill their own servers
+		if (isAccountTypeOf(userLevel, REGISTERED)) {
+			if (Functions.isNumeric(keywords[1])) {
+				Server server = getServer(Integer.parseInt(keywords[1]));
+				if (server != null)
+					if (server.sender.toLowerCase().equals(sender))
+						if (server.serverprocess != null)
+							server.serverprocess.terminateServer();
+						else
+							sendMessage(cfg_data.irc_channel, "Error: Server process is null, contact an administrator.");
+					else
+						sendMessage(cfg_data.irc_channel, "Error: You do not own this server!");
+				else
+					sendMessage(cfg_data.irc_channel, "Error getting server, please contact an administrator.");
+			} else 
+				sendMessage(cfg_data.irc_channel, "Improper port number.");
+		// Admins/mods can kill anything
+		} else if (isAccountTypeOf(userLevel, ADMIN, MODERATOR)) {
+			sendMessage(cfg_data.irc_channel, "Attempting to kill server on port " + keywords[1] + "...");
+			killServer(keywords[1]); // Can pass string, will process it in the method safely if something goes wrong
+		}
+	}
+	
+	private void processKillAll(int userLevel, String[] keywords) {
+		if (isAccountTypeOf(userLevel, ADMIN)) {
+		}
+	}
+	
+	private void processKillMine(int userLevel, String[] keywords) {
+	}
+	
+	private void processLevel(int userLevel, String[] keywords) {
+		//sendMessage(cfg_data.irc_channel, mysql.getLevel(hostname) + "");
+	}
+	
+	private void processLoad(int userLevel, String[] keywords) {
+	}
+	
+	/**
+	 * Admins can turn off hosting with this
+	 * @param userLevel The user's bitmask level
+	 */
+	private void processOff(int userLevel) {
+		if (botEnabled) {
+			if (isAccountTypeOf(userLevel, ADMIN)) {
+				botEnabled = true;
+				sendMessage(cfg_data.irc_channel, "Bot disabled.");
+			}
+		}
+	}
+	
+	/**
+	 * Admins can re-enable hosting with this
+	 * @param userLevel The user's bitmask level
+	 */
+	private void processOn(int userLevel) {
+		if (!botEnabled) {
+			if (isAccountTypeOf(userLevel, ADMIN)) {
+				botEnabled = true;
+				sendMessage(cfg_data.irc_channel, "Bot enabled.");
+			}
+		}
+	}
+	
+	private void processOwner(int userLevel, String[] keywords) {
+	}
+	
+	/**
+	 * Gets the number of players in a server
+	 * @param userLevel The user's bitmask level
+	 * @param keywords The keywords to be processed
+	 */
+	private void processPlayers(int userLevel, String[] keywords) {
 		// Ensure it is a valid port
 		if (!Functions.isNumeric(keywords[1])) {
 			sendMessage(cfg_data.irc_channel, "Invalid port number (" + keywords[1] + ").");
@@ -393,18 +451,69 @@ public class Bot extends PircBot {
 		
 		// Search the port
 		int port = Integer.parseInt(keywords[1]);
-		Server server = getServer(port);
-		try {
-			Field targetField = server.getClass().getDeclaredField(keywords[2]);
-			try {
-				sendMessage(cfg_data.irc_channel, "Reflected (" + port + ") [ " + keywords[2] + " = Field: " + targetField.get(server).toString() + " ]");
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
+		Server targetServer = getServer(port);
+		if (targetServer != null)
+			sendMessage(cfg_data.irc_channel, "Number of players: " + targetServer.players);
+		else
+			sendMessage(cfg_data.irc_channel, "Unable to get server at port " + port + ".");
+	}
+	
+	private void processRcon(int userLevel, String[] keywords) {
+		if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
+		}
+	}
+	
+	private void processSave(int userLevel, String[] keywords) {
+	}
+	
+	private void processSlot(int userLevel, String[] keywords) {
+	}
+	
+
+	/**
+	 * Invoking this command terminates the bot completely
+	 * @param userLevel The user's bitmask level
+	 */
+	private void processQuit(int userLevel) {
+		if (isAccountTypeOf(userLevel, ADMIN)) {
+			this.disconnect();
+			System.exit(0);
+		}
+	}
+	
+	/**
+	 * This is a debug function to get fields, it will iterate through the keywords and get methods.
+	 * This method is not complete at all yet; also very messy
+	 * @param userLevel The user's bitmask level
+	 * @param keywords The keywords passed to the reflect function (keyword[0] should be ".reflect")
+	 */
+	private void processReflect(int userLevel, String[] keywords) {
+		if (isAccountTypeOf(userLevel, ADMIN)) {
+			if (keywords.length < 3) {
+				sendMessage(cfg_data.irc_channel, ".reflect usage: .reflect <port> <field/class> [subfield/subclass...]");
+				return;
 			}
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchFieldException nsfe) {
-			sendMessage(cfg_data.irc_channel, "No such field to reflect.");
+			// Ensure it is a valid port
+			if (!Functions.isNumeric(keywords[1])) {
+				sendMessage(cfg_data.irc_channel, "Invalid port number (" + keywords[1] + ").");
+				return;
+			}
+			
+			// Search the port
+			int port = Integer.parseInt(keywords[1]);
+			Server server = getServer(port);
+			try {
+				Field targetField = server.getClass().getDeclaredField(keywords[2]);
+				try {
+					sendMessage(cfg_data.irc_channel, "Reflected (" + port + ") [ " + keywords[2] + " = Field: " + targetField.get(server).toString() + " ]");
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (NoSuchFieldException nsfe) {
+				sendMessage(cfg_data.irc_channel, "No such field to reflect.");
+			}
 		}
 	}
 
