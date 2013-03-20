@@ -239,23 +239,26 @@ public class Bot extends PircBot {
 			int userLevel = mysql.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
 				case ".commands":
+					displayCommands(userLevel);
 					break;
 				case ".file":
 					break;
 				case ".get":
-					if (keywords.length != 3) {
-						sendMessage(cfg_data.irc_channel, "Proper syntax: .get <port> <property> -- see http://www.best-ever.org for what properties you can get");
-						break;
+					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+						if (keywords.length != 3) {
+							sendMessage(cfg_data.irc_channel, "Proper syntax: .get <port> <property> -- see http://www.best-ever.org for what properties you can get");
+							break;
+						}
+						if (!Functions.isNumeric(keywords[1])) {
+							sendMessage(cfg_data.irc_channel, "Port is not a valid number");
+							break;
+						}
+						Server tempServer = getServer(Integer.parseInt(keywords[1]));
+						if (tempServer == null) {
+							break;
+						}
+						sendMessage(cfg_data.irc_channel, tempServer.getField(keywords[1]));
 					}
-					if (!Functions.isNumeric(keywords[1])) {
-						sendMessage(cfg_data.irc_channel, "Port is not a valid number");
-						break;
-					}
-					Server tempServer = getServer(Integer.parseInt(keywords[1]));
-					if (tempServer == null) {
-						break;
-					}
-					sendMessage(cfg_data.irc_channel, tempServer.getField(keywords[1]));
 					break;
 				case ".givememoney":
 					sendMessage(cfg_data.irc_channel, Functions.giveMeMoney());
@@ -271,12 +274,30 @@ public class Bot extends PircBot {
 					}
 					break;
 				case ".kill":
-					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+					// Registered can only kill their own servers
+					if (isAccountTypeOf(userLevel, REGISTERED)) {
+						if (Functions.isNumeric(keywords[1])) {
+							Server server = getServer(Integer.parseInt(keywords[1]));
+							if (server != null)
+								if (server.sender.toLowerCase().equals(sender))
+									if (server.serverprocess != null)
+										server.serverprocess.terminateServer();
+									else
+										sendMessage(cfg_data.irc_channel, "Error: Server process is null, contact an administrator");
+								else
+									sendMessage(cfg_data.irc_channel, "Error: You do not own this server!");
+							else
+								sendMessage(cfg_data.irc_channel, "Error getting server, please contact an administrator.");
+						}
+					// Admins/mods can kill anything
+					} else if (isAccountTypeOf(userLevel, ADMIN, MODERATOR)) {
 						sendMessage(cfg_data.irc_channel, "Attempting to kill: '" + keywords[1] + "'");
 						killServer(keywords[1]); // Can pass string, will process it in the method safely if something goes wrong
 					}
 					break;
 				case ".killall":
+					if (isAccountTypeOf(userLevel, ADMIN)) {
+					}
 					break; 
 				case ".killmine":
 					break; 
@@ -307,6 +328,8 @@ public class Bot extends PircBot {
 					countPlayers(keywords[1]);
 					break;
 				case ".rcon":
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
+					}
 					break;
 				case ".save":
 					break;
@@ -328,7 +351,25 @@ public class Bot extends PircBot {
 			}
 		}
 	}
-	
+
+	/**
+	 * This 
+	 * @param userLevel The level based on AccountType enumeration
+	 */
+	private String displayCommands(int userLevel) {
+		switch (userLevel) {
+		case GUEST:
+			return "";
+		case REGISTERED:
+			return "";
+		case MODERATOR:
+			return "";
+		case ADMIN:
+			return "";
+		}
+		return "Undocumented type. Contact an administrator.";
+	}
+
 	/**
 	 * This is a debug function to get fields, it will iterate through the keywords and get methods.
 	 * This method is not complete at all yet; also very messy
