@@ -244,6 +244,7 @@ public class Bot extends PircBot {
 				case ".file":
 					break;
 				case ".givememoney":
+					sendMessage(cfg_data.irc_channel, Functions.giveMeMoney());
 					break;
 				case ".help":
 					sendMessage(cfg_data.irc_channel, "Please visit http://www.best-ever.org/ for a tutorial on how to set up servers.");
@@ -351,33 +352,30 @@ public class Bot extends PircBot {
 	 * Have the bot handle private message events
 	 */
 	public void onPrivateMessage(String sender, String login, String hostname, String message) {
-		// Generate an array of keywords from the message (similar to onMessage)
-		String[] keywords = message.split(" ");
-		
-		// Check if the user is logged in
-		boolean loggedIn = Functions.checkLoggedIn(hostname);
-		
-		// As of now, you can only perform commands if you are logged in
-		// So we don't need an else here
-		if (loggedIn) {
+		// As of now, you can only perform commands if you are logged in, so we don't need an else here
+		if (Functions.checkLoggedIn(hostname)) {
+			// Generate an array of keywords from the message (similar to onMessage)
+			String[] keywords = message.split(" ");
+			
+			// Handle private text
 			switch (keywords[0].toLowerCase()) {
-			// Registering an account
 			case "register":
 				if (keywords.length == 2)
 					mysql.registerAccount(hostname, keywords[1], sender);
 				else
-					sendMessage(sender, "Incorrect syntax! Usage is /msg BestBot register <password>");
+					sendMessage(sender, "Incorrect syntax! Usage is: register <password>");
 				break;
-			// Changing user password
 			case "changepw":
 				if (keywords.length == 2)
 					mysql.changePassword(hostname, keywords[1], sender);
 				else
-					sendMessage(sender, "Incorrect syntax! Usage is /msg BestBot changepw <new_password>");
+					sendMessage(sender, "Incorrect syntax! Usage is: changepw <new_password>");
 				break;
 			default:
 				break;
 			}
+		} else {
+			sendMessage(cfg_data.irc_channel, "Your account is not logged in properly to the IRC network. Please log in and re-query.");
 		}
 	}
 	

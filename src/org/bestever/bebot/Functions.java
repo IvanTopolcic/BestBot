@@ -140,4 +140,19 @@ public class Functions {
 		long second = TimeUnit.SECONDS.toSeconds(seconds) - (TimeUnit.SECONDS.toMinutes(seconds) *60);
 		return day + " days " + hours + " hours " + minute + " minutes and " + second + " seconds.";
 	}
+	
+	/**
+	 * Giving money is nice!
+	 * @return A string with a serious message
+	 */
+	public static String giveMeMoney() {
+		return giveMeMoneyLines[(int)(Math.random() * giveMeMoneyLines.length)];
+	}
+	
+	// Yes ^_^
+	public static final String[] giveMeMoneyLines = {
+		"Yes", "No", "Nope", "Of course", "Why?", "Maybe...", "Perhaps", "Maybe", "Probably not", "Not likely", "Soon™", "Never", "Stop asking", "Chances are low",
+		"Definitely not", "Never ever", "Hmm... no", "Pass", "Nah", "Improbable", "Unlikely"
+	};
+	
 }
