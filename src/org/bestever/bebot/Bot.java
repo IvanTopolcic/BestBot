@@ -219,7 +219,7 @@ public class Bot extends PircBot {
 			int userLevel = mysql.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
 				case ".commands":
-					processCommands(userLevel);
+					sendMessage(cfg_data.irc_channel, "Allowed commands: " + processCommands(userLevel));
 					break;
 				case ".file":
 					processFile(userLevel, keywords);
@@ -291,13 +291,13 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		switch (userLevel) {
 		case GUEST:
-			return "";
+			return "[Not logged in, guests have limited access] commands, file, givememoney, help";
 		case REGISTERED:
-			return "";
+			return "commands, file, get, givememoney, help, host, kill, killmine, level, load, owner, players, save, slot";
 		case MODERATOR:
-			return "";
+			return "commands, file, get, givememoney, help, host, kill, killmine, level, load, owner, players, rcon, save, slot";
 		case ADMIN:
-			return "";
+			return "commands, file, get, givememoney, help, host, kill, killall, killmine, level, load, on, off, owner, players, quit, rcon, save, slot, reflect";
 		}
 		return "Undocumented type. Contact an administrator.";
 	}
