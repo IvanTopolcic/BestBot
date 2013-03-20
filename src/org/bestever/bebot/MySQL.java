@@ -83,7 +83,7 @@ public class MySQL {
 	 * @throws ClassNotFoundException 
 	 * @throws SQLException 
 	 */
-	public int getLevel (String hostname) {
+	public int getLevel(String hostname) {
 		if (Functions.checkLoggedIn(hostname)) {
 			String query = "SELECT `level` FROM " + mysql_db + ".`login` WHERE `username` = ?";
 			try ( PreparedStatement pst = con.prepareStatement(query); ) {
@@ -130,7 +130,6 @@ public class MySQL {
 			// The username already exists!
 			if (r.next())
 				bot.sendMessage(sender, "Account already exists!");
-			
 			else {
 				// Prepare, bind & execute
 				xs.setString(1, r.getString("username"));
@@ -141,8 +140,7 @@ public class MySQL {
 				else
 					this.bot.sendMessage(sender, "There was an error registering your account.");
 				}
-			}
-		catch (SQLException e) {
+			} catch (SQLException e) {
 			System.out.println("ERROR: SQL_ERROR in 'registerAccount()'");
 			logMessage("ERROR: SQL_ERROR in 'registerAccount()'");
 			e.printStackTrace();
@@ -174,23 +172,22 @@ public class MySQL {
 			
 			// The username doesn't exist!
 			if (!r.next())
-				bot.sendMessage(bot.cfg_data.irc_channel, "User does not exist.");
+				bot.sendMessage(bot.cfg_data.irc_channel, "Username does not exist.");
 			
 			else {
 				// Prepare, bind & execute
 				xs.setString(1, BCrypt.hashpw(password, BCrypt.gensalt(14)));
 				xs.setString(2, r.getString("username"));
 				if (xs.executeUpdate() == 1)
-					bot.sendMessage(sender, "Successfully changed your password.");
+					bot.sendMessage(sender, "Successfully changed your password!");
 				else
-					bot.sendMessage(sender, "There was an error changing your password.");
-				}
+					bot.sendMessage(sender, "There was an error changing your password (executeUpdate error). Try again or contact an administrator with this message.");
 			}
-		catch (SQLException e) {
+		} catch (SQLException e) {
 			System.out.println("ERROR: SQL_ERROR in 'changePassword()'");
 			logMessage("ERROR: SQL_ERROR in 'changePassword()'");
 			e.printStackTrace();
-			bot.sendMessage(sender, "There was an error changing your password account.");
+			bot.sendMessage(sender, "There was an error changing your password account (thrown SQLException). Try again or contact an administrator with this message.");
 		}
 	}
 	
