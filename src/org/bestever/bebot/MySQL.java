@@ -207,6 +207,10 @@ public class MySQL {
 		}
 	}
 	
+	public void activate(String hostname, String confirmationKey, String sender) {
+		
+	}
+	
 	/**
 	 * This is invoked to request mysql to add the server object to the database
 	 * How it should be handled is all the fields in the Server class will be entered
