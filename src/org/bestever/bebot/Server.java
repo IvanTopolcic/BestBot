@@ -572,6 +572,63 @@ public class Server implements Serializable {
 	}
 	
 	/**
+	 * Will return generic things from a server that a user may want to request, this method
+	 * does not return anything that contains sensitive information (which can be done with reflection)
+	 * @param fieldToGet A String indicating what field to get
+	 * @return A String containing the data
+	 */
+	public String getField(String fieldToGet) {
+		switch (fieldToGet.toLowerCase()) {
+			case "buckshot":
+				return Boolean.toString(this.buckshot);
+			case "compatflags":
+				return Integer.toString(this.compatflags);
+			case "compatflags2":
+				return Integer.toString(this.compatflags2);
+			case "config":
+			case "cfg":
+			case "configuration":
+				return this.config;
+			case "disable_skulltag_data":
+			case "stdata":
+			case "skulltag_data":
+			case "skulltagdata":
+				return Boolean.toString(this.disable_skulltag_data);
+			case "dmflags":
+				return Integer.toString(this.dmflags);
+			case "dmflags2":
+				return Integer.toString(this.dmflags2);
+			case "dmflags3":
+				return Integer.toString(this.dmflags3);
+			case "gamemode":
+			case "gametype":
+				return this.gamemode;
+			case "host":
+			case "hostcommand":
+			case "host_command":
+				return this.host_command;
+			case "instagib":
+				return Boolean.toString(this.instagib);
+			case "iwad":
+				return this.iwad;
+			case "mapwad":
+			case "mapwads":
+				return this.mapwads;
+			case "name":
+			case "server_name":
+			case "hostname":
+			case "servername":
+				return this.servername;
+			case "wad":
+			case "wads":
+				return this.wads;
+			default:
+				break;
+		}
+		return "Error: Not a supported keyword";
+	}
+	
+	/**
 	 * This method serializes a given server to a folder specified (probably in the .ini) so
 	 * that servers can be re-initialized at some point in the future
 	 * @param server The server object to serialize

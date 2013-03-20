@@ -235,13 +235,27 @@ public class Bot extends PircBot {
 			// Generate an array of keywords from the message
 			String[] keywords = message.split(" ");
 			
-			// Perform function based on input (note: login is handled by the MySQL function/class)
-			// Also mostly in alphabetical order for convenience
+			// Perform function based on input (note: login is handled by the MySQL function/class); also mostly in alphabetical order for convenience
 			int userLevel = mysql.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
 				case ".commands":
 					break;
 				case ".file":
+					break;
+				case ".get":
+					if (keywords.length != 3) {
+						sendMessage(cfg_data.irc_channel, "Proper syntax: .get <port> <property> -- see http://www.best-ever.org for what properties you can get");
+						break;
+					}
+					if (!Functions.isNumeric(keywords[1])) {
+						sendMessage(cfg_data.irc_channel, "Port is not a valid number");
+						break;
+					}
+					Server tempServer = getServer(Integer.parseInt(keywords[1]));
+					if (tempServer == null) {
+						break;
+					}
+					sendMessage(cfg_data.irc_channel, tempServer.getField(keywords[1]));
 					break;
 				case ".givememoney":
 					sendMessage(cfg_data.irc_channel, Functions.giveMeMoney());
@@ -371,7 +385,7 @@ public class Bot extends PircBot {
 				if (keywords.length == 2)
 					mysql.registerAccount(hostname, keywords[1], sender);
 				else
-					sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + "register <password>");
+					sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " register <password>");
 				break;
 			default:
 				break;
