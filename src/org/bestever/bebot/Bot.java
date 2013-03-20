@@ -359,17 +359,19 @@ public class Bot extends PircBot {
 			
 			// Handle private text
 			switch (keywords[0].toLowerCase()) {
-			case "register":
-				if (keywords.length == 2)
-					mysql.registerAccount(hostname, keywords[1], sender);
-				else
-					sendMessage(sender, "Incorrect syntax! Usage is: register <password>");
+			case "activate":
 				break;
 			case "changepw":
 				if (keywords.length == 2)
 					mysql.changePassword(hostname, keywords[1], sender);
 				else
 					sendMessage(sender, "Incorrect syntax! Usage is: changepw <new_password>");
+				break;
+			case "register":
+				if (keywords.length == 2)
+					mysql.registerAccount(hostname, keywords[1], sender);
+				else
+					sendMessage(sender, "Incorrect syntax! Usage is: register <password>");
 				break;
 			default:
 				break;
