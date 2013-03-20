@@ -274,6 +274,10 @@ public class Bot extends PircBot {
 					}
 					break;
 				case ".kill":
+					if (keywords.length != 2) {
+						sendMessage(cfg_data.irc_channel, "Proper syntax: .kill <port>");
+						break;
+					}
 					// Registered can only kill their own servers
 					if (isAccountTypeOf(userLevel, REGISTERED)) {
 						if (Functions.isNumeric(keywords[1])) {
@@ -288,7 +292,8 @@ public class Bot extends PircBot {
 									sendMessage(cfg_data.irc_channel, "Error: You do not own this server!");
 							else
 								sendMessage(cfg_data.irc_channel, "Error getting server, please contact an administrator.");
-						}
+						} else 
+							sendMessage(cfg_data.irc_channel, "Improper port number.");
 					// Admins/mods can kill anything
 					} else if (isAccountTypeOf(userLevel, ADMIN, MODERATOR)) {
 						sendMessage(cfg_data.irc_channel, "Attempting to kill: '" + keywords[1] + "'");
