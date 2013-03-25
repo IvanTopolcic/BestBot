@@ -1,28 +1,23 @@
 package org.bestever.bebot;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.LinkedList;
 
-public class Server implements Serializable {
+public class Server {
 
 	/**
 	 * Contains the thread of the server process
 	 */
-	public transient ServerProcess serverprocess;
+	public ServerProcess serverprocess;
 	
 	/**
 	 * Contains the reference to the bot
 	 */
-	public transient Bot bot;
+	public Bot bot;
 	
 	/**
 	 * Contains the number of players
 	 */
-	public transient byte players = 0;
+	public byte players = 0;
 	
 	/**
 	 * Contains the port it is run on
@@ -149,11 +144,6 @@ public class Server implements Serializable {
 	 * Contains the RCON Password
 	 */
 	public String rcon_password;
-	
-	/**
-	 *  Random generated ID for serialization
-	 */
-	private static final long serialVersionUID = -2392019434571282715L;
 	
 	/**
 	 * If there's an error with processing of numbers, return this
@@ -626,63 +616,5 @@ public class Server implements Serializable {
 				break;
 		}
 		return "Error: Not a supported keyword";
-	}
-	
-	/**
-	 * This method serializes a given server to a folder specified (probably in the .ini) so
-	 * that servers can be re-initialized at some point in the future
-	 * @param server The server object to serialize
-	 * @param folderPath The path to the folder where Server objects are writen/read from
-	 * @return True if successful in writing the object, false if not
-	 */
-	public static boolean serializeServer(Server server, String folderPath, String extension) {
-		// Make sure the server and folderPath are valid
-		if (server == null)
-			return false;
-		
-		// Set our file up
-		File objectFile = new File(folderPath + Integer.toString(server.port) + extension);
-		
-		// If the file doesnt exist, create it
-		if (!objectFile.exists()) {
-			try {
-				objectFile.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
-		
-		// If we can't write to it, or something is wrong, return false
-		if (!objectFile.canRead() || !objectFile.canWrite())
-			return false;
-	
-		// Prepare object output stream for writing
-		ObjectOutputStream oos = null;
-		try {
-			oos = new ObjectOutputStream(new FileOutputStream(new File(objectFile.getPath())));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-		
-		// Since our objectstream should be functional, write the server
-		try {
-			oos.writeObject(server);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-		
-		// Close
-		try {
-			oos.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-		
-		// Verify if the final exists
-		return true;
 	}
 }
