@@ -1,7 +1,9 @@
 package org.bestever.bebot;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -78,11 +80,10 @@ public class Serialization {
 			serializationLine += "irc_channel[" + server.irc_channel + "];";
 			serializationLine += "irc_hostname[" + server.irc_hostname + "];";
 			serializationLine += "irc_login[" + server.irc_login + "];";
-			serializationLine += "host_command[" + server.host_command + "];";
-			serializationLine += "servername[" + server.servername + "];";
 			serializationLine += "iwad[" + server.iwad + "];";
-			serializationLine += "gamemode[" + server.host_command + "];";
+			serializationLine += "gamemode[" + server.gamemode + "];";
 			serializationLine += "rcon_password[" + server.rcon_password + "];";
+			serializationLine += "server_id[" + server.server_id + "];";
 			serializationLine += "play_time[" + server.play_time + "];";
 			
 			// Non essential
@@ -92,24 +93,25 @@ public class Serialization {
 				serializationLine += "wads[" + server.wads + "];";
 			if (server.mapwads != null)
 				serializationLine += "mapwads[" + server.mapwads + "];";
-			if (server.server_parameters != null)
-				serializationLine += "server_parameters[" + server.server_parameters + "];";
 			if (server.disable_skulltag_data)
-				serializationLine += "[" + Boolean.toString(server.disable_skulltag_data) + "];";
+				serializationLine += "disable_skulltag_data[" + Boolean.toString(server.disable_skulltag_data) + "];";
 			if (server.instagib)
-				serializationLine += "[" + Boolean.toString(server.instagib) + "];";
+				serializationLine += "instagib[" + Boolean.toString(server.instagib) + "];";
 			if (server.buckshot)
-				serializationLine += "[" + Boolean.toString(server.buckshot) + "];";
+				serializationLine += "buckshot[" + Boolean.toString(server.buckshot) + "];";
 			if (server.dmflags > 0)
-				serializationLine += "[" + Integer.toString(server.dmflags) + "];";
+				serializationLine += "dmflags[" + Integer.toString(server.dmflags) + "];";
 			if (server.dmflags2 > 0)
-				serializationLine += "[" + Integer.toString(server.dmflags2) + "];";
+				serializationLine += "dmflags2[" + Integer.toString(server.dmflags2) + "];";
 			if (server.dmflags3 > 0)
-				serializationLine += "[" + Integer.toString(server.dmflags3) + "];";
+				serializationLine += "dmflags3[" + Integer.toString(server.dmflags3) + "];";
 			if (server.compatflags > 0)
-				serializationLine += "[" + Integer.toString(server.compatflags) + "];";
+				serializationLine += "compatflags[" + Integer.toString(server.compatflags) + "];";
 			if (server.compatflags2 > 0)
-				serializationLine += "[" + Integer.toString(server.compatflags2) + "];";
+				serializationLine += "compatflags2[" + Integer.toString(server.compatflags2) + "];";
+			
+			// Leave this for the end since it's irritating to process
+			serializationLine += "servername[" + server.servername + "];";
 			
 			// Always end with starting a new line (one server per line)
 			serializationLine += "\n";
@@ -140,8 +142,106 @@ public class Serialization {
 	 * This deserializes the servers and handles/runs them.
 	 * @param serverFilePath The text file path the data was saved to
 	 * @param serversToFillUp The reference to the variable we will write to
+	 * @throws IOException If something goes wrong
 	 */
-	public static void unserializeServers(String serverFilePath, LinkedList<Server> serversToFillUp) {
+	public static void unserializeServers(String serverFilePath, LinkedList<Server> serversToFillUp) throws IOException {
+		// Ensure we are pointed to a file
+		if (serverFilePath == null) {
+			System.out.println("Must have a valid server file path");
+			return;
+		}
 		
+		// Open a reader
+		BufferedReader reader = new BufferedReader(new FileReader(new File(serverFilePath)));
+		
+		// There will be one server per line
+		Server server;
+		String serverData = "";
+		while ((serverData = reader.readLine()) != null) {
+			server = new Server();
+			
+			server.time_started = getSerializedLong(serverData, "time_started[", "];");
+			server.sender = getSerializedString(serverData, "sender[", "];");
+			server.irc_channel = getSerializedString(serverData, "irc_channel[", "];");
+			server.irc_hostname = getSerializedString(serverData, "irc_hostname[", "];");
+			server.irc_login = getSerializedString(serverData, "irc_login[", "];");
+			server.iwad = getSerializedString(serverData, "iwad[", "];");
+			server.gamemode = getSerializedString(serverData, "gamemode[", "];");
+			server.rcon_password = getSerializedString(serverData, "rcon_password[", "];");
+			server.server_id = getSerializedString(serverData, "server_id[", "];");
+			server.play_time = getSerializedLong(serverData, "play_time[", "];");
+			server.servername = getSerializedHostname(serverData, "servername[", "];"); // Must be at the end of the string
+			
+			// Ensure there was no errors, if so then just continue on without adding it
+			if (server.validServer()) {
+				
+				// Check for possible parameters
+			
+				// At the end, add it to the linked list, and then run it
+				serversToFillUp.add(server);
+				server.serverprocess = new ServerProcess(server);
+				server.serverprocess.start();
+			}
+		}
+		
+		// Close when done
+		reader.close();
+	}
+	
+	// D:
+	public static String getSerializedHostname(String serverData, String beginning, String veryEnd) {
+		return null;
+	}
+
+	/**
+	 * Gets a serialized String from the requested line
+	 * @param line The line to process
+	 * @param beginning The beginning marker
+	 * @param end The end marker
+	 * @return A String of what we want; null if there's an exception
+	 */	
+	public static String getSerializedString(String line, String beginning, String end) {
+		try {
+			int startIndex = line.indexOf(beginning) + beginning.length();
+			int endIndex = line.indexOf(end, startIndex) + end.length();
+			return line.substring(startIndex, endIndex);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * Grabs the data between beginning and end as a long.
+	 * @param line The line to process
+	 * @param beginning The beginning marker
+	 * @param end The end marker
+	 * @return A long value of what we want; 0 if there's an exception
+	 */
+	public static long getSerializedLong(String line, String beginning, String end) {
+		try {
+			String numberString = getSerializedString(line, beginning, end);
+			Long.parseLong(numberString);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	/**
+	 * Gets a serialized integer from the requested line
+	 * @param line The line to process
+	 * @param beginning The beginning marker
+	 * @param end The end marker
+	 * @return A int value of what we want; 0 if there's an exception
+	 */
+	public static int getSerializedInt(String line, String beginning, String end) {
+		try {
+			String numberString = getSerializedString(line, beginning, end);
+			Integer.parseInt(numberString);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
 	}
 }

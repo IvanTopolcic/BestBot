@@ -90,12 +90,6 @@ public class Server {
 	public String mapwads;
 	
 	/**
-	 * This contains the actual instructions that the server will run at the very end
-	 * Ex: "./zandronum-server -file holycrapbatman_no.wad +duel 1 +customcommandhere"
-	 */
-	public String server_parameters;
-	
-	/**
 	 * If this is true, that means skulltag data will be enabled
 	 */
 	public boolean disable_skulltag_data;
@@ -149,6 +143,13 @@ public class Server {
 	 * If there's an error with processing of numbers, return this
 	 */
 	public static final int FLAGS_ERROR = 0xFFFFFFFF;
+	
+	/**
+	 * Empty constructor
+	 */
+	public Server() {
+		// Placeholder
+	}
 	
 	/**
 	 * This will take ".host ...", parse it and pass it off safely to anything else
@@ -616,5 +617,35 @@ public class Server {
 				break;
 		}
 		return "Error: Not a supported keyword";
+	}
+	
+	/**
+	 * Checks to see if the core stuff is needed to start a server
+	 * @return True if it's a valid server, false otherwise
+	 */
+	public boolean validServer() {
+		if (this.time_started == 0 || this.play_time == 0)
+			return false;
+		if (this.sender == null) 
+			return false;
+		if (this.irc_channel == null) 
+			return false;
+		if (this.irc_channel == null)
+			return false;
+		if (this.irc_hostname == null)
+			return false;
+		if (this.irc_login == null)
+			return false;
+		if (this.iwad == null)
+			return false;
+		if (this.gamemode == null)
+			return false;
+		if (this.rcon_password == null)
+			return false;
+		if (this.server_id == null)
+			return false;
+		if (this.servername == null)
+			return false;
+		return true;
 	}
 }
