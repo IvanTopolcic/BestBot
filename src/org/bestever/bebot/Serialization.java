@@ -188,7 +188,13 @@ public class Serialization {
 		reader.close();
 	}
 	
-	// D:
+	/**
+	 * This specifically grabs the hostname at the end of the list
+	 * @param serverData The line for the server
+	 * @param beginning The first part 
+	 * @param veryEnd The very end of the line which we should read between
+	 * @return The hostname, or null if something went wrong
+	 */
 	public static String getSerializedHostname(String serverData, String beginning, String veryEnd) {
 		return null;
 	}
