@@ -145,6 +145,11 @@ public class Server {
 	public static final int FLAGS_ERROR = 0xFFFFFFFF;
 	
 	/**
+	 * This is the time of a day in milliseconds
+	 */
+	public static final long DAY_MILLISECONDS = 1000 * 60 * 60 * 24;
+	
+	/**
 	 * Empty constructor
 	 */
 	public Server() {

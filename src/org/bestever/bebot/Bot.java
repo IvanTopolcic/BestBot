@@ -165,14 +165,13 @@ public class Bot extends PircBot {
 	 * Returns all of the servers in the linked list
 	 * @return The server object
 	 */
-	public Server getAllServers() {
+	// Need to check if it works
+	public Server[] getAllServers() {
 		if (servers == null || servers.isEmpty())
 			return null;
-		ListIterator<Server> it = servers.listIterator();
-		Server desiredServer = null;
-		while (it.hasNext())
-			return desiredServer;
-		return null;
+		Server[] serverList = new Server[servers.size()];
+		serverList = servers.toArray(serverList);
+		return serverList;
 	}
 	
 	/**
@@ -245,6 +244,9 @@ public class Bot extends PircBot {
 				case ".killmine":
 					processKillMine(userLevel, keywords);
 					break; 
+				case ".killinactive":
+					processKillInactive(userLevel, keywords);
+					break;
 				case ".load":
 					processLoad(userLevel, keywords);
 					break;
@@ -293,11 +295,11 @@ public class Bot extends PircBot {
 		case GUEST:
 			return "[Not logged in, guests have limited access] commands, file, givememoney, help";
 		case REGISTERED:
-			return "commands, file, get, givememoney, help, host, kill, killmine, load, owner, players, save, slot";
+			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .save, .slot";
 		case MODERATOR:
-			return "commands, file, get, givememoney, help, host, kill, killmine, load, owner, players, rcon, save, slot, userlevel";
+			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .rcon, .save, .slot, .userlevel";
 		case ADMIN:
-			return "commands, file, get, givememoney, help, host, kill, killall, killmine, load, on, off, owner, players, quit, rcon, save, slot, reflect, userlevel";
+			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .quit, .rcon, .save, .slot, .reflect, .userlevel";
 		}
 		return "Undocumented type. Contact an administrator.";
 	}
@@ -417,6 +419,43 @@ public class Bot extends PircBot {
 	}
 	
 	private void processKillMine(int userLevel, String[] keywords) {
+	}
+	
+	/**
+	 * This will kill inactive servers based on the days specified in the second parameter
+	 * @param userLevel The user's bitmask level
+	 * @param keywords The field the user wants
+	 */
+	private void processKillInactive(int userLevel, String[] keywords) {
+		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR)) {
+			if (keywords.length < 2) {
+				sendMessage(cfg_data.irc_channel, "Proper syntax: .killinactive <days since> (ex: use .killinactive 3 to kill servers that haven't seen anyone for 3 days)");
+				return;
+			}
+			if (Functions.isNumeric(keywords[1])) {
+				int numOfDays = Integer.parseInt(keywords[1]);
+				if (numOfDays > 0) {
+					if (servers == null || servers.isEmpty()) {
+						sendMessage(cfg_data.irc_channel, "No servers to kill.");
+						return;
+					}
+					sendMessage(cfg_data.irc_channel, "Killing servers that are " + numOfDays + " days old or older...");
+					ListIterator<Server> it = servers.listIterator();
+					Server s = null; 
+					while (it.hasNext()) {
+						s = it.next();
+						if (System.currentTimeMillis() - s.time_started > (Server.DAY_MILLISECONDS * numOfDays))
+							s.serverprocess.terminateServer();
+					}
+				} else {
+					sendMessage(cfg_data.irc_channel, "Using zero or less for .killinactive is not allowed.");
+					return;
+				}
+			} else {
+				sendMessage(cfg_data.irc_channel, "Unexpected parameter for method.");
+				return;
+			}
+		}
 	}
 	
 	private void processUserLevel(int userLevel, String hostname) {
