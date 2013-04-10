@@ -121,6 +121,18 @@ public class ConfigData {
 	public boolean bot_verbose;
 	
 	/**
+	 * This will save and read the serialization file from this file (this MUST be in the same folder as the bot, ex: "savedservers.txt")
+	 */
+	public String bot_serializationfile;
+	
+	/**
+	 * This is where the saved serializations will be archived upon being read, because they will have to be deleted upon reading so the bot
+	 * can create a new serialization file. <br>
+	 * Note this is relative to the location the bot is in (it will create it in the bot directory)!
+	 */
+	public String bot_serializationbackupdir;
+	
+	/**
 	 * This constructor once initialized will parse the config file based on the path
 	 * @param filepath A string with the path to a file
 	 * @throws IOException 
@@ -178,5 +190,7 @@ public class ConfigData {
 		this.bot_wad_directory_path = bot.get("waddir");
 		this.bot_cfg_directory_path = bot.get("cfgdir");
 		this.bot_executable = bot.get("executable");
+		this.bot_serializationfile = bot.get("serializationfile");
+		this.bot_serializationbackupdir = bot.get("serializationbackupdir");
 	}
 }
