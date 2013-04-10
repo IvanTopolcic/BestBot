@@ -3,6 +3,7 @@ package org.bestever.bebot;
 import static org.bestever.bebot.Logger.logMessage;
 import static org.bestever.bebot.AccountType.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
@@ -221,7 +222,7 @@ public class Bot extends PircBot {
 					sendMessage(cfg_data.irc_channel, "Allowed commands: " + processCommands(userLevel));
 					break;
 				case ".file":
-					processFile(userLevel, keywords);
+					processFile(userLevel, keywords, channel);
 					break;
 				case ".get":
 					processGet(userLevel, keywords);
@@ -304,23 +305,21 @@ public class Bot extends PircBot {
 		return "Undocumented type. Contact an administrator.";
 	}
 	
-	private void processFile(int userLevel, String[] keywords) {
-		/*
-                        String[] words = message.split(" ");
-                        if (words.length == 2)
-                        {
-                                File file = new File(waddir + words[1].toLowerCase());
-                                boolean exists = file.exists();
-                                if (exists)
-                                {
-                                        sendMessage(channel, "File " + words[1] + " exists.");
-                                }
-                                else
-                                {
-                                        sendMessage(channel, "File does not exist.");
-                                }
-                        }
-		 */
+	/**
+	 * This checks to see if the file exists in the wad directory (it is lower-cased)
+	 * @param userLevel The level of the user
+	 * @param keywords The keywords sent (should be a length of two)
+	 * @param channel The channel to respond to
+	 */
+	private void processFile(int userLevel, String[] keywords, String channel) {
+		if (keywords.length == 2) {
+			File file = new File(cfg_data.bot_wad_directory_path + keywords[1].toLowerCase());
+			if (file.exists())
+				sendMessage(channel, "File " + keywords[1].toLowerCase() + " exists on the server.");
+			else
+				sendMessage(channel, "File does not exist.");
+		} else
+			sendMessage(channel, "Incorrect syntax, use: .file <filename.wad/pk3>");
 	}
 	
 	/**
@@ -413,11 +412,13 @@ public class Bot extends PircBot {
 		}
 	}
 	
+	// UNIMPLEMENTED YET
 	private void processKillAll(int userLevel, String[] keywords) {
 		if (isAccountTypeOf(userLevel, ADMIN)) {
 		}
 	}
 	
+	// UNIMPLEMENTED YET
 	private void processKillMine(int userLevel, String[] keywords) {
 	}
 	
@@ -463,95 +464,8 @@ public class Bot extends PircBot {
 			sendMessage(cfg_data.irc_channel, "User level of '" + hostname + "': " +Integer.toString(mysql.getLevel(hostname)));
 	}
 	
+	// UNIMPLEMENTED YET
 	private void processLoad(int userLevel, String[] keywords) {
-		/*
-                        String[] words = message.split(" ");
-                        if ((words.length == 2) && (Functions.isNumeric(words[1])))
-                        {
-                                int slot = Integer.parseInt(words[1]);
-                                if (slot > 0 && slot < 11)
-                                {
-                                        try
-                                        {
-                                                con = dbConnect();
-                                                if (con == null)
-                                                {
-                                                        sendMessage(channel, "SQL Connection error!");
-                                                }
-                                                else
-                                                {
-                                                        String query = "SELECT `serverstring`,`slot` FROM `server`.`save` WHERE `slot` = ? && `username` = ?";
-                                                        PreparedStatement pst = con.prepareStatement(query);
-                                                        pst.setInt(1, slot);
-                                                        pst.setString(2, Functions.getUserName(hostname));
-                                                        ResultSet rs = pst.executeQuery();
-                                                        if (rs.next())
-                                                        {
-                                                                if (!hosting)
-                                                                {
-                                                                        byte counter = Functions.countServersHostname(channel, Functions.getUserName(hostname));
-                                                                        if (counter > 3)
-                                                                        {
-                                                                                sendMessage(channel, "You have reached the server limit.");
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                                try
-                                                                                {
-                                                                                        String ID = Functions.getUniqueID();
-                                                                                        short port = Functions.getEmptyPort();
-                                                                                        if (port == 0)
-                                                                                        {
-                                                                                                sendMessage(channel, "The global server limit has been reached.");
-                                                                                        }
-                                                                                        else if (runServer(channel, sender, rs.getString("serverstring"), hostname, ID, port))
-                                                                                        {
-                                                                                                Runnable r = new Server(this, channel, sender, ID, port);
-                                                                                                Thread thread = new Thread(r);
-                                                                                                thread.start();
-                                                                                        }
-                                                                                        else
-                                                                                        {
-                                                                                                sendMessage(channel, "Server was not started.");
-                                                                                        }
-                                                                                }
-                                                                                catch (NoSuchAlgorithmException|IOException e)
-                                                                                {
-                                                                                        sendMessage(channel, "PK3 compression type error. Perhaps try using wad= instead?");
-                                                                                        e.printStackTrace();
-                                                                                } 
-                                                                        }
-                                                                }
-                                                                else
-                                                                {
-                                                                        sendMessage(channel, "Hosting is currently disabled.");
-                                                                }
-                                                        }
-                                                        else
-                                                        {
-                                                                sendMessage(channel, "You do not have anything saved to that slot!");
-                                                        }
-                                                        con.close();
-                                                        rs.close();
-                                                }
-                                        }
-                                        catch (SQLException e)
-                                        {
-                                                e.printStackTrace();
-                                                sendMessage(channel, "MySQL error!");
-                                        }
-                                        catch (ClassNotFoundException e)
-                                        {
-                                                sendMessage(channel, "MySQL class not found!");
-                                                e.printStackTrace();
-                                        }
-                                }
-                                else
-                                {
-                                        sendMessage(channel, "You may only specify slot 1-10.");
-                                }
-                        }
-		 */
 	}
 	
 	/**
@@ -580,6 +494,7 @@ public class Bot extends PircBot {
 		}
 	}
 	
+	// UNIMPLEMENTED YET
 	private void processOwner(int userLevel, String[] keywords) {
 	}
 	
@@ -609,115 +524,13 @@ public class Bot extends PircBot {
 		}
 	}
 	
+	// UNIMPLEMENTED YET
 	private void processSave(int userLevel, String[] keywords) {
-		/*
-		                String[] words = message.split(" ");
-                        String hostmessage = "";
-                        for (byte b = 2; b < words.length; b++) {
-                                hostmessage = hostmessage + words[b] + " ";
-                        }
-                        if ((words.length > 2) && 
-                                        (Functions.isNumeric(words[1]))) {
-                                int slot = Integer.parseInt(words[1]);
-                                if ((slot > 0) && (slot < 11)) {
-                                        try {
-                                                con = dbConnect();
-                                                if (con == null) {
-                                                        sendMessage(channel, "SQL Connection Error!");
-                                                }
-                                                else
-                                                {
-                                                        String query = "SELECT `slot` FROM `server`.`save` WHERE `slot` = ? && `username` = ?";
-                                                        PreparedStatement pst = con.prepareStatement(query);
-                                                        pst.setInt(1, slot);
-                                                        pst.setString(2, Functions.getUserName(hostname));
-                                                        ResultSet rs = pst.executeQuery();
-                                                        boolean empty = true;
-                                                        while (rs.next()) {
-                                                                empty = false;
-                                                        }
-
-                                                        if (empty) {
-                                                                query = "INSERT INTO `server`.`save` VALUES (?, ?, ?)";
-                                                        }
-                                                        else
-                                                        {
-                                                                query = "UPDATE `server`.`save` SET `serverstring` = ? WHERE `slot` = ? && `username` = ?";
-                                                        }
-                                                        pst = con.prepareStatement(query);
-                                                        pst.setString(1, hostmessage);
-                                                        pst.setInt(2, slot);
-                                                        pst.setString(3, Functions.getUserName(hostname));
-                                                        pst.executeUpdate();
-                                                        con.close();
-                                                        rs.close();
-                                                        sendMessage(channel, "Successfully updated save list.");
-                                                }
-                                        }
-                                        catch (SQLException e) {
-                                                e.printStackTrace();
-                                                sendMessage(channel, "MySQL error!");
-                                        } catch (ClassNotFoundException e) {
-                                                sendMessage(channel, "MySQL class not found!");
-                                                e.printStackTrace();
-                                        }
-                                }
-                                else {
-                                        sendMessage(channel, "You may only specify slot 1-10.");
-                                }
-                        }
-		 */
 	}
-	
+
+	// UNIMPLEMENTED YET
 	private void processSlot(int userLevel, String[] keywords) {
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
-			/*
-                if ((keywords.length == 2) && (Functions.isNumeric(words[1])))
-                {
-                        int slot = Integer.parseInt(words[1]);
-                        if ((slot > 0) && (slot < 11))
-                        {
-                                try
-                                {
-                                        mysql.con = dbConnect();
-                                        if (mysql.con == null)
-                                        {
-                                                sendMessage(channel, "SQL Connection error.");
-                                        }
-                                        else
-                                        {
-                                                String query = "SELECT `serverstring`,`slot` FROM `server`.`save` WHERE `slot` = ? && `username` = ?";
-                                                PreparedStatement pst = con.prepareStatement(query);
-                                                pst.setInt(1, slot);
-                                                pst.setString(2, Functions.getUserName(hostname));
-                                                ResultSet rs = pst.executeQuery();
-                                                if (rs.next())
-                                                {
-                                                        sendMessage(channel, "In slot " + rs.getString("slot") + ": " + rs.getString("serverstring"));
-                                                }
-                                                else
-                                                {
-                                                        sendMessage(channel, "You do not have anything saved to that slot!");
-                                                }
-                                                con.close();
-                                                rs.close();
-                                        }
-                                }
-                                catch (SQLException e)
-                                {
-                                        e.printStackTrace();
-                                }
-                                catch (ClassNotFoundException e)
-                                {
-                                        e.printStackTrace();
-                                }
-                        }
-                        else
-                        {
-                                sendMessage(channel, "You may only specify slot 1-10.");
-                        }
-                }
-                */
         }
 	}
 	

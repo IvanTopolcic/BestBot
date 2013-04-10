@@ -207,6 +207,7 @@ public class MySQL {
 		}
 	}
 	
+	// Needs filling out
 	public void activate(String hostname, String confirmationKey, String sender) {
 		
 	}
