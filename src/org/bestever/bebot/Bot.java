@@ -275,9 +275,6 @@ public class Bot extends PircBot {
 				case ".slot":
 					processSlot(userLevel, keywords);
 					break;
-				case ".reflect":
-					processReflect(userLevel, keywords);
-					break;
 				case ".userlevel":
 					processUserLevel(userLevel, hostname);
 					break;
@@ -543,42 +540,6 @@ public class Bot extends PircBot {
 		if (isAccountTypeOf(userLevel, ADMIN)) {
 			this.disconnect();
 			System.exit(0);
-		}
-	}
-	
-	/**
-	 * This is a debug function to get fields, it will iterate through the keywords and get methods.
-	 * This method is not complete at all yet; also very messy
-	 * @param userLevel The user's bitmask level
-	 * @param keywords The keywords passed to the reflect function (keyword[0] should be ".reflect")
-	 */
-	private void processReflect(int userLevel, String[] keywords) {
-		if (isAccountTypeOf(userLevel, ADMIN)) {
-			if (keywords.length < 3) {
-				sendMessage(cfg_data.irc_channel, ".reflect usage: .reflect <port> <field/class> [subfield/subclass...]");
-				return;
-			}
-			// Ensure it is a valid port
-			if (!Functions.isNumeric(keywords[1])) {
-				sendMessage(cfg_data.irc_channel, "Invalid port number (" + keywords[1] + ").");
-				return;
-			}
-			
-			// Search the port
-			int port = Integer.parseInt(keywords[1]);
-			Server server = getServer(port);
-			try {
-				Field targetField = server.getClass().getDeclaredField(keywords[2]);
-				try {
-					sendMessage(cfg_data.irc_channel, "Reflected (" + port + ") [ " + keywords[2] + " = Field: " + targetField.get(server).toString() + " ]");
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (NoSuchFieldException nsfe) {
-				sendMessage(cfg_data.irc_channel, "No such field to reflect.");
-			}
 		}
 	}
 
