@@ -5,7 +5,6 @@ import static org.bestever.bebot.AccountType.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
