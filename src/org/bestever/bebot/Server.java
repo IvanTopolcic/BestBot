@@ -653,4 +653,12 @@ public class Server {
 			return false;
 		return true;
 	}
+	
+	/**
+	 * This will kill the server
+	 */
+	public void killServer() {
+		if (this.serverprocess != null && this.serverprocess.isInitialized())
+			this.serverprocess.terminateServer();
+	}
 }

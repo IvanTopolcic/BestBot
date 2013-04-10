@@ -56,8 +56,8 @@ public class ServerProcess extends Thread {
 	 * Is used to indicate if the ServerProcess was initialized properly
 	 * @return True if it was initialized properly, false if something went wrong
 	 */
-	private boolean isInitialized() {
-		return this.server != null && this.serverRunCommands != null;
+	public boolean isInitialized() {
+		return this.server != null && this.serverRunCommands != null && proc != null;
 	}
 	
 	/** 
