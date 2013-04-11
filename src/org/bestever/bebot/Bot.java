@@ -242,7 +242,7 @@ public class Bot extends PircBot {
 					processKillAll(userLevel, keywords);
 					break; 
 				case ".killmine":
-					processKillMine(userLevel, keywords);
+					processKillMine(userLevel, keywords, hostname);
 					break; 
 				case ".killinactive":
 					processKillInactive(userLevel, keywords);
@@ -299,7 +299,7 @@ public class Bot extends PircBot {
 		case MODERATOR:
 			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .rcon, .save, .slot, .userlevel";
 		case ADMIN:
-			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .quit, .rcon, .save, .slot, .reflect, .userlevel";
+			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .quit, .rcon, .save, .slot, .userlevel";
 		}
 		return "Undocumented type. Contact an administrator.";
 	}
@@ -411,14 +411,44 @@ public class Bot extends PircBot {
 		}
 	}
 	
-	// UNIMPLEMENTED YET
+	/**
+	 * When requested it will kill every server in the linked list
+	 * @param userLevel The user level of the person requesting
+	 * @param keywords The keywords requested
+	 */
 	private void processKillAll(int userLevel, String[] keywords) {
 		if (isAccountTypeOf(userLevel, ADMIN)) {
+			if (servers != null && servers.size() > 0) {
+				sendMessage(cfg_data.irc_channel, "ATTENTION: Terminating all servers...");
+				ListIterator<Server> li = servers.listIterator();
+				while (li.hasNext())
+					li.next().killServer();
+				sendMessage(cfg_data.irc_channel, "Servers termination request complete");
+			} else
+				sendMessage(cfg_data.irc_channel, "No servers to kill (" + (servers == null ? "LinkedList is null" : "No servers") + ").");
 		}
 	}
 	
-	// UNIMPLEMENTED YET
-	private void processKillMine(int userLevel, String[] keywords) {
+	/**
+	 * This will look through the list and kill all the servers that the hostname owns
+	 * @param userLevel The level of the user
+	 * @param keywords The keywords requested
+	 * @param hostname The hostname of the person invoking this command
+	 */
+	private void processKillMine(int userLevel, String[] keywords, String hostname) {
+		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+			if (servers != null && servers.size() > 0) {
+				ListIterator<Server> li = servers.listIterator();
+				Server s;
+				while (li.hasNext()) {
+					s = li.next();
+					if (s.irc_hostname.equals(hostname))
+						s.killServer();
+				}
+			} else {
+				sendMessage(cfg_data.irc_channel, "No servers to kill (" + (servers == null ? "LinkedList is null" : "No servers") + ").");
+			}
+		}
 	}
 	
 	/**
