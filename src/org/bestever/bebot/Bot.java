@@ -250,6 +250,9 @@ public class Bot extends PircBot {
 				case ".load":
 					processLoad(userLevel, keywords);
 					break;
+				case ".numservers":
+					processNumServers(userLevel, keywords);
+					break;
 				case ".off":
 					processOff(userLevel);
 					break;
@@ -290,7 +293,7 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		switch (userLevel) {
 		case GUEST:
-			return "[Not logged in, guests have limited access] commands, file, givememoney, help";
+			return "[Not logged in, guests have limited access] .commands, .file, .givememoney, .help";
 		case REGISTERED:
 			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .save, .slot";
 		case MODERATOR:
@@ -455,13 +458,20 @@ public class Bot extends PircBot {
 		}
 	}
 	
-	private void processUserLevel(int userLevel, String hostname) {
-		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
-			sendMessage(cfg_data.irc_channel, "User level of '" + hostname + "': " +Integer.toString(mysql.getLevel(hostname)));
-	}
-	
 	// UNIMPLEMENTED YET
 	private void processLoad(int userLevel, String[] keywords) {
+	}
+	
+	/**
+	 * Sends a string to the channel with how many total servers are running
+	 * @param userLevel The level of the user invoking
+	 * @param keywords The keywords sent
+	 */
+	private void processNumServers(int userLevel, String[] keywords) {
+		if (keywords.length == 1)
+			sendMessage(cfg_data.irc_channel, "There are " + servers.size() + " servers running on Best Ever right now.");
+		else
+			sendMessage(cfg_data.irc_channel, "Improper syntax, use: .numservers");
 	}
 	
 	/**
@@ -490,8 +500,25 @@ public class Bot extends PircBot {
 		}
 	}
 	
-	// UNIMPLEMENTED YET
+	/**
+	 * This checks for who owns the server on the specified port
+	 * @param userLevel The level of the user requesting the data
+	 * @param keywords The keywords to pass
+	 */
 	private void processOwner(int userLevel, String[] keywords) {
+		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+			if (keywords.length == 2) {
+				if (Functions.isNumeric(keywords[1])) {
+					Server s = getServer(Integer.parseInt(keywords[1]));
+					if (s != null)
+						sendMessage(cfg_data.irc_channel, "The owner of port " + keywords[1] + " is: " + s.irc_hostname + "[" + s.irc_login + "].");
+					else
+						sendMessage(cfg_data.irc_channel, "No server indexed on port " + keywords[1] + ".");
+				} else
+					sendMessage(cfg_data.irc_channel, "Invalid port number.");
+			} else
+				sendMessage(cfg_data.irc_channel, "Improper syntax, use: .owner <port>");
+		}
 	}
 	
 	/**
@@ -515,6 +542,7 @@ public class Bot extends PircBot {
 			sendMessage(cfg_data.irc_channel, "Unable to get server at port " + port + ".");
 	}
 	
+	// UNIMPLEMENTED YET
 	private void processRcon(int userLevel, String[] keywords) {
 		if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
 		}
@@ -540,6 +568,17 @@ public class Bot extends PircBot {
 			this.disconnect();
 			System.exit(0);
 		}
+	}
+	
+	/**
+	 * Returns the level of the user <br>
+	 * Note: Does not support looking up an alias username at the moment
+	 * @param userLevel The level of the invoker requesting the data
+	 * @param hostname The name of the user (this is hostname, not logged in IRC name)
+	 */
+	private void processUserLevel(int userLevel, String hostname) {
+		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
+			sendMessage(cfg_data.irc_channel, "User level of '" + hostname + "': " +Integer.toString(mysql.getLevel(hostname)));
 	}
 
 	/**
