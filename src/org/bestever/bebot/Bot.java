@@ -200,7 +200,7 @@ public class Bot extends PircBot {
 		// See if the port is in our linked list, if so signify for it to die
 		Server targetServer = getServer(port);
 		if (targetServer != null)
-			targetServer.serverprocess.terminateServer();
+			targetServer.killServer();
 		else
 			sendMessage(cfg_data.irc_channel, "Could not find a server with the port " + port + "!");
 	}
