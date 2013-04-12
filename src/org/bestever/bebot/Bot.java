@@ -82,11 +82,7 @@ public class Bot extends PircBot {
 		this.max_port = cfg_data.bot_max_port;
 		
 		// Set up the server arrays
-		this.servers = new LinkedList<Server>();	
-		
-		// Set up the uptime checker
-		// Thread r = new Thread(new Uptime(this));
-		// r.start();
+		this.servers = new LinkedList<Server>();
 		
 		// Set up MySQL
 		mysql = new MySQL(this, cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
@@ -179,7 +175,7 @@ public class Bot extends PircBot {
 	 * the method does not actually kill it, but signals a boolean to terminate
 	 * which the thread that is running it will handle the termination itself and
 	 * removal from the linkedlist.
-	 * @param port The port desired to kill
+	 * @param portString The port desired to kill
 	 */
 	private void killServer(String portString) {
 		// Ensure it is a valid port
@@ -240,10 +236,10 @@ public class Bot extends PircBot {
 					break;
 				case ".killall":
 					processKillAll(userLevel, keywords);
-					break; 
+					break;
 				case ".killmine":
 					processKillMine(userLevel, keywords, hostname);
-					break; 
+					break;
 				case ".killinactive":
 					processKillInactive(userLevel, keywords);
 					break;
