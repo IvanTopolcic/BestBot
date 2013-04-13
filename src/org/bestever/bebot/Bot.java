@@ -487,6 +487,8 @@ public class Bot extends PircBot {
 	
 	// UNIMPLEMENTED YET
 	private void processLoad(int userLevel, String[] keywords) {
+		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+        }
 	}
 	
 	/**
@@ -582,6 +584,8 @@ public class Bot extends PircBot {
 	
 	// UNIMPLEMENTED YET
 	private void processSave(int userLevel, String[] keywords) {
+		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+        }
 	}
 
 	// UNIMPLEMENTED YET
