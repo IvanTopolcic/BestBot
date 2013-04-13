@@ -66,12 +66,12 @@ public class MySQL {
 	
 	/**
 	 * Constructor for the MySQL Object
-	 * @param bot
-	 * @param host
-	 * @param user
-	 * @param pass
-	 * @param port
-	 * @param db
+	 * @param bot instance of the bot
+	 * @param host MySQL hostname
+	 * @param user MySQL username
+	 * @param pass MySQL Password
+	 * @param port MySQL Port
+	 * @param db MySQL Database
 	 */
 	public MySQL(Bot bot, String host, String user, String pass, int port, String db) {
 		this.bot = bot;
@@ -82,8 +82,7 @@ public class MySQL {
 		this.mysql_db = db;
         try {
         	Class.forName("com.mysql.jdbc.Driver");
-			Connection connection = DriverManager.getConnection("jdbc:mysql://" + mysql_host + ":"+mysql_port+"/", mysql_user, mysql_pass);
-			this.con = connection;
+			this.con = DriverManager.getConnection("jdbc:mysql://" + mysql_host + ":"+mysql_port+"/", mysql_user, mysql_pass);
 		} catch (SQLException | ClassNotFoundException e) {
 			System.out.println("Could not connect to MySQL Database!");
 			logMessage("Error connecting to database");
@@ -93,15 +92,13 @@ public class MySQL {
 	
 	/**
 	 * Queries the database and returns the level of the user
-	 * @param hostname
+	 * @param hostname of the user
 	 * @return level for success, 0 for fail, -1 for non-existant username
-	 * @throws ClassNotFoundException 
-	 * @throws SQLException 
 	 */
 	public int getLevel(String hostname) {
 		if (Functions.checkLoggedIn(hostname)) {
 			String query = "SELECT `level` FROM " + mysql_db + ".`login` WHERE `username` = ?";
-			try ( PreparedStatement pst = con.prepareStatement(query); ) {
+			try ( PreparedStatement pst = con.prepareStatement(query) ) {
 				// Prepare, bind & execute
 				pst.setString(1, Functions.getUserName(hostname));
 				ResultSet r = pst.executeQuery();
@@ -123,9 +120,8 @@ public class MySQL {
 	/**
 	 * Inserts an account into the database
 	 * (assuming the user is logged in to IRC)
-	 * @param hostname
-	 * @param password
-	 * @return 1 for success, 0 for fail, -1 account already registered, -2 if not logged in
+	 * @param hostname hostname of the user
+	 * @param password password of the user
 	 */
 	public void registerAccount(String hostname, String password, String sender) {	
 		// Query to check if the username already exists
@@ -136,7 +132,7 @@ public class MySQL {
 		try
 		(
 			PreparedStatement cs = con.prepareStatement(checkQuery);
-			PreparedStatement xs = con.prepareStatement(executeQuery);
+			PreparedStatement xs = con.prepareStatement(executeQuery)
 		){
 			// Query and check if see if the username exists
 			cs.setString(1, Functions.getUserName(hostname));
@@ -166,9 +162,8 @@ public class MySQL {
 	/**
 	 * Changes the password of a logged in user
 	 * (assuming the user is logged into IRC)
-	 * @param hostname
-	 * @param password
-	 * @return -1 username doesn't exist, 0 General problem/SQL error, 1 success
+	 * @param hostname the user's hostname
+	 * @param password the user's password
 	 */
 	public void changePassword(String hostname, String password, String sender) {
 		// Query to check if the username already exists
@@ -179,7 +174,7 @@ public class MySQL {
 		try
 		(
 			PreparedStatement cs = con.prepareStatement(checkQuery);
-			PreparedStatement xs = con.prepareStatement(executeQuery);
+			PreparedStatement xs = con.prepareStatement(executeQuery)
 		){
 			// Query and check if see if the username exists
 			cs.setString(1, Functions.getUserName(hostname));
@@ -187,7 +182,7 @@ public class MySQL {
 			
 			// The username doesn't exist!
 			if (!r.next())
-				bot.sendMessage(bot.cfg_data.irc_channel, "Username does not exist.");
+				bot.sendMessage(sender, "Username does not exist.");
 			
 			else {
 				// Prepare, bind & execute
@@ -213,7 +208,7 @@ public class MySQL {
 	 */
 	public void clearActiveServerList() {
 		try (
-				Statement st = con.createStatement();
+				Statement st = con.createStatement()
 			){
 			st.executeUpdate("TRUNCATE " + mysql_db + ".`active_servers`");
 		} catch (SQLException e) {
