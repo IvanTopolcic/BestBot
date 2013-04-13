@@ -269,7 +269,8 @@ public class Bot extends PircBot {
 					processQuit(userLevel);
 					break;
 				case ".rcon":
-					processRcon(userLevel, keywords);
+					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED))
+						sendMessage(cfg_data.irc_channel, "Please PM the bot for your rcon.");
 					break;
 				case ".save":
 					processSave(userLevel, keywords);
@@ -295,7 +296,7 @@ public class Bot extends PircBot {
 		case GUEST:
 			return "[Not logged in, guests have limited access] .commands, .file, .givememoney, .help";
 		case REGISTERED:
-			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .save, .slot";
+			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .rcon, .save, .slot";
 		case MODERATOR:
 			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .rcon, .save, .slot, .userlevel";
 		case ADMIN:
@@ -572,9 +573,14 @@ public class Bot extends PircBot {
 			sendMessage(cfg_data.irc_channel, "Unable to get server at port " + port + ".");
 	}
 	
-	// UNIMPLEMENTED YET
-	private void processRcon(int userLevel, String[] keywords) {
+	
+	private void processRcon(int userLevel, String[] keywords, String sender) {
+		// Admins should see everything
 		if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
+			
+		// Registered should only see their own server
+		} else if (isAccountTypeOf(userLevel, REGISTERED)) {
+			
 		}
 	}
 	
@@ -623,29 +629,30 @@ public class Bot extends PircBot {
 		if (Functions.checkLoggedIn(hostname)) {
 			// Generate an array of keywords from the message (similar to onMessage)
 			String[] keywords = message.split(" ");
-			
-			// Handle private text
+			int userLevel = mysql.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
-			case "activate":
-				if (keywords.length == 2)
-					mysql.activate(hostname, keywords[1], sender);
-				else
-					sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " activate <keycode>");
-				break;
-			case "changepw":
-				if (keywords.length == 2)
-					mysql.changePassword(hostname, keywords[1], sender);
-				else
-					sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " changepw <new_password>");
-				break;
-			case "register":
-				if (keywords.length == 2)
-					mysql.registerAccount(hostname, keywords[1], sender);
-				else
-					sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " register <password>");
-				break;
-			default:
-				break;
+				case ".rcon":
+					if (keywords.length == 2)
+						processRcon(userLevel, keywords, sender);
+					else
+						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " rcon <port>");
+					break;
+				case "changepass":
+				case "changepassword":
+				case "changepw":
+					if (keywords.length == 2)
+						mysql.changePassword(hostname, keywords[1], sender);
+					else
+						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " changepw <new_password>");
+					break;
+				case "register":
+					if (keywords.length == 2)
+						mysql.registerAccount(hostname, keywords[1], sender);
+					else
+						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " register <password>");
+					break;
+				default:
+					break;
 			}
 		} else {
 			sendMessage(cfg_data.irc_channel, "Your account is not logged in properly to the IRC network. Please log in and re-query.");
