@@ -22,7 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import static org.bestever.bebot.Logger.logMessage;
+import static org.bestever.bebot.Logger.*;
 
 /**
  * MySQL Class for handling all of the database inserts/fetching
@@ -85,7 +85,7 @@ public class MySQL {
 			this.con = DriverManager.getConnection("jdbc:mysql://" + mysql_host + ":"+mysql_port+"/", mysql_user, mysql_pass);
 		} catch (SQLException | ClassNotFoundException e) {
 			System.out.println("Could not connect to MySQL Database!");
-			logMessage("Error connecting to database");
+			logMessage(LOGLEVEL_CRITICAL, "Error connecting to MySQL database!");
 			e.printStackTrace();
 		}
 	}
@@ -110,7 +110,7 @@ public class MySQL {
 					return 0;
 			} catch (SQLException e) {
 				System.out.println("ERROR: SQL_ERROR in 'getLevel()'");
-				logMessage("ERROR: SQL_ERROR in 'getLevel()'");
+				logMessage(LOGLEVEL_IMPORTANT, "ERROR: SQL_ERROR in 'getLevel()'");
 				e.printStackTrace();
 			}
 		}
@@ -124,6 +124,7 @@ public class MySQL {
 	 * @param password password of the user
 	 */
 	public void registerAccount(String hostname, String password, String sender) {	
+		logMessage(LOGLEVEL_NORMAL, "Handling account registration from " + sender + ".");
 		// Query to check if the username already exists
 		String checkQuery = "SELECT `username` FROM " + mysql_db + ".`login` WHERE `username` = ?";
 		
@@ -153,7 +154,7 @@ public class MySQL {
 				}
 			} catch (SQLException e) {
 			System.out.println("ERROR: SQL_ERROR in 'registerAccount()'");
-			logMessage("ERROR: SQL_ERROR in 'registerAccount()'");
+			logMessage(LOGLEVEL_CRITICAL, "ERROR: SQL_ERROR in 'registerAccount()'");
 			e.printStackTrace();
 			bot.sendMessage(sender, "There was an error registering your account.");
 		}
@@ -166,6 +167,7 @@ public class MySQL {
 	 * @param password the user's password
 	 */
 	public void changePassword(String hostname, String password, String sender) {
+		logMessage(LOGLEVEL_NORMAL, "Password change request from " + sender + ".");
 		// Query to check if the username already exists
 		String checkQuery = "SELECT `username` FROM " + mysql_db + ".`login` WHERE `username` = ?";
 		
@@ -195,7 +197,7 @@ public class MySQL {
 			}
 		} catch (SQLException e) {
 			System.out.println("ERROR: SQL_ERROR in 'changePassword()'");
-			logMessage("ERROR: SQL_ERROR in 'changePassword()'");
+			logMessage(LOGLEVEL_IMPORTANT, "ERROR: SQL_ERROR in 'changePassword()'");
 			e.printStackTrace();
 			bot.sendMessage(sender, "There was an error changing your password account (thrown SQLException). Try again or contact an administrator with this message.");
 		}
@@ -209,17 +211,12 @@ public class MySQL {
 	public void clearActiveServerList() {
 		try (
 				Statement st = con.createStatement()
-			){
+			) {
 			st.executeUpdate("TRUNCATE " + mysql_db + ".`active_servers`");
 		} catch (SQLException e) {
 			e.printStackTrace();
-			logMessage("ERROR: SQL_ERROR in 'clearActiveServerList()'");
+			logMessage(LOGLEVEL_IMPORTANT, "ERROR: SQL_ERROR in 'clearActiveServerList()'");
 		}
-	}
-	
-	// Needs filling out
-	public void activate(String hostname, String confirmationKey, String sender) {
-		
 	}
 	
 	/**
@@ -230,6 +227,7 @@ public class MySQL {
 	 * @return An integer constant stating success/failure/other (maybe convert to boolean later if theres only 2 return codes)
 	 */
 	public static int addServerToDatabase(Server server) {
+		logMessage(LOGLEVEL_NORMAL, "Adding server to database (from " + server.irc_hostname + " with: " + server.servername + ").");
 		return 0;
 	}
 }

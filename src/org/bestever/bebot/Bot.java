@@ -15,7 +15,7 @@
 
 package org.bestever.bebot;
 
-import static org.bestever.bebot.Logger.logMessage;
+import static org.bestever.bebot.Logger.*;
 import static org.bestever.bebot.AccountType.*;
 
 import java.io.File;
@@ -77,7 +77,7 @@ public class Bot extends PircBot {
 		Logger.setLogFile(cfg_data.bot_logfile);
 		
 		// Set up the bot and join the channel
-		logMessage("Initializing BestBot v" + cfg_data.irc_version);
+		logMessage(LOGLEVEL_IMPORTANT, "Initializing BestBot v" + cfg_data.irc_version);
 		setVerbose(cfg_data.bot_verbose);
 		setName(cfg_data.irc_name);
 		setLogin(cfg_data.irc_user);
@@ -85,7 +85,7 @@ public class Bot extends PircBot {
 		try {
 			connect(cfg_data.irc_network, cfg_data.irc_port, cfg_data.irc_pass);
 		} catch (IOException | IrcException e) {
-			logMessage("Exception occured while connecting to the network, terminating bot");
+			logMessage(LOGLEVEL_CRITICAL, "Exception occured while connecting to the network, terminating bot!");
 			disconnect();
 			System.exit(0);
 			e.printStackTrace();
@@ -129,6 +129,7 @@ public class Bot extends PircBot {
 	 * @return True if the port was changed, false if there was an error
 	 */
 	public boolean setMaxPort(int max_port) {
+		logMessage(LOGLEVEL_DEBUG, "Invoked setMaxPort(" + max_port + ").");
 		if (max_port <= min_port)
 			return false;
 		else if (max_port == this.max_port)
@@ -142,6 +143,7 @@ public class Bot extends PircBot {
 	 * @param server
 	 */
 	public void removeServerFromLinkedList(Server server) {
+		logMessage(LOGLEVEL_DEBUG, "Removing server from linked list.");
 		if (servers == null || servers.isEmpty())
 			return;
 		ListIterator<Server> it = servers.listIterator();
@@ -160,6 +162,7 @@ public class Bot extends PircBot {
 	 * @return The server object reference if it exists, null if there's no such object
 	 */
 	public Server getServer(int port) {
+		logMessage(LOGLEVEL_DEBUG, "Getting server at port " + port + ".");
 		if (servers == null | servers.isEmpty()) 
 			return null;
 		ListIterator<Server> it = servers.listIterator();
@@ -178,6 +181,7 @@ public class Bot extends PircBot {
 	 */
 	// Need to check if it works
 	public Server[] getAllServers() {
+		logMessage(LOGLEVEL_TRIVIAL, "Requested getAllServers().");
 		if (servers == null || servers.isEmpty())
 			return null;
 		Server[] serverList = new Server[servers.size()];
@@ -193,6 +197,7 @@ public class Bot extends PircBot {
 	 * @param portString The port desired to kill
 	 */
 	private void killServer(String portString) {
+		logMessage(LOGLEVEL_NORMAL, "Killing server on port " + portString + ".");
 		// Ensure it is a valid port
 		if (!Functions.isNumeric(portString)) {
 			sendMessage(cfg_data.irc_channel, "Invalid port number (" + portString + "), not terminating server.");
@@ -230,6 +235,9 @@ public class Bot extends PircBot {
 			switch (keywords[0].toLowerCase()) {
 				case ".commands":
 					sendMessage(cfg_data.irc_channel, "Allowed commands: " + processCommands(userLevel));
+					break;
+				case ".debuglevel":
+					processDebugLevel(userLevel, keywords);
 					break;
 				case ".file":
 					processFile(userLevel, keywords, channel);
@@ -298,20 +306,26 @@ public class Bot extends PircBot {
 		}
 	}
 
+	// Unfinished yet
+	private void processDebugLevel(int userLevel, String[] keywords) {
+
+	}
+
 	/**
 	 * This displays commands available for the user
 	 * @param userLevel The level based on AccountType enumeration
 	 */
 	private String processCommands(int userLevel) {
+		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
 		switch (userLevel) {
-		case GUEST:
-			return "[Not logged in, guests have limited access] .commands, .file, .givememoney, .help";
-		case REGISTERED:
-			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .rcon, .save, .slot";
-		case MODERATOR:
-			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .rcon, .save, .slot, .userlevel";
-		case ADMIN:
-			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .quit, .rcon, .save, .slot, .userlevel";
+			case GUEST:
+				return "[Not logged in, guests have limited access] .commands, .file, .givememoney, .help";
+			case REGISTERED:
+				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .rcon, .save, .slot";
+			case MODERATOR:
+				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .rcon, .save, .slot, .userlevel";
+			case ADMIN:
+				return ".commands, .debuglevel, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .quit, .rcon, .save, .slot, .userlevel";
 		}
 		return "Undocumented type. Contact an administrator.";
 	}
@@ -323,6 +337,7 @@ public class Bot extends PircBot {
 	 * @param channel The channel to respond to
 	 */
 	private void processFile(int userLevel, String[] keywords, String channel) {
+		logMessage(LOGLEVEL_TRIVIAL, "Displaying processFile().");
 		if (keywords.length == 2) {
 			File file = new File(cfg_data.bot_wad_directory_path + keywords[1].toLowerCase());
 			if (file.exists())
@@ -339,6 +354,7 @@ public class Bot extends PircBot {
 	 * @param keywords The field the user wants
 	 */
 	private void processGet(int userLevel, String[] keywords) {
+		logMessage(LOGLEVEL_TRIVIAL, "Displaying processGet().");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 			if (keywords.length != 3) {
 				sendMessage(cfg_data.irc_channel, "Proper syntax: .get <port> <property> -- see http://www.best-ever.org for what properties you can get");
@@ -366,6 +382,7 @@ public class Bot extends PircBot {
 	 * @param message The entire message to be processed
 	 */
 	private void processHost(int userLevel, String channel, String sender, String login, String hostname, String message) {
+		logMessage(LOGLEVEL_NORMAL, "Processing the host command for " + sender + " with the message \"" + message + "\".");
 		if (botEnabled)
 			if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED))
 				Server.handleHostCommand(this, servers, channel, sender, login, hostname, message); // Have this function handle everything
@@ -382,6 +399,7 @@ public class Bot extends PircBot {
 	 * @param sender The person sending the request
 	 */
 	private void processKill(int userLevel, String[] keywords, String sender) {
+		logMessage(LOGLEVEL_NORMAL, "Processing kill from " + sender + ".");
 		// Ensure proper syntax
 		if (keywords.length != 2) {
 			sendMessage(cfg_data.irc_channel, "Proper syntax: .kill <port>");
@@ -429,6 +447,7 @@ public class Bot extends PircBot {
 	 * @param keywords The keywords requested
 	 */
 	private void processKillAll(int userLevel, String[] keywords) {
+		logMessage(LOGLEVEL_IMPORTANT, "Processing killall.");
 		if (isAccountTypeOf(userLevel, ADMIN)) {
 			if (servers != null && servers.size() > 0) {
 				sendMessage(cfg_data.irc_channel, "ATTENTION: Terminating all servers...");
@@ -448,6 +467,7 @@ public class Bot extends PircBot {
 	 * @param hostname The hostname of the person invoking this command
 	 */
 	private void processKillMine(int userLevel, String[] keywords, String hostname) {
+		logMessage(LOGLEVEL_DEBUG, "Processing killmine.");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 			if (servers != null && servers.size() > 0) {
 				ListIterator<Server> li = servers.listIterator();
@@ -469,6 +489,7 @@ public class Bot extends PircBot {
 	 * @param keywords The field the user wants
 	 */
 	private void processKillInactive(int userLevel, String[] keywords) {
+		logMessage(LOGLEVEL_NORMAL, "Processing a kill of inactive servers.");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR)) {
 			if (keywords.length < 2) {
 				sendMessage(cfg_data.irc_channel, "Proper syntax: .killinactive <days since> (ex: use .killinactive 3 to kill servers that haven't seen anyone for 3 days)");
@@ -502,6 +523,7 @@ public class Bot extends PircBot {
 	
 	// UNIMPLEMENTED YET
 	private void processLoad(int userLevel, String[] keywords) {
+		logMessage(LOGLEVEL_NORMAL, "Processing loading a server.");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
         }
 	}
@@ -512,6 +534,7 @@ public class Bot extends PircBot {
 	 * @param keywords The keywords sent
 	 */
 	private void processNumServers(int userLevel, String[] keywords) {
+		logMessage(LOGLEVEL_TRIVIAL, "Listing number of servers.");
 		if (keywords.length == 1)
 			sendMessage(cfg_data.irc_channel, "There are " + servers.size() + " servers running on Best Ever right now.");
 		else
@@ -523,6 +546,7 @@ public class Bot extends PircBot {
 	 * @param userLevel The user's bitmask level
 	 */
 	private void processOff(int userLevel) {
+		logMessage(LOGLEVEL_IMPORTANT, "An admin has disabled hosting.");
 		if (botEnabled) {
 			if (isAccountTypeOf(userLevel, ADMIN)) {
 				botEnabled = true;
@@ -536,6 +560,7 @@ public class Bot extends PircBot {
 	 * @param userLevel The user's bitmask level
 	 */
 	private void processOn(int userLevel) {
+		logMessage(LOGLEVEL_IMPORTANT, "An admin has re-enabled hosting.");
 		if (!botEnabled) {
 			if (isAccountTypeOf(userLevel, ADMIN)) {
 				botEnabled = true;
@@ -550,6 +575,7 @@ public class Bot extends PircBot {
 	 * @param keywords The keywords to pass
 	 */
 	private void processOwner(int userLevel, String[] keywords) {
+		logMessage(LOGLEVEL_DEBUG, "Processing an owner.");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 			if (keywords.length == 2) {
 				if (Functions.isNumeric(keywords[1])) {
@@ -571,6 +597,7 @@ public class Bot extends PircBot {
 	 * @param keywords The keywords to be processed
 	 */
 	private void processPlayers(int userLevel, String[] keywords) {
+		logMessage(LOGLEVEL_DEBUG, "Processing a request for the number of players.");
 		// Ensure it is a valid port
 		if (!Functions.isNumeric(keywords[1])) {
 			sendMessage(cfg_data.irc_channel, "Invalid port number (" + keywords[1] + ").");
@@ -586,8 +613,9 @@ public class Bot extends PircBot {
 			sendMessage(cfg_data.irc_channel, "Unable to get server at port " + port + ".");
 	}
 	
-	
+	// UNIMPLEMENTED YET
 	private void processRcon(int userLevel, String[] keywords, String sender) {
+		logMessage(LOGLEVEL_NORMAL, "Processing a request for rcon (from " + sender + ").");
 		// Admins should see everything
 		if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
 			
@@ -599,12 +627,14 @@ public class Bot extends PircBot {
 	
 	// UNIMPLEMENTED YET
 	private void processSave(int userLevel, String[] keywords) {
+		logMessage(LOGLEVEL_NORMAL, "Processing a save for the database.");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
         }
 	}
 
 	// UNIMPLEMENTED YET
 	private void processSlot(int userLevel, String[] keywords) {
+		logMessage(LOGLEVEL_DEBUG, "Processing a request for what is in a slot.");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
         }
 	}
@@ -615,6 +645,7 @@ public class Bot extends PircBot {
 	 * @param userLevel The user's bitmask level
 	 */
 	private void processQuit(int userLevel) {
+		logMessage(LOGLEVEL_CRITICAL, "Requested bot termination. Shutting down program.");
 		if (isAccountTypeOf(userLevel, ADMIN)) {
 			this.disconnect();
 			System.exit(0);
@@ -628,6 +659,7 @@ public class Bot extends PircBot {
 	 * @param hostname The name of the user (this is hostname, not logged in IRC name)
 	 */
 	private void processUserLevel(int userLevel, String hostname) {
+		logMessage(LOGLEVEL_TRIVIAL, "Getting user level.");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
 			sendMessage(cfg_data.irc_channel, "User level of '" + hostname + "': " +Integer.toString(mysql.getLevel(hostname)));
 	}
