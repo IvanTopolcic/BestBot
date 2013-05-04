@@ -248,7 +248,7 @@ public class Server {
 			
 			// config
 			if (keywords[i].toLowerCase().startsWith("config=")) {
-				server.config = getDataBetween("config=", message);
+				server.config = getDataBetween("config=", Functions.cleanInputFile(message));
 			}
 			
 			// data
@@ -304,7 +304,7 @@ public class Server {
 			
 			// iwad
 			if (keywords[i].toLowerCase().startsWith("iwad=")) {
-				server.iwad = getIwad(keywords[i]);
+				server.iwad = getIwad(Functions.cleanInputFile(keywords[i]));
 			}
 			
 			// mapwad (Note: appended the quotation mark for the function)
@@ -314,7 +314,7 @@ public class Server {
 			
 			// wad (Note: appended the quotation mark for the function)
 			if (keywords[i].toLowerCase().startsWith("wad=\"")) {
-				server.wads = getDataBetween("wad=", message).replace(',', ' '); // Support for quotation marks only right now, also none for spaces in file names
+				server.wads = getDataBetween("wad=", Functions.cleanInputFile(message)).replace(',', ' '); // Support for quotation marks only right now, also none for spaces in file names
 			}
 		}
 		

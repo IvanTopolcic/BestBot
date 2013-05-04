@@ -155,6 +155,15 @@ public class Functions {
 		long second = TimeUnit.SECONDS.toSeconds(seconds) - (TimeUnit.SECONDS.toMinutes(seconds) *60);
 		return day + " days " + hours + " hours " + minute + " minutes and " + second + " seconds.";
 	}
+
+	/**
+	 * Returns a cleaned string for file inputs
+	 * @param input
+	 * @return cleaned string
+	 */
+	public static String cleanInputFile(String input) {
+		return input.replace("/", "");
+	}
 	
 	/**
 	 * Giving money is nice!

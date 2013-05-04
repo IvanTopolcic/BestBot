@@ -339,7 +339,7 @@ public class Bot extends PircBot {
 	private void processFile(int userLevel, String[] keywords, String channel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processFile().");
 		if (keywords.length == 2) {
-			File file = new File(cfg_data.bot_wad_directory_path + keywords[1].toLowerCase());
+			File file = new File(cfg_data.bot_wad_directory_path + Functions.cleanInputFile(keywords[1].toLowerCase()));
 			if (file.exists())
 				sendMessage(channel, "File " + keywords[1].toLowerCase() + " exists on the server.");
 			else
