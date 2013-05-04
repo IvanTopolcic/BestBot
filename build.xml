@@ -1,53 +1,56 @@
 <project name="BestBot" default="help" basedir=".">
 
-<property name="build.sysclasspath" value="last"/>
+    <property name="build.sysclasspath" value="last"/>
 
-<target name="help">
-    <echo message="Common build targets:" />
-    <echo message="build       - Cleans and builds BestBot.jar" />
-    <echo message="clean       - Removes all *.class files" />
-</target>
+    <target name="help">
+        <echo message="Common build targets:" />
+        <echo message="build       - Cleans and builds BestBot.jar" />
+        <echo message="clean       - Removes all *.class files" />
+    </target>
 
-<property file="build.properties"/>
-<property name="buildDir" value="build" />
+    <property file="build.properties"/>
+    <property name="buildDir" value="build" />
 
-<path id="classpath">
-    <pathelement path="." />
-    <fileset dir="lib/">
-        <include name="*.jar" />
-    </fileset>
-    <pathelement location="." />
-</path>
-
-<target name="build" depends="clean,jar"/>
-
-<target name="jar" depends="compile">
-    <jar
-        jarfile="BestBot.jar">
-        <fileset dir="classes"/>
-   	<manifest>
-    		<attribute name="Built-By" value="BestEver" />
-    		<attribute name="Class-Path" value="lib/pircbot.jar lib/mysql-connector-java-5.0.8-bin.jar lib/ini4j-0.5.2.jar" />
-		<attribute name="Main-class" value="org.bestever.bebot.Bot" />
-    	</manifest>
-    </jar>
-</target>
-
-<target name="compile">
-    <mkdir dir="classes"/>
-    <javac
-        srcdir="src"
-        destdir="classes"
-        classpathref="classpath"/>
-    <copy todir="classes">
-        <fileset dir="src">
+    <path id="classpath">
+        <pathelement path="." />
+        <fileset dir="lib/">
+            <include name="*.jar" />
         </fileset>
-    </copy>    
-</target>
+        <pathelement location="." />
+    </path>
 
-<target name="clean">
-    <delete dir="classes"/>
-    <delete file="BestBot.jar"/>
-</target>
+    <target name="build" depends="clean,jar"/>
+
+    <target name="jar" depends="compile">
+        <jar
+                jarfile="BestBot.jar">
+            <fileset dir="classes"/>
+            <zipgroupfileset dir="lib/" includes="*.jar" />
+            <manifest>
+                <attribute name="Built-By" value="BestEver" />
+                <attribute name="Class-Path" value="lib/pircbot.jar lib/mysql-connector-java-5.0.8-bin.jar lib/ini4j-0.5.2.jar" />
+                <attribute name="Main-class" value="org.bestever.bebot.Bot" />
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="classes"/>
+        <javac
+                srcdir="src"
+                destdir="classes"
+                classpathref="classpath"/>
+        <copy todir="classes">
+            <fileset dir="src">
+            </fileset>
+            <fileset dir="lib">
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="clean">
+        <delete dir="classes"/>
+        <delete file="BestBot.jar"/>
+    </target>
 
 </project>
