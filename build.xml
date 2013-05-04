@@ -43,8 +43,6 @@
         <copy todir="classes">
             <fileset dir="src">
             </fileset>
-            <fileset dir="lib">
-            </fileset>
         </copy>
     </target>
 
