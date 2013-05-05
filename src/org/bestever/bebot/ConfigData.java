@@ -134,11 +134,21 @@ public class ConfigData {
 	 * Contains a path to the admin list directory
 	 */
 	public String bot_adminlistdir;
+
+	/**
+	 *
+	 */
+	public String bot_logfiledir;
 	
 	/**
 	 * Contains the file name of the executable, in linux this would be "./zandronum-server" for example, or in windows "zandronum.exe"
 	 */
 	public String bot_executable;
+
+	/**
+	 * Contains whether or not server RCON is accessible to everyone
+	 */
+	public boolean bot_public_rcon;
 	
 	/**
 	 * The account file path
@@ -222,8 +232,10 @@ public class ConfigData {
 		this.bot_whitelistdir = bot.get("banlistdir");
 		this.bot_banlistdir = bot.get("whitelistdir");
 		this.bot_adminlistdir = bot.get("adminlistdir");
+		this.bot_logfiledir = bot.get("logfiledir");
 		this.bot_executable = bot.get("executable");
 		this.bot_serializationfile = bot.get("serializationfile");
 		this.bot_serializationbackupdir = bot.get("serializationbackupdir");
+		this.bot_public_rcon = Boolean.parseBoolean(bot.get("public_rcon"));
 	}
 }

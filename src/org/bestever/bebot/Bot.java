@@ -386,7 +386,7 @@ public class Bot extends PircBot {
 		logMessage(LOGLEVEL_NORMAL, "Processing the host command for " + sender + " with the message \"" + message + "\".");
 		if (botEnabled)
 			if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED))
-				Server.handleHostCommand(this, servers, channel, sender, login, hostname, message); // Have this function handle everything
+				Server.handleHostCommand(this, servers, channel, sender, login, hostname, message, userLevel); // Have this function handle everything
 			else
 				sendMessage(cfg_data.irc_channel, "You must register and be logged in to IRC to use the bot to host!");
 		else

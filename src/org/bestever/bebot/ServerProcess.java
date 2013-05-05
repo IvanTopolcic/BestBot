@@ -176,13 +176,13 @@ public class ServerProcess extends Thread {
 		String dateNow = "";
 		try {
 			// Ensure we have the files created
-			banlist = new File("banlist/" + server.server_id + ".txt");
+			banlist = new File(server.bot.cfg_data.bot_banlistdir + server.server_id + ".txt");
 			if (!banlist.exists())
 				banlist.createNewFile();
-			whitelist = new File("whitelist/" + server.server_id + ".txt");
+			whitelist = new File(server.bot.cfg_data.bot_whitelistdir + server.server_id + ".txt");
 			if (!whitelist.exists())
 				whitelist.createNewFile();
-			adminlist = new File("adminlist/" + server.server_id + ".txt");
+			adminlist = new File(server.bot.cfg_data.bot_adminlistdir + server.server_id + ".txt");
 			if (!adminlist.exists())
 				adminlist.createNewFile();
 					
@@ -191,15 +191,20 @@ public class ServerProcess extends Thread {
 			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			
 			// Set up file/IO
-			logFile = new File("/home/auto/skulltag/public_html/logs/" + server.server_id + ".txt");
-			logWriter = new FileWriter("/home/auto/skulltag/public_html/logs/" + server.server_id + ".txt");
+			logFile = new File(server.bot.cfg_data.bot_logfiledir + server.server_id + ".txt");
+			logWriter = new FileWriter(server.bot.cfg_data.bot_logfiledir + server.server_id + ".txt");
 			bufferedLogWriter = new BufferedWriter(logWriter);
 			
 			// Write header in the file
 			if (!logFile.exists())
 				logFile.createNewFile();
 
-			server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using send_password. <"+server.server_id+"> via the in-game console.");
+			// Check if global RCON variable is set, or if the user has access to the RCON portion
+			// If either criteria is not met, the bot won't send the RCON message to the user
+			// NOTE: As of now, BE users can still check the RCON password by accessing the control panel on the website.
+			// We'll fix this later by changing the RCON from the unique_id to a random MD5 hash
+			if (server.bot.cfg_data.bot_public_rcon || AccountType.isAccountTypeOf(server.user_level, AccountType.ADMIN, AccountType.MODERATOR, AccountType.RCON))
+				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using send_password. <"+server.server_id+"> via the in-game console.");
 			
 			// Process server while it outputs text
 			while ((strLine = br.readLine()) != null) {

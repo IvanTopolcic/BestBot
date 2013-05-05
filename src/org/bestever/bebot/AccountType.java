@@ -36,6 +36,11 @@ public class AccountType {
 	 * This is the basic state people register for
 	 */
 	public static final int REGISTERED = 1 << 2; // 4
+
+	/**
+	 * This is a custom state that has access to RCON
+	 */
+	public static final int RCON = 1 << 3; // 8
 	
 	/**
 	 * To check for different masks, this method searches to see if you contain one of them.

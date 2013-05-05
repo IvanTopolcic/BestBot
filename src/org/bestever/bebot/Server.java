@@ -73,6 +73,11 @@ public class Server {
 	 * Contains the entire ".host" command
 	 */
 	public String host_command;
+
+	/**
+	 * Contains the level of the user
+	 */
+	public int user_level;
 	
 	/**
 	 * Contains the hostname used, this will NOT contain " :: [BE] New York "
@@ -186,7 +191,7 @@ public class Server {
 	 * @param message The message sent
 	 * @return Null if all went well, otherwise an error message to print to the bot
 	 */
-	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String login, String hostname, String message) {
+	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String login, String hostname, String message, int userLevel) {
 		// Initialize server without linking it to the arraylist
 		Server server = new Server();
 		
@@ -199,6 +204,7 @@ public class Server {
 		server.irc_hostname = hostname;
 		server.sender = sender;
 		server.host_command = message;
+		server.user_level = userLevel;
 		
 		// Break up the message, if we have 1 or less keywords then something is wrong 
 		String[] keywords = message.split(" ");
