@@ -119,6 +119,21 @@ public class ConfigData {
 	 * Contains a path to the cfg directory
 	 */
 	public String bot_cfg_directory_path;
+
+	/**
+	 * Contains a path to the white list directory
+	 */
+	public String bot_whitelistdir;
+
+	/**
+	 * Contains a path to the ban list directory
+	 */
+	public String bot_banlistdir;
+
+	/**
+	 * Contains a path to the admin list directory
+	 */
+	public String bot_adminlistdir;
 	
 	/**
 	 * Contains the file name of the executable, in linux this would be "./zandronum-server" for example, or in windows "zandronum.exe"
@@ -204,6 +219,9 @@ public class ConfigData {
 		this.bot_directory_path = bot.get("directory");
 		this.bot_wad_directory_path = bot.get("waddir");
 		this.bot_cfg_directory_path = bot.get("cfgdir");
+		this.bot_whitelistdir = bot.get("banlistdir");
+		this.bot_banlistdir = bot.get("whitelistdir");
+		this.bot_adminlistdir = bot.get("adminlistdir");
 		this.bot_executable = bot.get("executable");
 		this.bot_serializationfile = bot.get("serializationfile");
 		this.bot_serializationbackupdir = bot.get("serializationbackupdir");

@@ -85,7 +85,7 @@ public class Bot extends PircBot {
 		try {
 			connect(cfg_data.irc_network, cfg_data.irc_port, cfg_data.irc_pass);
 		} catch (IOException | IrcException e) {
-			logMessage(LOGLEVEL_CRITICAL, "Exception occured while connecting to the network, terminating bot!");
+			logMessage(LOGLEVEL_CRITICAL, "Exception occurred while connecting to the network, terminating bot!");
 			disconnect();
 			System.exit(0);
 			e.printStackTrace();
@@ -101,9 +101,10 @@ public class Bot extends PircBot {
 		
 		// Set up MySQL
 		mysql = new MySQL(this, cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
-		
+
+		// Temporarily disabled
 		// Clear mySQL table since we will fill it up with any serialized server information
-		mysql.clearActiveServerList();
+		// mysql.clearActiveServerList();
 	}
 	
 	/**

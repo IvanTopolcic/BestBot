@@ -140,9 +140,9 @@ public class ServerProcess extends Thread {
 		
 		// Add rcon/file based stuff
 		runCommand.add("+sv_rconpassword " + server.server_id);
-		runCommand.add("+sv_banfile banlist/" + server.server_id + ".txt");
-		runCommand.add("+sv_adminlistfile adminlist/" + server.server_id + ".txt");
-		runCommand.add("+sv_banexemptionfile whitelist/" + server.server_id + ".txt");
+		runCommand.add("+sv_banfile " + server.bot.cfg_data.bot_banlistdir + server.server_id + ".txt");
+		runCommand.add("+sv_adminlistfile " + server.bot.cfg_data.bot_adminlistdir + server.server_id + ".txt");
+		runCommand.add("+sv_banexemptionfile " + server.bot.cfg_data.bot_whitelistdir + server.server_id + ".txt");
 		
 		//+addmap map from mapwad goes here
 		
@@ -198,13 +198,8 @@ public class ServerProcess extends Thread {
 			// Write header in the file
 			if (!logFile.exists())
 				logFile.createNewFile();
-			bufferedLogWriter.write("_______               __           _______                     \n");
-			bufferedLogWriter.write("|   __ \\.-----.-----.|  |_        |    ___|.--.--.-----.----.  \n");
-			bufferedLogWriter.write("|   __ <|  -__|__ --||   _|__     |    ___||  |  |  -__|   _|_ \n");
-			bufferedLogWriter.write("|______/|_____|_____||____|__|    |_______| \\___/|_____|__||__|\n");
-			bufferedLogWriter.write("________________________________________________________________________________________________________\n\n");
-			bufferedLogWriter.flush();
-			server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using send_password. You can view your server's logfile at http://www.best-ever.org/logs/" + server.server_id + ".txt");
+
+			server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using send_password. <"+server.server_id+"> via the in-game console.");
 			
 			// Process server while it outputs text
 			while ((strLine = br.readLine()) != null) {
@@ -243,7 +238,7 @@ public class ServerProcess extends Thread {
 						server.players -= 1;
 				}
 				
-				// Reset players to 0 when somebody disconnects
+				// Reset players to 0 when the map is changed
 				if (strLine.startsWith("-> map")) {
 					server.players = 0;
 				}
