@@ -243,22 +243,6 @@ public class MySQL {
 	}
 	
 	/**
-	 * This clears the MySQL database at startup so that we can fill it up later
-	 * with servers; it is cleared because if there was a shutdown error, the 
-	 * database will contain outdated junk
-	 */
-	public void clearActiveServerList() {
-		try (
-				Statement st = con.createStatement()
-			) {
-			st.executeUpdate("TRUNCATE " + mysql_db + ".`active_servers`");
-		} catch (SQLException e) {
-			e.printStackTrace();
-			logMessage(LOGLEVEL_IMPORTANT, "ERROR: SQL_ERROR in 'clearActiveServerList()'");
-		}
-	}
-	
-	/**
 	 * This is invoked to request mysql to add the server object to the database
 	 * How it should be handled is all the fields in the Server class will be entered
 	 * into the database

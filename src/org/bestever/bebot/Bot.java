@@ -103,10 +103,6 @@ public class Bot extends PircBot {
 		
 		// Set up MySQL
 		mysql = new MySQL(this, cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
-
-		// Temporarily disabled
-		// Clear mySQL table since we will fill it up with any serialized server information
-		// mysql.clearActiveServerList();
 	}
 	
 	/**
