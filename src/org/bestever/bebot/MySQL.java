@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 
 import static org.bestever.bebot.Logger.*;
 
@@ -200,6 +201,44 @@ public class MySQL {
 			logMessage(LOGLEVEL_IMPORTANT, "ERROR: SQL_ERROR in 'changePassword()'");
 			e.printStackTrace();
 			bot.sendMessage(sender, "There was an error changing your password account (thrown SQLException). Try again or contact an administrator with this message.");
+		}
+	}
+
+	public void saveSlot(String hostname, String[] words) {
+		String hostmessage = Functions.implode(Arrays.copyOfRange(words, 2, words.length), " ");
+		if ((words.length > 2) && (Functions.isNumeric(words[1]))) {
+			int slot = Integer.parseInt(words[1]);
+			if ((slot > 0) && (slot < 11)) {
+				try {
+						String query = "SELECT `slot` FROM `server`.`save` WHERE `slot` = ? && `username` = ?";
+						PreparedStatement pst = con.prepareStatement(query);
+						pst.setInt(1, slot);
+						pst.setString(2, Functions.getUserName(hostname));
+						ResultSet rs = pst.executeQuery();
+						boolean empty = true;
+						while (rs.next())
+							empty = false;
+						if (empty)
+							query = "INSERT INTO `server`.`save` (`serverstring`, `slot`, `username`) VALUES (?, ?, ?)";
+						else
+							query = "UPDATE `server`.`save` SET `serverstring` = ? WHERE `slot` = ? && `username` = ?";
+						pst = con.prepareStatement(query);
+						pst.setString(1, hostmessage);
+						pst.setInt(2, slot);
+						pst.setString(3, Functions.getUserName(hostname));
+						pst.executeUpdate();
+						rs.close();
+					bot.sendMessage(bot.cfg_data.irc_channel, hostmessage);
+						bot.sendMessage(bot.cfg_data.irc_channel, "Successfully updated save list.");
+					}
+				catch (SQLException e) {
+					e.printStackTrace();
+					bot.sendMessage(bot.cfg_data.irc_channel, "MySQL error!");
+				}
+			}
+			else {
+				bot.sendMessage(bot.cfg_data.irc_channel, "You may only specify slot 1-10.");
+			}
 		}
 	}
 	

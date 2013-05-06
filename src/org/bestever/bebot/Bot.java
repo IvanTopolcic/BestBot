@@ -295,7 +295,7 @@ public class Bot extends PircBot {
 						sendMessage(cfg_data.irc_channel, "Please PM the bot for your rcon.");
 					break;
 				case ".save":
-					processSave(userLevel, keywords);
+					processSave(userLevel, keywords, hostname);
 					break;
 				case ".slot":
 					processSlot(userLevel, keywords);
@@ -628,9 +628,10 @@ public class Bot extends PircBot {
 	}
 	
 	// UNIMPLEMENTED YET
-	private void processSave(int userLevel, String[] keywords) {
+	private void processSave(int userLevel, String[] keywords, String hostname) {
 		logMessage(LOGLEVEL_NORMAL, "Processing a save for the database.");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+			mysql.saveSlot(hostname, keywords);
         }
 	}
 
