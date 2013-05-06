@@ -145,15 +145,28 @@ public class Functions {
 	 * Function that takes a time in seconds
 	 * and converts it to a string with days, hours, minutes
 	 * and seconds.
-	 * @param seconds in long format
+	 * @param nanoSeconds in long format
 	 * @return A String in a readable format
 	 */
-	public static String calculateTime(long seconds) {
-		int day = (int)TimeUnit.SECONDS.toDays(seconds);        
-		long hours = TimeUnit.SECONDS.toHours(seconds) - (day *24);
-		long minute = TimeUnit.SECONDS.toMinutes(seconds) - (TimeUnit.SECONDS.toHours(seconds)* 60);
-		long second = TimeUnit.SECONDS.toSeconds(seconds) - (TimeUnit.SECONDS.toMinutes(seconds) *60);
+	public static String calculateTime(long nanoSeconds) {
+		nanoSeconds = nanoSeconds / 1000000000;
+		int day = (int)TimeUnit.SECONDS.toDays(nanoSeconds);
+		long hours = TimeUnit.SECONDS.toHours(nanoSeconds) - (day *24);
+		long minute = TimeUnit.SECONDS.toMinutes(nanoSeconds) - (TimeUnit.SECONDS.toHours(nanoSeconds)* 60);
+		long second = TimeUnit.SECONDS.toSeconds(nanoSeconds) - (TimeUnit.SECONDS.toMinutes(nanoSeconds) *60);
 		return day + " days " + hours + " hours " + minute + " minutes and " + second + " seconds.";
+	}
+
+	/**
+	 * Takes a comma-seperated list of wads and returns a string parseable by Zandronum
+	 * @param wads comma-seperated list of wads
+	 * @return zandronum-parseable wad list
+	 */
+	public static String parseWads (String wads, String directory) {
+		String wadArray[] = wads.split(",");
+		for (int i = 0; i < wadArray.length; i++)
+			wadArray[i] = directory + wadArray[i].trim();
+		return implode(wadArray, " ");
 	}
 
 	/**
@@ -164,7 +177,27 @@ public class Functions {
 	public static String cleanInputFile(String input) {
 		return input.replace("/", "");
 	}
-	
+
+	/**
+	 * Implodes a character between a string array
+	 * @param inputArray
+	 * @param glueString
+	 * @return String containing all array elements seperated by glue string
+	 */
+	public static String implode(String[] inputArray, String glueString) {
+		String output = "";
+		if (inputArray.length > 0) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < inputArray.length; i++) {
+				sb.append(glueString);
+				sb.append(inputArray[i].trim());
+			}
+			output = sb.toString();
+		}
+		return output;
+	}
+
+
 	/**
 	 * Giving money is nice!
 	 * @return A string with a serious message

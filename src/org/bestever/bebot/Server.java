@@ -15,7 +15,10 @@
 
 package org.bestever.bebot;
 
+import java.io.File;
 import java.util.LinkedList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Server {
 
@@ -112,7 +115,7 @@ public class Server {
 	/**
 	 * If this is true, that means skulltag data will be enabled
 	 */
-	public boolean disable_skulltag_data;
+	public boolean enable_skulltag_data;
 	
 	/**
 	 * If this is true, instagib will be enabled on the server
@@ -212,115 +215,91 @@ public class Server {
 			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Not enough parameters");
 			return;
 		}
-		
-		// Make sure we have the proper amount of quotation marks (should be even)
-		int quotationCounter = 0;
-		char[] messageChars = message.toCharArray();
-		for (int c = 0; c < messageChars.length; c++)
-			if (messageChars[c] == '\"')
-				quotationCounter++;
-		if (quotationCounter % 2 != 0) {
-			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Invalid amount of quotation marks");
-			return;
+
+		// Regex that will match key=value, as well as quotes (key="value")
+		Pattern regex = Pattern.compile("(\\w+)=\"*((?<=\")[^\"]+(?=\")|([^\\s]+))\"*");
+		Matcher m = regex.matcher(message);
+
+		// While we have a key=value
+		while (m.find()) {
+			switch (m.group(1)) {
+				case "buckshot":
+					server.buckshot = handleTrue(m.group(2));
+					break;
+				case "compatflags":
+					server.compatflags = handleGameFlags(m.group(2));
+					if (server.compatflags == FLAGS_ERROR) {
+						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing compatflags");
+						return;
+					}
+					break;
+				case "compatflags2":
+					server.compatflags = handleGameFlags(m.group(2));
+					if (server.compatflags == FLAGS_ERROR) {
+						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing compatflags2");
+						return;
+					}
+					break;
+				case "config":
+					server.config = Functions.cleanInputFile(m.group(2));
+					break;
+				case "data":
+				case "stdata":
+					server.enable_skulltag_data = handleTrue(m.group(2));
+					break;
+				case "dmflags":
+					server.dmflags = handleGameFlags(m.group(2));
+					if (server.dmflags == FLAGS_ERROR) {
+						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing dmflags");
+						return;
+					}
+					break;
+				case "dmflags2":
+					server.dmflags = handleGameFlags(m.group(2));
+					if (server.dmflags2 == FLAGS_ERROR) {
+						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing dmflags2");
+						return;
+					}
+					break;
+				case "dmflags3":
+					server.dmflags3 = handleGameFlags(m.group(2));
+					if (server.dmflags3 == FLAGS_ERROR) {
+						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing dmflags3");
+						return;
+					}
+					break;
+				case "gamemode":
+					server.gamemode = getGamemode(m.group(2));
+					break;
+				case "hostname":
+					server.servername = m.group(2);
+					break;
+				case "instagib":
+					server.instagib = handleTrue(m.group(2));
+					break;
+				case "iwad":
+					server.iwad = getIwad(Functions.cleanInputFile(m.group(2)));
+					break;
+				case "mapwad":
+					server.mapwads = Functions.cleanInputFile(m.group(2));
+					break;
+				case "wad":
+					server.wads = Functions.cleanInputFile(m.group(2));
+					break;
+			}
 		}
 
-		// Iterate through every single keyword to construct the host thing except the first index since that's just ".host"
-		// For sanity's sake, please keep the keywords in *alphabetical* order
-		for (int i = 1; i < keywords.length; i++) {
-			// buckshot
-			if (keywords[i].toLowerCase().startsWith("buckshot=")) {
-				server.buckshot = handleBuckshotOrInstagib(keywords[i]);
-			}
-			
-			// compatflags
-			if (keywords[i].toLowerCase().startsWith("compatflags=")) {
-				server.compatflags = handleGameFlags(keywords[i]);
-				if (server.compatflags == FLAGS_ERROR) {
-					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing compatflags");
-					return;
-				}	
-				continue;
-			}
-			
-			// compatflags2
-			if (keywords[i].toLowerCase().startsWith("compatflags2=")) {
-				server.compatflags2 = handleGameFlags(keywords[i]);
-				if (server.compatflags2 == FLAGS_ERROR) {
-					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing compatflags2");
+		// Check if the wads exist
+		// Kind of hacky as we should probably have a universal function that does this
+		// Maybe store server.wads as a String array?
+		if (server.wads != null) {
+			String[] wads = server.wads.trim().split(",");
+			for (int i = 0; i < wads.length; i++) {
+				File f = new File(server.bot.cfg_data.bot_wad_directory_path + wads[i].trim());
+				if (!f.exists()) {
+					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "File '" + wads[i].trim() + "' does not exist!");
 					return;
 				}
-				continue;
-			}
-			
-			// config
-			if (keywords[i].toLowerCase().startsWith("config=")) {
-				server.config = getDataBetween("config=", Functions.cleanInputFile(message));
-			}
-			
-			// data
-			if (keywords[i].toLowerCase().startsWith("data=")) {
-				server.disable_skulltag_data = handleDisableSkulltagData(keywords[i]);
-				System.out.println("Disable skulltag data = " + server.disable_skulltag_data);
-			}
-			
-			// dmflags
-			if (keywords[i].toLowerCase().startsWith("dmflags=")) {
-				server.dmflags = handleGameFlags(keywords[i]);
-				if (server.dmflags == FLAGS_ERROR) {
-					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing dmflags");
-					return;
-				}
-				continue;
-			}
-			
-			// dmflags2
-			if (keywords[i].toLowerCase().startsWith("dmflags2=")) {
-				server.dmflags2 = handleGameFlags(keywords[i]);
-				if (server.dmflags2 == FLAGS_ERROR) {
-					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing dmflags2");
-					return;
-				}
-				continue;
-			}
-			
-			// dmflags3 
-			if (keywords[i].toLowerCase().startsWith("dmflags3=")) {
-				server.dmflags3 = handleGameFlags(keywords[i]);
-				if (server.dmflags3 == FLAGS_ERROR) {
-					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing dmflags3");
-					return;
-				}
-				continue;
-			}
-			
-			// gamemode
-			if (keywords[i].toLowerCase().startsWith("gamemode=")) {
-				server.gamemode = getGamemode(keywords[i]);
-			}
-			
-			// hostname (Note: appended the quotation mark for the function)
-			if (keywords[i].toLowerCase().startsWith("hostname=\"")) {
-				server.servername = getDataBetween("hostname=", message);
-			}
-			
-			// instagib
-			if (keywords[i].toLowerCase().startsWith("instagib=")) {
-				server.instagib = handleBuckshotOrInstagib(keywords[i]);
-			}
-			
-			// iwad
-			if (keywords[i].toLowerCase().startsWith("iwad=")) {
-				server.iwad = getIwad(Functions.cleanInputFile(keywords[i]));
-			}
-			
-			// mapwad (Note: appended the quotation mark for the function)
-			if (keywords[i].toLowerCase().startsWith("mapwad=\"")) {
-				server.mapwads = getDataBetween("mapwad=", message);
-			}
-			
-			// wad (Note: appended the quotation mark for the function)
-			if (keywords[i].toLowerCase().startsWith("wad=\"")) {
-				server.wads = getDataBetween("wad=", Functions.cleanInputFile(message)).replace(',', ' '); // Support for quotation marks only right now, also none for spaces in file names
 			}
 		}
 		
@@ -352,15 +331,8 @@ public class Server {
 	 * @return A string of the wad (lowercase), or null if there's no supported iwad name
 	 */
 	private static String getIwad(String string) {
-		// Split the string
-		String[] value = string.split("=");
-		
-		// If we don't have exactly 2 values, or the 2nd value is unusual, default to on
-		if (value.length != 2 || value[1] == "" || value[1] == null)
-			return null;
-		
 		// Check if in array, and if so return that value
-		switch (value[1].toLowerCase()) {
+		switch (string.toLowerCase()) {
 			case "doom2":
 			case "doom2.wad":
 				return "doom2.wad";
@@ -403,7 +375,6 @@ public class Server {
 			case "nerve.wad":
 				return "nerve.wad";
 		}
-		
 		// If there's no match...
 		return null;
 	}
@@ -414,15 +385,8 @@ public class Server {
 	 * @return A string of the gamemode, null if there was no such gamemode
 	 */
 	private static String getGamemode(String string) {
-		// Split the string
-		String[] value = string.split("=");
-		
-		// If we don't have exactly 2 values, or the 2nd value is unusual, default to on
-		if (value.length != 2 || value[1] == "" || value[1] == null)
-			return null;
-		
 		// Find out if the string we're given matches a game mode
-		switch (value[1].toLowerCase())
+		switch (string.toLowerCase())
 		{
 			case "deathmatch":
 			case "dm":
@@ -470,54 +434,18 @@ public class Server {
 	}
 
 	/**
-	 * This handles the skulltag data boolean
+	 * Method that contains aliases for on/off properties
 	 * @param string The keyword to check
 	 * @return True if to use it, false if not
 	 */
-	private static boolean handleDisableSkulltagData(String string) {
-		// Split the string
-		String[] value = string.split("=");
-		
-		// If we don't have exactly 2 values, or the 2nd value is unusual, default to on
-		if (value.length != 2 || value[1] == "" || value[1] == null)
-			return false;
-		
-		// If the second keyword matches some known keywords, then disable it
-		switch (value[1].toLowerCase()) {
-			case "off":
-			case "false":
-			case "no":
-			case "disable":
-			case "remove":
-				return true;
-		}
-		
-		// Otherwise if something is wrong, just assume we need it
-		return false;
-	}
-	
-	/**
-	 * This handles the game modes with default to off
-	 * @param string The keyword to check
-	 * @return True if to use it, false if not
-	 */
-	private static boolean handleBuckshotOrInstagib(String string) {
-		// Split the string
-		String[] value = string.split("=");
-		
-		// If we don't have exactly 2 values, or the 2nd value is unusual, default to on
-		if (value.length != 2 || value[1] == "" || value[1] == null)
-			return false;
-		
-		// If the second keyword matches some known keywords, then disable it
-		switch (value[1].toLowerCase()) {
+	private static boolean handleTrue(String string) {
+		switch (string.toLowerCase()) {
 			case "on":
 			case "true":
 			case "yes":
 			case "enable":
 				return true;
 		}
-		
 		// Otherwise if something is wrong, just assume we need it
 		return false;
 	}
@@ -528,64 +456,15 @@ public class Server {
 	 * @return A number of what it is
 	 */
 	private static int handleGameFlags(String keyword) {
-		// Split it by the equals sign
-		String[] data = keyword.split("=");
-		
-		// There should only be two parts, the left and the right side
-		if (data.length != 2)
-			return FLAGS_ERROR;
-		
 		// If the right side is numeric and passes some logic checks, return that as the flag
 		int flag = 0;
-		if (Functions.isNumeric(data[1]))
-			flag = Integer.parseInt(data[1]);
+		if (Functions.isNumeric(keyword))
+			flag = Integer.parseInt(keyword);
 		if (flag >= 0)
 			return flag;
 		
 		// If something went wrong, return an error
 		return FLAGS_ERROR;
-	}
-	
-	/**
-	 * This will take your keyword and the main message, and between the two quotation marks it will find 
-	 * @param firstKeyword The keyword before the quotation mark (ex: hostname=)
-	 * @param fullMessage The entire sent message from the user
-	 * @return The string between the two quotes, or null if something went wrong
-	 */
-	private static String getDataBetween(String firstKeyword, String fullMessage) {
-		// Find out the starting place for the keyword
-		int startIndex = fullMessage.indexOf(firstKeyword);
-		
-		// If the keyword isn't in the message or is at the very end, it doesn't exist/is messed up
-		if (startIndex == -1 || startIndex + firstKeyword.length() >= fullMessage.length())
-			return null;
-		
-		// Now make startIndex start from the quotation mark
-		startIndex = startIndex + firstKeyword.length() + 1;
-		
-		// Start looking from (start index + word length + 1 char for the quotation mark) to the end
-		int endIndex = -1;
-		char[] fullMessageChars = fullMessage.toCharArray();
-		for (int c = startIndex; c < fullMessageChars.length; c++) {
-			if (fullMessageChars[c] == '"') {
-				endIndex = c;
-				break;
-			}
-		}
-		
-		// If something goes wrong, return null
-		if (endIndex == -1 || endIndex - startIndex <= 0)
-			return null;
-		
-		// Set up the return string, handle possible errors
-		String returnString = null;
-		try {
-			returnString = fullMessage.substring(startIndex, endIndex);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	
-		return returnString; 
 	}
 	
 	/**
@@ -606,11 +485,11 @@ public class Server {
 			case "cfg":
 			case "configuration":
 				return this.config;
-			case "disable_skulltag_data":
+			case "enable_skulltag_data":
 			case "stdata":
 			case "skulltag_data":
 			case "skulltagdata":
-				return Boolean.toString(this.disable_skulltag_data);
+				return Boolean.toString(this.enable_skulltag_data);
 			case "dmflags":
 				return Integer.toString(this.dmflags);
 			case "dmflags2":

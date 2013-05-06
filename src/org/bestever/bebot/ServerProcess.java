@@ -99,16 +99,20 @@ public class ServerProcess extends Thread {
 		runCommand.add("-port " + Integer.toString(server.bot.getMinPort())); // Always start on the minimum port and let zandronum handle the rest
 		
 		if (server.iwad != null)
-			runCommand.add("-iwad iwads/" + server.iwad);
+			runCommand.add("-iwad " + server.bot.cfg_data.bot_iwad_directory_path + server.iwad);
 		
-		if (!server.disable_skulltag_data)
-			runCommand.add("-file skulltag_data.pk3 skulltag_actors.pk3");
+		if (server.enable_skulltag_data)
+			runCommand.add("-file " + server.bot.cfg_data.bot_wad_directory_path + "skulltag_data.pk3" + server.bot.cfg_data.bot_wad_directory_path + "skulltag_actors.pk3");
 		
 		if (server.wads != null)
-			runCommand.add("-file \"server.wads\"");
+			// We have more than one wad
+			if (server.wads.contains(","))
+				runCommand.add("-file " + Functions.parseWads(server.wads, server.bot.cfg_data.bot_wad_directory_path));
+			else
+				runCommand.add("-file " + server.bot.cfg_data.bot_wad_directory_path + server.wads);
 		
 		if (server.config != null)
-			runCommand.add("+exec \"" + server.config + "\"");
+			runCommand.add("+exec " + server.bot.cfg_data.bot_cfg_directory_path + server.config);
 		
 		if (server.gamemode != null)
 			runCommand.add("+" + server.gamemode + " 1");
@@ -148,29 +152,25 @@ public class ServerProcess extends Thread {
 		
 		String execCommand = "";
 		ListIterator<String> it = runCommand.listIterator();
-		while (it.hasNext())
+		while (it.hasNext()) {
 			if (it.nextIndex() != 0)
 				execCommand += " " + it.next();
 			else
 				execCommand += it.next();
+		}
+		server.bot.sendMessage(server.bot.cfg_data.irc_channel, execCommand);
 		return execCommand;
 	}
 	
 	@Override
 	public void run() {
-		// If we have not initialized the process, do not set up a server (to prevent errors)
-		if (!isInitialized()) {
-			server.bot.sendMessage(server.irc_channel, "Warning: Initialization error for server thread; please contact an administrator.");
-			return;
-		}
-		
 		// Attempt to start up the server
 		String portNumber = ""; // This will hold the port number
 		File logFile = null,
 			 banlist = null, 
 			 whitelist = null, 
 			 adminlist = null;
-		long start = System.nanoTime();
+		server.time_started = System.nanoTime();
 		String strLine = null;
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss");
 		String dateNow = "";
@@ -256,11 +256,11 @@ public class ServerProcess extends Thread {
 			// Handle cleanup
 			dateNow = formatter.format(Calendar.getInstance().getTime());
 			long end = System.nanoTime();
-			long uptime = end - start;
-			bufferedLogWriter.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime / 1000000000));
+			long uptime = end - server.time_started;
+			bufferedLogWriter.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime));
 			
 			// Notify the main channel
-			server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port +"! Server ran for " + Functions.calculateTime(uptime / 1000000000));
+			server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port +"! Server ran for " + Functions.calculateTime(uptime));
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

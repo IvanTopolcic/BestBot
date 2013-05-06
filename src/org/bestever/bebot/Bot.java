@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
@@ -369,7 +371,7 @@ public class Bot extends PircBot {
 			if (tempServer == null) {
 				return;
 			}
-			sendMessage(cfg_data.irc_channel, tempServer.getField(keywords[1]));
+			sendMessage(cfg_data.irc_channel, tempServer.getField(keywords[2]));
 		}
 	}
 	
@@ -437,7 +439,6 @@ public class Bot extends PircBot {
 				sendMessage(cfg_data.irc_channel, "Improper port number.");
 		// Admins/mods can kill anything
 		} else if (isAccountTypeOf(userLevel, ADMIN, MODERATOR)) {
-			sendMessage(cfg_data.irc_channel, "Attempting to kill server on port " + keywords[1] + "...");
 			killServer(keywords[1]); // Can pass string, will process it in the method safely if something goes wrong
 		}
 	}
@@ -717,7 +718,7 @@ public class Bot extends PircBot {
 			System.out.println("Incorrect arguments, please have only one arg to your ini path");
 			return;
 		}
-		
+
 		// Attempt to load the config
 		ConfigData cfg_data;
 		try {

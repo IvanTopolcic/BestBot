@@ -114,6 +114,11 @@ public class ConfigData {
 	 * Contains a path to the wad directory
 	 */
 	public String bot_wad_directory_path;
+
+	/**
+	 * Contains a path to the iwad directory
+	 */
+	public String bot_iwad_directory_path;
 	
 	/**
 	 * Contains a path to the cfg directory
@@ -228,6 +233,7 @@ public class ConfigData {
 		this.bot_verbose = Boolean.parseBoolean(bot.get("verbose"));
 		this.bot_directory_path = bot.get("directory");
 		this.bot_wad_directory_path = bot.get("waddir");
+		this.bot_iwad_directory_path = bot.get("iwaddir");
 		this.bot_cfg_directory_path = bot.get("cfgdir");
 		this.bot_whitelistdir = bot.get("banlistdir");
 		this.bot_banlistdir = bot.get("whitelistdir");
