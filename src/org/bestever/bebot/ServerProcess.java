@@ -69,7 +69,6 @@ public class ServerProcess extends Thread {
 	 */
 	public void terminateServer() {
 		proc.destroy();
-		//server.bot.removeServerFromLinkedList(this.server);
 	}
 	
 	/**
@@ -161,9 +160,13 @@ public class ServerProcess extends Thread {
 		return execCommand;
 	}
 	
+	/**
+	 * This method should be executed when the data is set up to initialize the
+	 * server. It will be bound to this thread. Upon server termination this 
+	 * thread will also end.
+	 */
 	@Override
 	public void run() {
-		// Attempt to start up the server
 		String portNumber = ""; // This will hold the port number
 		File logFile, banlist, whitelist, adminlist;
 		String strLine, dateNow;
