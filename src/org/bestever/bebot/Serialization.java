@@ -200,10 +200,10 @@ public class Serialization {
 					// Check for possible parameters
 					if (serverData.contains("config["))
 						server.config += getSerializedString(serverData, "config[", "];");
-					if (serverData.contains("wads["))
+					/*if (serverData.contains("wads["))
 						server.wads = getSerializedString(serverData, "wads[", "];");
 					if (serverData.contains("mapwads=["))
-						server.mapwads = getSerializedString(serverData, "mapwads[", "];");
+						server.mapwads = getSerializedString(serverData, "mapwads[", "];");*/
 					if (serverData.contains("enable_skulltag_data["))
 						server.enable_skulltag_data = getSerializedBoolean(serverData, "enable_skulltag_data[", "];");
 					if (serverData.contains("instagib["))

@@ -20,7 +20,9 @@ import static org.bestever.bebot.AccountType.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -161,8 +163,8 @@ public class Bot extends PircBot {
 	 * @return The server object reference if it exists, null if there's no such object
 	 */
 	public Server getServer(int port) {
-		logMessage(LOGLEVEL_DEBUG, "Getting server at port " + port + ".");
-		if (servers == null | servers.isEmpty()) 
+		logMessage(LOGLEVEL_TRIVIAL, "Getting server at port " + port + ".");
+		if (servers == null || servers.isEmpty())
 			return null;
 		ListIterator<Server> it = servers.listIterator();
 		Server desiredServer = null;
@@ -172,6 +174,27 @@ public class Bot extends PircBot {
 				return desiredServer;
 		}
 		return null;
+	}
+
+	/**
+	 * Returns a list of servers belonging to the specified user
+	 * @param username their IRC username
+	 * @return a list of server objects
+	 */
+	public List<Server> getUserServers(String username) {
+		logMessage(LOGLEVEL_DEBUG, "Getting all servers from " + username + ".");
+		if (servers == null || servers.isEmpty())
+			return null;
+		Server desiredServer;
+		ListIterator<Server> it = servers.listIterator();
+		List<Server> serverList = new ArrayList<Server>();
+		while (it.hasNext()) {
+			desiredServer = it.next();
+			if (desiredServer.sender.equalsIgnoreCase(username)) {
+				serverList.add(desiredServer);
+			}
+		}
+		return serverList;
 	}
 	
 	/**
@@ -254,7 +277,7 @@ public class Bot extends PircBot {
 					processHost(userLevel, channel, sender, login, hostname, message);
 					break;
 				case ".kill":
-					processKill(userLevel, keywords, sender);
+					processKill(userLevel, keywords, hostname);
 					break;
 				case ".killall":
 					processKillAll(userLevel, keywords);
@@ -280,9 +303,6 @@ public class Bot extends PircBot {
 				case ".owner":
 					processOwner(userLevel, keywords);
 					break;
-				case ".players":
-					processPlayers(userLevel, keywords);
-					break;
 				case ".quit":
 					processQuit(userLevel);
 					break;
@@ -298,6 +318,9 @@ public class Bot extends PircBot {
 					break;
 				case ".userlevel":
 					processUserLevel(userLevel, hostname);
+					break;
+				case ".servers":
+					processServers(keywords[1]);
 					break;
 				default:
 					break;
@@ -395,10 +418,10 @@ public class Bot extends PircBot {
 	 * Attempts to kill a server based on the port
 	 * @param userLevel The user's bitmask level
 	 * @param keywords The keywords to be processed
-	 * @param sender The person sending the request
+	 * @param hostname hostname from the sender
 	 */
-	private void processKill(int userLevel, String[] keywords, String sender) {
-		logMessage(LOGLEVEL_NORMAL, "Processing kill from " + sender + ".");
+	private void processKill(int userLevel, String[] keywords, String hostname) {
+		logMessage(LOGLEVEL_NORMAL, "Processing kill.");
 		// Ensure proper syntax
 		if (keywords.length != 2) {
 			sendMessage(cfg_data.irc_channel, "Proper syntax: .kill <port>");
@@ -407,7 +430,7 @@ public class Bot extends PircBot {
 		
 		// Safety net
 		if (servers == null) {
-			sendMessage(cfg_data.irc_channel, "Major error: Linkedlist is null, contact an administrator.");
+			sendMessage(cfg_data.irc_channel, "Critical error: Linkedlist is null, contact an administrator.");
 			return;
 		}
 		
@@ -422,7 +445,7 @@ public class Bot extends PircBot {
 			if (Functions.isNumeric(keywords[1])) {
 				Server server = getServer(Integer.parseInt(keywords[1]));
 				if (server != null)
-					if (server.sender.toLowerCase().equals(sender))
+					if (Functions.getUserName(server.irc_hostname).equalsIgnoreCase(Functions.getUserName(hostname)))
 						if (server.serverprocess != null)
 							server.serverprocess.terminateServer();
 						else
@@ -430,7 +453,7 @@ public class Bot extends PircBot {
 					else
 						sendMessage(cfg_data.irc_channel, "Error: You do not own this server!");
 				else
-					sendMessage(cfg_data.irc_channel, "Error getting server, please contact an administrator.");
+					sendMessage(cfg_data.irc_channel, "Error: You do not own this server!");
 			} else 
 				sendMessage(cfg_data.irc_channel, "Improper port number.");
 		// Admins/mods can kill anything
@@ -465,14 +488,14 @@ public class Bot extends PircBot {
 	 * @param hostname The hostname of the person invoking this command
 	 */
 	private void processKillMine(int userLevel, String[] keywords, String hostname) {
-		logMessage(LOGLEVEL_DEBUG, "Processing killmine.");
+		logMessage(LOGLEVEL_TRIVIAL, "Processing killmine.");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
-			if (servers != null && servers.size() > 0) {
+			if (servers != null) {
 				ListIterator<Server> li = servers.listIterator();
 				Server s;
 				while (li.hasNext()) {
 					s = li.next();
-					if (s.irc_hostname.equals(hostname))
+					if (s.irc_hostname.equalsIgnoreCase(hostname))
 						s.killServer();
 				}
 			} else {
@@ -589,28 +612,6 @@ public class Bot extends PircBot {
 		}
 	}
 	
-	/**
-	 * Gets the number of players in a server
-	 * @param userLevel The user's bitmask level
-	 * @param keywords The keywords to be processed
-	 */
-	private void processPlayers(int userLevel, String[] keywords) {
-		logMessage(LOGLEVEL_DEBUG, "Processing a request for the number of players.");
-		// Ensure it is a valid port
-		if (!Functions.isNumeric(keywords[1])) {
-			sendMessage(cfg_data.irc_channel, "Invalid port number (" + keywords[1] + ").");
-			return;
-		}
-		
-		// Search the port
-		int port = Integer.parseInt(keywords[1]);
-		Server targetServer = getServer(port);
-		if (targetServer != null)
-			sendMessage(cfg_data.irc_channel, "Number of players: " + targetServer.players);
-		else
-			sendMessage(cfg_data.irc_channel, "Unable to get server at port " + port + ".");
-	}
-	
 	// UNIMPLEMENTED YET
 	private void processRcon(int userLevel, String[] keywords, String sender) {
 		logMessage(LOGLEVEL_NORMAL, "Processing a request for rcon (from " + sender + ").");
@@ -648,6 +649,20 @@ public class Bot extends PircBot {
 		if (isAccountTypeOf(userLevel, ADMIN)) {
 			this.disconnect();
 			System.exit(0);
+		}
+	}
+
+	/**
+	 * Sends a message to the channel with a list of servers from the user
+	 * @param hostname the requested user's hostname
+	 */
+	private void processServers(String hostname) {
+		logMessage(LOGLEVEL_NORMAL, "Getting a list of servers.");
+		List<Server> servers = getUserServers(Functions.getUserName(hostname));
+		int i = 1;
+		for (Server server : servers) {
+			sendMessage(cfg_data.irc_channel, i + ". Name: " + server.servername + " Port: " + server.port + " Wads: " + ((server.mapwads != null) ? Functions.implode(server.mapwads, ", ") : "") + ((server.wads != null) ? " " + Functions.implode(server.wads, ", ") : ""));
+			i++;
 		}
 	}
 	

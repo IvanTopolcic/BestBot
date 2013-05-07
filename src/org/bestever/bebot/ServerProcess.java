@@ -80,6 +80,7 @@ public class ServerProcess extends Thread {
 	 */
 	public void terminateServer() {
 		proc.destroy();
+		//server.bot.removeServerFromLinkedList(this.server);
 	}
 	
 	/**
@@ -90,7 +91,7 @@ public class ServerProcess extends Thread {
 		// This shouldn't happen but you never know
 		if (server == null)
 			return null;
-		
+
 		// Create an arraylist with all our strings
 		ArrayList<String> runCommand = new ArrayList<>();
 		
@@ -103,13 +104,24 @@ public class ServerProcess extends Thread {
 		
 		if (server.enable_skulltag_data)
 			runCommand.add("-file " + server.bot.cfg_data.bot_wad_directory_path + "skulltag_data.pk3" + server.bot.cfg_data.bot_wad_directory_path + "skulltag_actors.pk3");
-		
-		if (server.wads != null)
-			// We have more than one wad
-			if (server.wads.contains(","))
-				runCommand.add("-file " + Functions.parseWads(server.wads, server.bot.cfg_data.bot_wad_directory_path));
-			else
-				runCommand.add("-file " + server.bot.cfg_data.bot_wad_directory_path + server.wads);
+
+		if (server.wads != null) {
+			for (String wad : server.wads) {
+				runCommand.add("-file " + server.bot.cfg_data.bot_wad_directory_path + wad);
+			}
+		}
+
+		if (server.mapwads != null) {
+			for (String wad : server.mapwads) {
+				runCommand.add("-file " + server.bot.cfg_data.bot_wad_directory_path + wad);
+				try {
+					DoomFile f = new DoomFile(server.bot.cfg_data.bot_wad_directory_path + wad);
+					runCommand.add(f.getLevelNames(true));
+				} catch (IOException e) {
+					Logger.logMessage(Logger.LOGLEVEL_CRITICAL, "Could not instantiate DoomFile class!");
+				}
+			}
+		}
 		
 		if (server.config != null)
 			runCommand.add("+exec " + server.bot.cfg_data.bot_cfg_directory_path + server.config);
@@ -148,8 +160,6 @@ public class ServerProcess extends Thread {
 		runCommand.add("+sv_adminlistfile " + server.bot.cfg_data.bot_adminlistdir + server.server_id + ".txt");
 		runCommand.add("+sv_banexemptionfile " + server.bot.cfg_data.bot_whitelistdir + server.server_id + ".txt");
 		
-		//+addmap map from mapwad goes here
-		
 		String execCommand = "";
 		ListIterator<String> it = runCommand.listIterator();
 		while (it.hasNext()) {
@@ -166,14 +176,10 @@ public class ServerProcess extends Thread {
 	public void run() {
 		// Attempt to start up the server
 		String portNumber = ""; // This will hold the port number
-		File logFile = null,
-			 banlist = null, 
-			 whitelist = null, 
-			 adminlist = null;
+		File logFile, banlist, whitelist, adminlist;
+		String strLine, dateNow;
 		server.time_started = System.nanoTime();
-		String strLine = null;
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MMM/dd HH:mm:ss");
-		String dateNow = "";
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 		try {
 			// Ensure we have the files created
 			banlist = new File(server.bot.cfg_data.bot_banlistdir + server.server_id + ".txt");
@@ -192,10 +198,9 @@ public class ServerProcess extends Thread {
 			
 			// Set up file/IO
 			logFile = new File(server.bot.cfg_data.bot_logfiledir + server.server_id + ".txt");
-			logWriter = new FileWriter(server.bot.cfg_data.bot_logfiledir + server.server_id + ".txt");
-			bufferedLogWriter = new BufferedWriter(logWriter);
+			BufferedWriter bw = new BufferedWriter(new FileWriter(server.bot.cfg_data.bot_logfiledir + server.server_id + ".txt"));
 			
-			// Write header in the file
+			// Create the logfile
 			if (!logFile.exists())
 				logFile.createNewFile();
 
@@ -235,32 +240,23 @@ public class ServerProcess extends Thread {
 					server.bot.sendMessage(server.sender, "To kill your server, type .killmine (this will kill all of your servers), or .kill " + server.port);
 				}
 				
-				// Handle the player number if someone connects
-				if (!strLine.startsWith("CHAT")) {
-					if (strLine.endsWith("has connected."))
-						server.players += 1;
-					else if (strLine.endsWith("disconnected."))
-						server.players -= 1;
-				}
-				
-				// Reset players to 0 when the map is changed
-				if (strLine.startsWith("-> map")) {
-					server.players = 0;
-				}
-				
 				dateNow = formatter.format(Calendar.getInstance().getTime());
-				bufferedLogWriter.write(dateNow + " " + strLine + "\n");
-				bufferedLogWriter.flush();
+				bw.write(dateNow + " " + strLine + "\n");
+				bw.flush();
 			}
 			
 			// Handle cleanup
 			dateNow = formatter.format(Calendar.getInstance().getTime());
 			long end = System.nanoTime();
 			long uptime = end - server.time_started;
-			bufferedLogWriter.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime));
+			bw.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime));
 			
 			// Notify the main channel
 			server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port +"! Server ran for " + Functions.calculateTime(uptime));
+
+			// Remove from the Linked List
+			server.bot.removeServerFromLinkedList(this.server);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

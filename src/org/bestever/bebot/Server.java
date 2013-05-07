@@ -16,6 +16,7 @@
 package org.bestever.bebot;
 
 import java.io.File;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,12 +32,7 @@ public class Server {
 	 * Contains the reference to the bot
 	 */
 	public Bot bot;
-	
-	/**
-	 * Contains the number of players
-	 */
-	public byte players = 0;
-	
+
 	/**
 	 * Contains the port it is run on
 	 */
@@ -105,12 +101,12 @@ public class Server {
 	/**
 	 * Contains a list of all the wads used by the server separated by a space
 	 */
-	public String wads;
+	public String[] wads;
 
 	/**
 	 * Contains a list of all the wads separated by a space which will be searched for maps
 	 */
-	public String mapwads;
+	public String[] mapwads;
 	
 	/**
 	 * If this is true, that means skulltag data will be enabled
@@ -208,15 +204,8 @@ public class Server {
 		server.sender = sender;
 		server.host_command = message;
 		server.user_level = userLevel;
-		
-		// Break up the message, if we have 1 or less keywords then something is wrong 
-		String[] keywords = message.split(" ");
-		if (keywords.length < 2) {
-			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Not enough parameters");
-			return;
-		}
 
-		// Regex that will match key=value, as well as quotes (key="value")
+		// Regex that will match key=value, as well as quotes key="value"
 		Pattern regex = Pattern.compile("(\\w+)=\"*((?<=\")[^\"]+(?=\")|([^\\s]+))\"*");
 		Matcher m = regex.matcher(message);
 
@@ -281,28 +270,35 @@ public class Server {
 					server.iwad = getIwad(Functions.cleanInputFile(m.group(2)));
 					break;
 				case "mapwad":
-					server.mapwads = Functions.cleanInputFile(m.group(2));
+					server.mapwads = addWads(m.group(2));
 					break;
 				case "wad":
-					server.wads = Functions.cleanInputFile(m.group(2));
+					server.wads = addWads(m.group(2));
 					break;
 			}
 		}
 
+		// Redundant :(
 		// Check if the wads exist
-		// Kind of hacky as we should probably have a universal function that does this
-		// Maybe store server.wads as a String array?
 		if (server.wads != null) {
-			String[] wads = server.wads.trim().split(",");
-			for (int i = 0; i < wads.length; i++) {
-				File f = new File(server.bot.cfg_data.bot_wad_directory_path + wads[i].trim());
-				if (!f.exists()) {
-					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "File '" + wads[i].trim() + "' does not exist!");
+			for (String wad : server.wads) {
+				if (!Functions.fileExists(server.bot.cfg_data.bot_wad_directory_path + wad)) {
+					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "File '" + wad + "' does not exist!");
 					return;
 				}
 			}
 		}
-		
+
+		// Check if mapwad exists
+		if (server.mapwads != null) {
+			for (String wad : server.mapwads) {
+				if (!Functions.fileExists(server.bot.cfg_data.bot_wad_directory_path + wad)) {
+					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "File '" + wad + "' does not exist!");
+					return;
+				}
+			}
+		}
+
 		// Now that we've indexed the string, check to see if we have what we need to start a server
 		if (server.iwad == null) {
 			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Incorrect/missing iwad");
@@ -316,15 +312,35 @@ public class Server {
 			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Error parsing hostname");
 			return;
 		}
-		
-		// Generate the ID [hardcoded banlist, fix in future maybe?]
-		server.server_id = Functions.getUniqueID(server.bot.cfg_data.bot_directory_path + "/banlist/");
-		
+
+		// Check if the global server limit has been reached
+		if (Functions.getFirstAvailablePort(server.bot.getMinPort(), server.bot.getMaxPort()) == 0) {
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Global server limit has been reached.");
+		}
+
+		// Generate the unique ID
+		try {
+			server.server_id = Functions.generateHash();
+		} catch (NoSuchAlgorithmException e) {
+			Logger.logMessage(Logger.LOGLEVEL_CRITICAL, "Error generating MD5 hash!");
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Error generating MD5 hash. Please contact an administrator.");
+			return;
+		}
+
 		// Assign and start a new thread
 		server.serverprocess = new ServerProcess(server);
 		server.serverprocess.start();
 	}
-	
+
+	/**
+	 * Returns an array of wads from a String
+	 * @param wads list of wads
+	 * @return array of wads
+	 */
+	private static String[] addWads(String wads) {
+		return Functions.cleanInputFile(wads).split(",");
+	}
+
 	/**
 	 * Checks for the iwad based on the input
 	 * @param string The keyword with the iwad (ex: iwad=doom2.wad)
@@ -509,7 +525,7 @@ public class Server {
 				return this.iwad;
 			case "mapwad":
 			case "mapwads":
-				return this.mapwads;
+				return Functions.implode(this.mapwads, ", ");
 			case "name":
 			case "server_name":
 			case "hostname":
@@ -517,7 +533,7 @@ public class Server {
 				return this.servername;
 			case "wad":
 			case "wads":
-				return this.wads;
+				return Functions.implode(this.wads, ", ");
 			default:
 				break;
 		}

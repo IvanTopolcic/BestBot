@@ -75,7 +75,7 @@ public class Logger {
 		}
 		
 		// Get the current time
-		String time = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss").format(Calendar.getInstance().getTime());
+		String time = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss").format(Calendar.getInstance().getTime());
 		
 		// Append line to file
 		pw.println(time + " " + message);

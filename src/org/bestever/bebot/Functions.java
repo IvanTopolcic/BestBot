@@ -32,34 +32,15 @@ public class Functions {
 	public static final int NO_AVAILABLE_PORT = 0;
 	
 	/**
-	 * Generates a unique ID
-	 * Updated to remove file creation
-	 * Unique ID is a 12 character MD5 hash
-	 * @param banlist_directory The directory to check for clashing ID's
-	 * @return A string containing the uniqueID
+	 * Generates an MD5 hash
+	 * @return 32 character MD5 hex string
 	 */
-	public static String getUniqueID(String banlist_directory) {
-		String temp = Long.toString(System.nanoTime());
-		String ID = "";
-		try {
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			md.update(temp.getBytes());
-			BigInteger hash = new BigInteger(1, md.digest());
-			ID = hash.toString(16);
-			ID = ID.substring(0, Math.min(ID.length(), 12));
-			File f = new File(banlist_directory + ID + ".txt");
-			while (f.exists()) {
-				temp = Long.toString(System.nanoTime());
-				md.update(temp.getBytes());
-				hash = new BigInteger(1, md.digest());
-				ID = hash.toString(16);
-				f = new File(banlist_directory + ID + ".txt");
-			}
-		} catch (NoSuchAlgorithmException e1) {
-			System.out.println("Error generating unique ID.");
-			ID = "None";
-		}
-		return ID;
+	public static String generateHash() throws NoSuchAlgorithmException {
+		String seed = System.nanoTime() + "SOON";
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		md.update(seed.getBytes());
+		BigInteger hash = new BigInteger(md.digest());
+		return hash.toString(16);
 	}
 	
 	/**
@@ -120,9 +101,7 @@ public class Functions {
 			if (ss != null)
 				try {
 					ss.close();
-				} catch (IOException e) {
-					//e.printStackTrace();
-				}
+				} catch (IOException e) { }
 		}
 		return false;
 	}
@@ -169,6 +148,14 @@ public class Functions {
 		return implode(wadArray, " ");
 	}
 
+	public static boolean fileExists(String file) {
+		File f = new File(file);
+		if (f.exists())
+			return true;
+		else
+			return false;
+	}
+
 	/**
 	 * Returns a cleaned string for file inputs
 	 * @param input
@@ -188,7 +175,8 @@ public class Functions {
 		String output = "";
 		if (inputArray.length > 0) {
 			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < inputArray.length; i++) {
+			sb.append(inputArray[0]);
+			for (int i = 1; i < inputArray.length; i++) {
 				sb.append(glueString);
 				sb.append(inputArray[i].trim());
 			}
