@@ -15,7 +15,6 @@
 
 package org.bestever.bebot;
 
-import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.regex.Matcher;

@@ -17,7 +17,6 @@ package org.bestever.bebot;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.security.MessageDigest;

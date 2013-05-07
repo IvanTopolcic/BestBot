@@ -45,18 +45,7 @@ public class ServerProcess extends Thread {
 	/**
 	 * The process of the server
 	 */
-	private Process proc;
-	
-	/**
-	 * The basic log writer to be used by bufferedLogWriter
-	 */
-	FileWriter logWriter;
-	
-	/**
-	 * Holds the buffered log writer to entering text into the log
-	 */
-	BufferedWriter bufferedLogWriter;
-	
+	private Process proc;	
 	
 	/**
 	 * This should be called before starting run
@@ -179,6 +168,8 @@ public class ServerProcess extends Thread {
 		File logFile, banlist, whitelist, adminlist;
 		String strLine, dateNow;
 		server.time_started = System.nanoTime();
+		BufferedReader br = null;
+		BufferedWriter bw = null;
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
 		try {
 			// Ensure we have the files created
@@ -194,11 +185,11 @@ public class ServerProcess extends Thread {
 					
 			// Set up the server
 			proc = Runtime.getRuntime().exec(serverRunCommands);
-			BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+			br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 			
 			// Set up file/IO
 			logFile = new File(server.bot.cfg_data.bot_logfiledir + server.server_id + ".txt");
-			BufferedWriter bw = new BufferedWriter(new FileWriter(server.bot.cfg_data.bot_logfiledir + server.server_id + ".txt"));
+			bw = new BufferedWriter(new FileWriter(server.bot.cfg_data.bot_logfiledir + server.server_id + ".txt"));
 			
 			// Create the logfile
 			if (!logFile.exists())
@@ -261,13 +252,15 @@ public class ServerProcess extends Thread {
 			e.printStackTrace();
 		} finally {
 			try {
-				bufferedLogWriter.close();
-			} catch (IOException e) {
+				if (bw != null)
+					bw.close();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			try {
-				logWriter.close();
-			} catch (IOException e) {
+				if (br != null)
+					br.close();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
