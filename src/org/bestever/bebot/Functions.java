@@ -39,8 +39,19 @@ public class Functions {
 		String seed = System.nanoTime() + "SOON";
 		MessageDigest md = MessageDigest.getInstance("MD5");
 		md.update(seed.getBytes());
-		BigInteger hash = new BigInteger(md.digest());
-		return hash.toString(16);
+		return byteArrayToHex(md.digest());
+	}
+
+	/**
+	 * Given a byte array, returns a hexadecimal string
+	 * @param bytes byte array
+	 * @return 16bit hex string
+	 */
+	public static String byteArrayToHex(byte[] bytes) {
+		StringBuilder sb = new StringBuilder();
+		for (byte b : bytes)
+			sb.append(String.format("%02x", b&0xff));
+		return sb.toString();
 	}
 	
 	/**
