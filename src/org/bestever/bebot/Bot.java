@@ -34,7 +34,10 @@ import org.jibble.pircbot.PircBot;
 public class Bot extends PircBot {
 	
 	/**
-	 * The lowest port (the base port) that the bot uses
+	 * The lowest port (the base port) that the bot uses. This should NEVER be
+	 * changed because the mysql table relies on the minimum port to stay the
+	 * same so it can grab the proper ID (primary key) which corresponds to
+	 * server storage and ports.
 	 */
 	private int min_port;
 	
