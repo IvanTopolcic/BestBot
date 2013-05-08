@@ -657,7 +657,7 @@ public class Bot extends PircBot {
 	private void processServers(String hostname) {
 		logMessage(LOGLEVEL_NORMAL, "Getting a list of servers.");
 		List<Server> servers = getUserServers(Functions.getUserName(hostname));
-		if (servers != null || !servers.isEmpty()) {
+		if (servers != null && servers.size() > 0) {
 			int i = 1;
 			for (Server server : servers) {
 				sendMessage(cfg_data.irc_channel, i + ". Name: " + server.servername + " Port: " + server.port + " Wads:" + ((server.mapwads != null) ? Functions.implode(server.mapwads, ", ") : "") + ((server.wads != null) ? " " + Functions.implode(server.wads, ", ") : ""));
