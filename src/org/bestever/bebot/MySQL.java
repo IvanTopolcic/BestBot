@@ -65,6 +65,11 @@ public class MySQL {
 	private String mysql_db;
 	
 	/**
+	 * A constant in the database to indicate a server is considered online
+	 */
+	public static final int SERVER_ONLINE = 1;
+	
+	/**
 	 * Constructor for the MySQL Object
 	 * @param bot instance of the bot
 	 * @param host MySQL hostname

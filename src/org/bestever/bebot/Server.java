@@ -16,9 +16,14 @@
 package org.bestever.bebot;
 
 import java.security.NoSuchAlgorithmException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.bestever.bebot.Logger.*;
+import static org.bestever.bebot.MySQL.SERVER_ONLINE;
 
 public class Server {
 
@@ -168,10 +173,10 @@ public class Server {
 	public static final long DAY_MILLISECONDS = 1000 * 60 * 60 * 24;
 	
 	/**
-	 * Empty constructor
+	 * Default constructor for building a server
 	 */
 	public Server() {
-		// Placeholder
+		// Purposely empty
 	}
 	
 	/**
@@ -321,7 +326,7 @@ public class Server {
 		try {
 			server.server_id = Functions.generateHash();
 		} catch (NoSuchAlgorithmException e) {
-			Logger.logMessage(Logger.LOGLEVEL_CRITICAL, "Error generating MD5 hash!");
+			logMessage(LOGLEVEL_CRITICAL, "Error generating MD5 hash!");
 			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Error generating MD5 hash. Please contact an administrator.");
 			return;
 		}
@@ -329,6 +334,68 @@ public class Server {
 		// Assign and start a new thread
 		server.serverprocess = new ServerProcess(server);
 		server.serverprocess.start();
+	}
+	
+	/**
+	 * Servers stored in the database should be loaded upon invoking this
+	 * function on bot startup, the bot should call the MySQL's 
+	 * {@link org.bestever.bebot.MySQL#pullServerData pullServerData() method}.
+	 * This will automatically (assuming there isn't a MySQL error) begin to get
+	 * the servers up and running and fill the objects with the appropriate 
+	 * information.
+	 * @param bot The calling bot reference.
+	 * @param serverResultSet The result set that the mysql database returned.
+	 */
+	public void loadServers(Bot bot, ResultSet rs) {
+		// If something goes wrong...
+		if (rs == null) {
+			logMessage(LOGLEVEL_CRITICAL, "Unable to load servers from MySQL!");
+			return;
+		}
+		
+		// Go through each server and initialize them accordingly
+		int database_id = -1;
+		try {
+			Server server;
+			while (rs.next()) {
+				// The server should be marked as online, if it's not then skip it
+				if (rs.getInt("online") == SERVER_ONLINE) {
+					database_id = rs.getInt("id");
+					server = new Server(); // Reference a new object each time we run through the servers
+					server.bot = bot;
+					server.buckshot = (rs.getInt("buckshot") == 1 ? true : false);
+					server.compatflags = rs.getInt("compatflags");
+					server.compatflags2 = rs.getInt("compatflags2");
+					server.config = rs.getString("config");
+					server.dmflags = rs.getInt("dmflags");
+					server.dmflags2 = rs.getInt("dmflags2");
+					server.dmflags3 = rs.getInt("dmflags3");
+					server.enable_skulltag_data = (rs.getInt("enable_skulltag_data") == 1 ? true : false);
+					server.gamemode = rs.getString("gamemode");
+					server.host_command = rs.getString("host_command");
+					server.instagib = (rs.getInt("instagib") == 1 ? true : false);
+					server.irc_channel = rs.getString("irc_channel");
+					server.irc_hostname = rs.getString("irc_hostname");
+					server.irc_login = rs.getString("irc_login");
+					server.iwad = rs.getString("iwad");
+					server.mapwads = rs.getString("mapwads").split(","); // Check this!
+					// server.play_time = 0; // NOT IN THE DATABASE
+					server.rcon_password = rs.getString("rcon_password");
+					server.sender = rs.getString("username"); // ???
+					server.server_id = rs.getString("unique_id"); // ???
+					server.servername = rs.getString("servername");
+					server.time_started = rs.getLong("time_started");
+					server.user_level = 0; // ??? Get from Mysql
+					server.wads = rs.getString("wads").split(","); // Check this!
+					
+					// Handle the server (pass it to the appropriate places before referencing a new object) (server.port and server.serverprocess)
+					logMessage(LOGLEVEL_NORMAL, "Successfully processed server id " + database_id + "'s data.");
+				}
+			}
+		} catch (SQLException e) {
+			logMessage(LOGLEVEL_CRITICAL, "MySQL exception loading servers at " + database_id + "!");
+			e.printStackTrace();
+		}
 	}
 
 	/**
