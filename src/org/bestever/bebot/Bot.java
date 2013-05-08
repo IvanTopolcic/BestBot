@@ -34,26 +34,6 @@ import org.jibble.pircbot.PircBot;
 public class Bot extends PircBot {
 	
 	/**
-	 * Contains the MySQL information
-	 */
-	public MySQL mysql;
-	
-	/**
-	 * Contains the config data
-	 */
-	public ConfigData cfg_data;
-	
-	/**
-	 * Contained a array list of all the servers
-	 */
-	public LinkedList<Server> servers;
-	
-	/**
-	 * Contains the runtime args
-	 */
-	public String[] args;
-	
-	/**
 	 * The lowest port (the base port) that the bot uses
 	 */
 	private int min_port;
@@ -66,7 +46,22 @@ public class Bot extends PircBot {
 	/**
 	 * A toggle variable for allowing hosting
 	 */
-	public boolean botEnabled = true;
+	private boolean botEnabled = true;
+	
+	/**
+	 * Contains the MySQL information
+	 */
+	private MySQL mysql;
+	
+	/**
+	 * Contains the config data
+	 */
+	public ConfigData cfg_data;
+	
+	/**
+	 * Contained a array list of all the servers
+	 */
+	public LinkedList<Server> servers;
 	
 	/**
 	 * Set the bot up with the constructor
@@ -311,14 +306,14 @@ public class Bot extends PircBot {
 				case ".save":
 					processSave(userLevel, keywords, hostname);
 					break;
+				case ".servers":
+					processServers(keywords[1]);
+					break;
 				case ".slot":
 					processSlot(userLevel, keywords);
 					break;
 				case ".userlevel":
 					processUserLevel(userLevel, hostname);
-					break;
-				case ".servers":
-					processServers(keywords[1]);
 					break;
 				default:
 					break;
@@ -341,11 +336,11 @@ public class Bot extends PircBot {
 			case GUEST:
 				return "[Not logged in, guests have limited access] .commands, .file, .givememoney, .help";
 			case REGISTERED:
-				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .rcon, .save, .slot";
+				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .rcon, .save, .servers, .slot";
 			case MODERATOR:
-				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .rcon, .save, .slot, .userlevel";
+				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .rcon, .save, .servers, .slot, .userlevel";
 			case ADMIN:
-				return ".commands, .debuglevel, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .quit, .rcon, .save, .slot, .userlevel";
+				return ".commands, .debuglevel, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .quit, .rcon, .save, .servers, .slot, .userlevel";
 		}
 		return "Undocumented type. Contact an administrator.";
 	}
@@ -749,6 +744,6 @@ public class Bot extends PircBot {
 		
 		// Start the bot
 		Bot bot = new Bot(cfg_data);
-		bot.args = args;
+		bot.hashCode(); // Yes
 	}
 }

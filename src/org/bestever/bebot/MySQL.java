@@ -32,37 +32,37 @@ public class MySQL {
 	/**
 	 * Holds the Connection
 	 */
-	public Connection con;
+	private Connection con;
 	
 	/**
 	 * Holds the Bot
 	 */
-	public Bot bot;
+	private Bot bot;
 	
 	/**
 	 * Holds the MySQL hostname
 	 */
-	public String mysql_host;
+	private String mysql_host;
 	
 	/**
 	 * Holds the MySQL username
 	 */
-	public String mysql_user;
+	private String mysql_user;
 	
 	/**
 	 * Holds the MySQL password
 	 */
-	public String mysql_pass;
+	private String mysql_pass;
 	
 	/**
 	 * Holds the MySQL port
 	 */
-	public int mysql_port;
+	private int mysql_port;
 	
 	/**
 	 * Holds the MySQL database
 	 */
-	public String mysql_db;
+	private String mysql_db;
 	
 	/**
 	 * Constructor for the MySQL Object
