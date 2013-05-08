@@ -141,7 +141,7 @@ public class ServerProcess extends Thread {
 			runCommand.add("+buckshot 1");
 		
 		if (server.servername != null)
-			runCommand.add("+sv_hostname \"" + server.bot.cfg_data.bot_hostname_base + server.servername + "\"");
+			runCommand.add("+sv_hostname \"" + server.bot.cfg_data.bot_hostname_base + " " + server.servername + "\"");
 		
 		// Add rcon/file based stuff
 		runCommand.add("+sv_rconpassword " + server.server_id);
