@@ -141,7 +141,7 @@ public class ConfigData {
 	public String bot_adminlistdir;
 
 	/**
-	 *
+	 * Log file directory
 	 */
 	public String bot_logfiledir;
 	
@@ -164,18 +164,12 @@ public class ConfigData {
 	 * If the bot will be verbose or not
 	 */
 	public boolean bot_verbose;
-	
+
 	/**
-	 * This will save and read the serialization file from this file (this MUST be in the same folder as the bot, ex: "savedservers.txt")
+	 * Contains the base of the hostname that you wish to append to servers at
+	 * the beginning of their sv_hostname
 	 */
-	public String bot_serializationfile;
-	
-	/**
-	 * This is where the saved serializations will be archived upon being read, because they will have to be deleted upon reading so the bot
-	 * can create a new serialization file. <br>
-	 * Note this is relative to the location the bot is in (it will create it in the bot directory)!
-	 */
-	public String bot_serializationbackupdir;
+	public String bot_hostname_base;
 	
 	/**
 	 * This constructor once initialized will parse the config file based on the path
@@ -240,8 +234,7 @@ public class ConfigData {
 		this.bot_adminlistdir = bot.get("adminlistdir");
 		this.bot_logfiledir = bot.get("logfiledir");
 		this.bot_executable = bot.get("executable");
-		this.bot_serializationfile = bot.get("serializationfile");
-		this.bot_serializationbackupdir = bot.get("serializationbackupdir");
 		this.bot_public_rcon = Boolean.parseBoolean(bot.get("public_rcon"));
+		this.bot_hostname_base = bot.get("hostname_base");
 	}
 }

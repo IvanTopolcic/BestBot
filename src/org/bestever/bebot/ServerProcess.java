@@ -65,9 +65,11 @@ public class ServerProcess extends Thread {
 	}
 	
 	/** 
-	 * This method can be invoked to signal the thread to kill itself and the process
+	 * This method can be invoked to signal the thread to kill itself and the 
+	 * process. It will also handle removing it from the linked list.
 	 */
 	public void terminateServer() {
+		server.bot.removeServerFromLinkedList(this.server);
 		proc.destroy();
 	}
 	
@@ -138,9 +140,8 @@ public class ServerProcess extends Thread {
 		if (server.buckshot)
 			runCommand.add("+buckshot 1");
 		
-		// Add BE here later
 		if (server.servername != null)
-			runCommand.add("+sv_hostname \"" + server.servername + "\"");
+			runCommand.add("+sv_hostname \"" + server.bot.cfg_data.bot_hostname_base + server.servername + "\"");
 		
 		// Add rcon/file based stuff
 		runCommand.add("+sv_rconpassword " + server.server_id);
@@ -163,7 +164,9 @@ public class ServerProcess extends Thread {
 	/**
 	 * This method should be executed when the data is set up to initialize the
 	 * server. It will be bound to this thread. Upon server termination this 
-	 * thread will also end.
+	 * thread will also end. <br>
+	 * Note that this method takes care of adding it to the linked list, so you
+	 * don't have to.
 	 */
 	@Override
 	public void run() {

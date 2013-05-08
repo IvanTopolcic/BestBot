@@ -142,7 +142,7 @@ public class Bot extends PircBot {
 			return;
 		ListIterator<Server> it = servers.listIterator();
 		while (it.hasNext()) {
-			// Check if they refer to the exact same object
+			// Check if they refer to the exact same object via reference, if so then we want to remove that
 			if (it.next() == server) {
 				it.remove();
 				return;

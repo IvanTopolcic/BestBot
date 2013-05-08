@@ -390,6 +390,8 @@ public class Server {
 					
 					// Handle the server (pass it to the appropriate places before referencing a new object) (server.port and server.serverprocess)
 					logMessage(LOGLEVEL_NORMAL, "Successfully processed server id " + database_id + "'s data.");
+					server.serverprocess = new ServerProcess(server);
+					server.serverprocess.start();
 				}
 			}
 		} catch (SQLException e) {
