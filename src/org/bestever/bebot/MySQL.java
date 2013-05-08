@@ -242,14 +242,24 @@ public class MySQL {
 	}
 	
 	/**
-	 * This is invoked to request mysql to add the server object to the database
-	 * How it should be handled is all the fields in the Server class will be entered
-	 * into the database
-	 * @param server The Server object to add to the database
-	 * @return An integer constant stating success/failure/other (maybe convert to boolean later if theres only 2 return codes)
+	 * Grabs the data from the mysql database and runs servers by passing their
+	 * information off to a method in the bot that will process accordingly.
+	 * This should be run at startup and only startup.
+	 * @param bot The bot object that will have server data sent to it.
+	 * @param mysql The MySQL object which contains the database information.
 	 */
-	public static int addServerToDatabase(Server server) {
-		logMessage(LOGLEVEL_NORMAL, "Adding server to database (from " + server.irc_hostname + " with: " + server.servername + ").");
-		return 0;
+	public static void pullServerData(Bot bot) {
+		return;
+	}
+	
+	/**
+	 * Writes the server object to the database. This is intended to be for read
+	 * only purposes if the bot goes down, and to be possibly used on the site
+	 * as a means of displaying information.
+	 * @param mysql The MySQL connection object.
+	 * @param server
+	 */
+	public static boolean writeServerData(Server server) {
+		return false;
 	}
 }
