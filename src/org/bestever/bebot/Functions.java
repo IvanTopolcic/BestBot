@@ -29,7 +29,19 @@ public class Functions {
 	 * If no port is available, this is returned
 	 */
 	public static final int NO_AVAILABLE_PORT = 0;
-	
+
+	/**
+	 * Contains the hostmask split (default: .users.zandronum.com)
+	 */
+	public static String hostmask;
+
+	/**
+	 * Sets all the required variables for static Functions
+	 */
+	public static void setFunctions(String irc_mask) {
+		Functions.hostmask = irc_mask;
+	}
+
 	/**
 	 * Generates an MD5 hash
 	 * @return 32 character MD5 hex string
@@ -59,7 +71,7 @@ public class Functions {
 	 * @return username The user's actual IRC name
 	 */
 	public static String getUserName(String hostname) {
-		return hostname.replace(".users.zandronum.com", "");
+		return hostname.replace(hostmask, "");
 	}
 	
 	/**
@@ -68,7 +80,7 @@ public class Functions {
 	 * @return username True if logged in, false if not
 	 */
 	public static boolean checkLoggedIn(String hostname) {
-		hostname = hostname.replace(".users.zandronum.com", "");
+		hostname = hostname.replace(hostmask, "");
 		return !hostname.contains(".");
 	}
 	
@@ -158,6 +170,11 @@ public class Functions {
 		return implode(wadArray, " ");
 	}
 
+	/**
+	 * Check if a file exists
+	 * @param file String path to file
+	 * @return true if exists, false if not
+	 */
 	public static boolean fileExists(String file) {
 		File f = new File(file);
 		if (f.exists())

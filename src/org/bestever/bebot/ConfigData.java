@@ -66,6 +66,11 @@ public class ConfigData {
 	public String irc_pass;
 
 	/**
+	 * The IRC hostname mask (default: .users.zandronum.com)
+	 */
+	public String irc_mask;
+
+	/**
 	 * The mysql host
 	 */
 	public String mysql_host;
@@ -209,6 +214,7 @@ public class ConfigData {
 		this.irc_network = irc.get("network");
 		this.irc_pass = irc.get("pass");
 		this.irc_port = Integer.parseInt(irc.get("port"));
+		this.irc_mask = irc.get("hostmask");
 		
 		// Load the MYSQL section
 		Ini.Section mysql = ini.get("mysql");

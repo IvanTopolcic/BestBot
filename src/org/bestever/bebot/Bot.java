@@ -72,6 +72,11 @@ public class Bot extends PircBot {
 	public Bot(ConfigData cfgfile) {
 		// Point our config data to what we created back in RunMe.java
 		cfg_data = cfgfile;
+
+		// Set up required function variables
+		Functions.setFunctions(cfg_data.irc_mask);
+
+		System.out.println(Functions.hostmask);
 		
 		// Set up the logger
 		Logger.setLogFile(cfg_data.bot_logfile);
@@ -317,6 +322,9 @@ public class Bot extends PircBot {
 					break;
 				case ".userlevel":
 					processUserLevel(userLevel, hostname);
+					break;
+				case ".test":
+					sendMessage(channel, Functions.getUserName(hostname));
 					break;
 				default:
 					break;
@@ -675,7 +683,7 @@ public class Bot extends PircBot {
 	private void processUserLevel(int userLevel, String hostname) {
 		logMessage(LOGLEVEL_TRIVIAL, "Getting user level.");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
-			sendMessage(cfg_data.irc_channel, "User level of '" + hostname + "': " +Integer.toString(mysql.getLevel(hostname)));
+			sendMessage(cfg_data.irc_channel, "User level of '" + Functions.getUserName(hostname) + "': " +Integer.toString(mysql.getLevel(hostname)));
 	}
 
 	/**
