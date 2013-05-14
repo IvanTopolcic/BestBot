@@ -171,6 +171,11 @@ public class ConfigData {
 	public boolean bot_verbose;
 
 	/**
+	 * Holds the help string
+	 */
+	public String bot_help;
+
+	/**
 	 * Contains the base of the hostname that you wish to append to servers at
 	 * the beginning of their sv_hostname
 	 */
@@ -242,5 +247,6 @@ public class ConfigData {
 		this.bot_executable = bot.get("executable");
 		this.bot_public_rcon = Boolean.parseBoolean(bot.get("public_rcon"));
 		this.bot_hostname_base = bot.get("hostname_base");
+		this.bot_help = bot.get("help");
 	}
 }

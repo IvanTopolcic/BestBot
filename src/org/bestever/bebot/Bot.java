@@ -270,7 +270,7 @@ public class Bot extends PircBot {
 					sendMessage(cfg_data.irc_channel, Functions.giveMeMoney());
 					break;
 				case ".help":
-					sendMessage(cfg_data.irc_channel, "Please visit http://www.best-ever.org/ for a tutorial on how to set up servers.");
+					sendMessage(cfg_data.irc_channel, cfg_data.bot_help);
 					break;	
 				case ".host":
 					processHost(userLevel, channel, sender, login, hostname, message);
