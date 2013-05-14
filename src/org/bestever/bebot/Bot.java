@@ -323,9 +323,6 @@ public class Bot extends PircBot {
 				case ".userlevel":
 					processUserLevel(userLevel, hostname);
 					break;
-				case ".test":
-					sendMessage(channel, Functions.getUserName(hostname));
-					break;
 				default:
 					break;
 			}
