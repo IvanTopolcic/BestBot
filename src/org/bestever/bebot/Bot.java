@@ -75,8 +75,6 @@ public class Bot extends PircBot {
 
 		// Set up required function variables
 		Functions.setFunctions(cfg_data.irc_mask);
-
-		System.out.println(Functions.hostmask);
 		
 		// Set up the logger
 		Logger.setLogFile(cfg_data.bot_logfile);
