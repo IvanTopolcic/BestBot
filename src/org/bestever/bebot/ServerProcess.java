@@ -157,7 +157,6 @@ public class ServerProcess extends Thread {
 			else
 				execCommand += it.next();
 		}
-		server.bot.sendMessage(server.bot.cfg_data.irc_channel, execCommand);
 		return execCommand;
 	}
 	

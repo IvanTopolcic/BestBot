@@ -111,7 +111,7 @@ public class Server {
 	 * Contains a list of all the wads separated by a space which will be searched for maps
 	 */
 	public String[] mapwads;
-	
+
 	/**
 	 * If this is true, that means skulltag data will be enabled
 	 */
@@ -282,7 +282,6 @@ public class Server {
 			}
 		}
 
-		// Redundant :(
 		// Check if the wads exist
 		if (server.wads != null) {
 			for (String wad : server.wads) {
@@ -344,7 +343,6 @@ public class Server {
 	 * the servers up and running and fill the objects with the appropriate 
 	 * information.
 	 * @param bot The calling bot reference.
-	 * @param serverResultSet The result set that the mysql database returned.
 	 */
 	public void loadServers(Bot bot, ResultSet rs) {
 		// If something goes wrong...
@@ -386,7 +384,7 @@ public class Server {
 					server.servername = rs.getString("servername");
 					server.time_started = rs.getLong("time_started");
 					server.user_level = 0; // ??? Get from Mysql
-					server.wads = rs.getString("wads").split(","); // Check this!
+					server.wads = rs.getString("wads").replace(" ","").split(","); // Check this!
 					
 					// Handle the server (pass it to the appropriate places before referencing a new object) (server.port and server.serverprocess)
 					logMessage(LOGLEVEL_NORMAL, "Successfully processed server id " + database_id + "'s data.");

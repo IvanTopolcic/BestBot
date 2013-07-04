@@ -208,40 +208,90 @@ public class MySQL {
 		}
 	}
 
+	/**
+	 * Saves a server host command to a row
+	 * @param hostname String - the user's hostname (for verification)
+	 * @param words String Array - array of words
+	 */
 	public void saveSlot(String hostname, String[] words) {
-		String hostmessage = Functions.implode(Arrays.copyOfRange(words, 2, words.length), " ");
-		if ((words.length > 2) && (Functions.isNumeric(words[1]))) {
-			int slot = Integer.parseInt(words[1]);
-			if ((slot > 0) && (slot < 11)) {
-				try {
-						String query = "SELECT `slot` FROM `server`.`save` WHERE `slot` = ? && `username` = ?";
-						PreparedStatement pst = con.prepareStatement(query);
-						pst.setInt(1, slot);
-						pst.setString(2, Functions.getUserName(hostname));
-						ResultSet rs = pst.executeQuery();
-						boolean empty = true;
-						while (rs.next())
-							empty = false;
-						if (empty)
-							query = "INSERT INTO `server`.`save` (`serverstring`, `slot`, `username`) VALUES (?, ?, ?)";
-						else
-							query = "UPDATE `server`.`save` SET `serverstring` = ? WHERE `slot` = ? && `username` = ?";
-						pst = con.prepareStatement(query);
-						pst.setString(1, hostmessage);
-						pst.setInt(2, slot);
-						pst.setString(3, Functions.getUserName(hostname));
-						pst.executeUpdate();
-						rs.close();
-					bot.sendMessage(bot.cfg_data.irc_channel, hostmessage);
-						bot.sendMessage(bot.cfg_data.irc_channel, "Successfully updated save list.");
+		if (words.length > 2) {
+			String hostmessage = Functions.implode(Arrays.copyOfRange(words, 2, words.length), " ");
+			if ((words.length > 2) && (Functions.isNumeric(words[1]))) {
+				int slot = Integer.parseInt(words[1]);
+				if (slot > 0 && slot < 11) {
+					try {
+							String query = "SELECT `slot` FROM " + mysql_db + ".`save` WHERE `slot` = ? && `username` = ?";
+							PreparedStatement pst = con.prepareStatement(query);
+							pst.setInt(1, slot);
+							pst.setString(2, Functions.getUserName(hostname));
+							ResultSet rs = pst.executeQuery();
+							boolean empty = true;
+							while (rs.next())
+								empty = false;
+							if (empty)
+								query = "INSERT INTO " + mysql_db + ".`save` (`serverstring`, `slot`, `username`) VALUES (?, ?, ?)";
+							else
+								query = "UPDATE " + mysql_db + ".`save` SET `serverstring` = ? WHERE `slot` = ? && `username` = ?";
+							pst = con.prepareStatement(query);
+							pst.setString(1, hostmessage);
+							pst.setInt(2, slot);
+							pst.setString(3, Functions.getUserName(hostname));
+							pst.executeUpdate();
+							rs.close();
+							bot.sendMessage(bot.cfg_data.irc_channel, "Successfully updated save list.");
+						}
+					catch (SQLException e) {
+						bot.sendMessage(bot.cfg_data.irc_channel, "MySQL error!");
 					}
-				catch (SQLException e) {
-					e.printStackTrace();
-					bot.sendMessage(bot.cfg_data.irc_channel, "MySQL error!");
+				}
+				else {
+					bot.sendMessage(bot.cfg_data.irc_channel, "You may only specify slot 1-10.");
 				}
 			}
-			else {
-				bot.sendMessage(bot.cfg_data.irc_channel, "You may only specify slot 1-10.");
+		}
+		else {
+			bot.sendMessage(bot.cfg_data.irc_channel, "Incorrect syntax! Correct usage is .save 1-10");
+		}
+	}
+
+	/**
+	 *
+	 * @param hostname
+	 * @param words
+	 * @param level
+	 * @param channel
+	 * @param sender
+	 * @param login
+	 */
+	public void loadSlot(String hostname, String[] words, int level, String channel, String sender, String login) {
+		if (Functions.isNumeric(words[1])) {
+			int slot = Integer.parseInt(words[1]);
+			if (words.length < 2) {
+				bot.sendMessage(bot.cfg_data.irc_channel, "Incorrect syntax! Correct syntax is .load 1-10");
+				return;
+			}
+			if (slot > 10 || slot < 1) {
+				bot.sendMessage(bot.cfg_data.irc_channel, "Slot must be between 1 and 10.");
+				return;
+			}
+			try {
+				String query = "SELECT `serverstring` FROM " + mysql_db + ".`save` WHERE `slot` = ? && `username` = ?";
+				PreparedStatement pst = con.prepareStatement(query);
+				pst.setInt(1, slot);
+				pst.setString(2, Functions.getUserName(hostname));
+				ResultSet r = pst.executeQuery();
+				if (r.next()) {
+					String hostCommand = r.getString("serverstring");
+					bot.processHost(level, channel, sender, login, hostname, hostCommand);
+				}
+				else {
+					 bot.sendMessage(bot.cfg_data.irc_channel, "You do not have anything saved to that slot!");
+				}
+			}
+			catch (SQLException e) {
+				bot.sendMessage(bot.cfg_data.irc_channel, "Whoops, something went wrong! If this problem persists, please contact an Administrator!");
+				Logger.logMessage(LOGLEVEL_IMPORTANT, "Exception in loadSlot");
+				e.printStackTrace();
 			}
 		}
 	}
@@ -251,7 +301,6 @@ public class MySQL {
 	 * information off to a method in the bot that will process accordingly.
 	 * This should be run at startup and only startup.
 	 * @param bot The bot object that will have server data sent to it.
-	 * @param mysql The MySQL object which contains the database information.
 	 */
 	public static void pullServerData(Bot bot) {
 	}
@@ -260,7 +309,6 @@ public class MySQL {
 	 * Writes the server object to the database. This is intended to be for read
 	 * only purposes if the bot goes down, and to be possibly used on the site
 	 * as a means of displaying information.
-	 * @param mysql The MySQL connection object.
 	 * @param server The server object by which the data should be written from.
 	 */
 	public static boolean writeServerData(Server server) {

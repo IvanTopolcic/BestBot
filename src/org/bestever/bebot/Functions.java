@@ -15,12 +15,12 @@
 
 package org.bestever.bebot;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class Functions {
@@ -31,18 +31,6 @@ public class Functions {
 	public static final int NO_AVAILABLE_PORT = 0;
 
 	/**
-	 * Contains the hostmask split (default: .users.zandronum.com)
-	 */
-	public static String hostmask;
-
-	/**
-	 * Sets all the required variables for static Functions
-	 */
-	public static void setFunctions(String irc_mask) {
-		Functions.hostmask = irc_mask;
-	}
-
-	/**
 	 * Generates an MD5 hash
 	 * @return 32 character MD5 hex string
 	 */
@@ -51,6 +39,29 @@ public class Functions {
 		MessageDigest md = MessageDigest.getInstance("MD5");
 		md.update(seed.getBytes());
 		return byteArrayToHex(md.digest());
+	}
+
+	/**
+	 * Returns an array of lines from character
+	 * Ignores simple C-style comments (//)
+	 * @param file full path to file
+	 * @return String[] of lines
+	 * @throws IOException
+	 */
+	public static String[] readFile(String file) throws IOException {
+		if (!fileExists(file)) {
+			Logger.logMessage(Logger.LOGLEVEL_IMPORTANT, "Could not open file '" + file + "' for reading.");
+			return null;
+		}
+		ArrayList<String> lines = new ArrayList<>();
+		BufferedReader br = new BufferedReader(new FileReader(file));
+		while (br.readLine() != null) {
+			if (!br.readLine().startsWith("//")) {
+				lines.add(br.readLine());
+			}
+		}
+		br.close();
+		return lines.toArray(new String[lines.size()]);
 	}
 
 	/**
@@ -71,7 +82,7 @@ public class Functions {
 	 * @return username The user's actual IRC name
 	 */
 	public static String getUserName(String hostname) {
-		return hostname.replace(hostmask, "");
+		return hostname.replace(".users.zandronum.com", "");
 	}
 	
 	/**
@@ -80,7 +91,7 @@ public class Functions {
 	 * @return username True if logged in, false if not
 	 */
 	public static boolean checkLoggedIn(String hostname) {
-		hostname = hostname.replace(hostmask, "");
+		hostname = hostname.replace(".users.zandronum.com", "");
 		return !hostname.contains(".");
 	}
 	

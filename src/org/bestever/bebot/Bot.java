@@ -40,7 +40,7 @@ public class Bot extends PircBot {
 	 * server storage and ports.
 	 */
 	private int min_port;
-	
+
 	/**
 	 * The highest included port number that the bot uses
 	 */
@@ -55,6 +55,11 @@ public class Bot extends PircBot {
 	 * Contains the MySQL information
 	 */
 	private MySQL mysql;
+
+	/**
+	 * Contains the configuration file
+	 */
+	private static String cfg_file;
 	
 	/**
 	 * Contains the config data
@@ -72,9 +77,6 @@ public class Bot extends PircBot {
 	public Bot(ConfigData cfgfile) {
 		// Point our config data to what we created back in RunMe.java
 		cfg_data = cfgfile;
-
-		// Set up required function variables
-		Functions.setFunctions(cfg_data.irc_mask);
 		
 		// Set up the logger
 		Logger.setLogFile(cfg_data.bot_logfile);
@@ -250,7 +252,7 @@ public class Bot extends PircBot {
 		if (message.startsWith(".")) {
 			// Generate an array of keywords from the message
 			String[] keywords = message.split(" ");
-			
+
 			// Perform function based on input (note: login is handled by the MySQL function/class); also mostly in alphabetical order for convenience
 			int userLevel = mysql.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
@@ -269,9 +271,10 @@ public class Bot extends PircBot {
 				case ".givememoney":
 					sendMessage(cfg_data.irc_channel, Functions.giveMeMoney());
 					break;
-				case ".help":
-					sendMessage(cfg_data.irc_channel, cfg_data.bot_help);
-					break;	
+				//  case ".help":
+				//	for (String line : cfg_data.bot_help)
+				//		sendMessage(cfg_data.irc_channel, line);
+				//	break;
 				case ".host":
 					processHost(userLevel, channel, sender, login, hostname, message);
 					break;
@@ -288,7 +291,7 @@ public class Bot extends PircBot {
 					processKillInactive(userLevel, keywords);
 					break;
 				case ".load":
-					processLoad(userLevel, keywords);
+					mysql.loadSlot(hostname, keywords, userLevel, channel, sender, login);
 					break;
 				case ".numservers":
 					processNumServers(userLevel, keywords);
@@ -310,7 +313,7 @@ public class Bot extends PircBot {
 						sendMessage(cfg_data.irc_channel, "Please PM the bot for your rcon.");
 					break;
 				case ".save":
-					processSave(userLevel, keywords, hostname);
+					mysql.saveSlot(hostname, keywords);
 					break;
 				case ".servers":
 					processServers(keywords[1]);
@@ -402,7 +405,7 @@ public class Bot extends PircBot {
 	 * @param hostname IRC data associated with the sender
 	 * @param message The entire message to be processed
 	 */
-	private void processHost(int userLevel, String channel, String sender, String login, String hostname, String message) {
+	public void processHost(int userLevel, String channel, String sender, String login, String hostname, String message) {
 		logMessage(LOGLEVEL_NORMAL, "Processing the host command for " + sender + " with the message \"" + message + "\".");
 		if (botEnabled)
 			if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED))
@@ -492,11 +495,15 @@ public class Bot extends PircBot {
 			if (servers != null) {
 				ListIterator<Server> li = servers.listIterator();
 				Server s;
+				boolean hasServer = false;
 				while (li.hasNext()) {
 					s = li.next();
 					if (s.irc_hostname.equalsIgnoreCase(hostname))
 						s.killServer();
+						hasServer = true;
 				}
+				if (!hasServer)
+					sendMessage(cfg_data.irc_channel, "You do not have any servers running.");
 			} else {
 				sendMessage(cfg_data.irc_channel, "No servers to kill (" + (servers == null ? "LinkedList is null" : "No servers") + ").");
 			}
@@ -539,13 +546,6 @@ public class Bot extends PircBot {
 				return;
 			}
 		}
-	}
-	
-	// UNIMPLEMENTED YET
-	private void processLoad(int userLevel, String[] keywords) {
-		logMessage(LOGLEVEL_NORMAL, "Processing loading a server.");
-		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
-        }
 	}
 	
 	/**
@@ -621,14 +621,6 @@ public class Bot extends PircBot {
 		} else if (isAccountTypeOf(userLevel, REGISTERED)) {
 			
 		}
-	}
-	
-	// UNIMPLEMENTED YET
-	private void processSave(int userLevel, String[] keywords, String hostname) {
-		logMessage(LOGLEVEL_NORMAL, "Processing a save for the database.");
-		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
-			mysql.saveSlot(hostname, keywords);
-        }
 	}
 
 	// UNIMPLEMENTED YET
@@ -734,10 +726,13 @@ public class Bot extends PircBot {
 			return;
 		}
 
+		// Keep the configuration file in case we need to reload it
+		cfg_file = args[0];
+
 		// Attempt to load the config
 		ConfigData cfg_data;
 		try {
-			cfg_data = new ConfigData(args[0]);
+			cfg_data = new ConfigData(cfg_file);
 		} catch (NumberFormatException e) {
 			System.out.println("Warning: ini file has a string where a number should be!");
 			e.printStackTrace();
@@ -751,5 +746,9 @@ public class Bot extends PircBot {
 		// Start the bot
 		Bot bot = new Bot(cfg_data);
 		bot.hashCode(); // Yes
+	}
+
+	public static void load_config() {
+
 	}
 }

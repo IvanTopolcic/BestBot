@@ -173,7 +173,12 @@ public class ConfigData {
 	/**
 	 * Holds the help string
 	 */
-	public String bot_help;
+	public String bot_helpfile;
+
+	/**
+	 * Holds the helpfile
+	 */
+	public String[] bot_help;
 
 	/**
 	 * Contains the base of the hostname that you wish to append to servers at
@@ -247,6 +252,5 @@ public class ConfigData {
 		this.bot_executable = bot.get("executable");
 		this.bot_public_rcon = Boolean.parseBoolean(bot.get("public_rcon"));
 		this.bot_hostname_base = bot.get("hostname_base");
-		this.bot_help = bot.get("help");
 	}
 }
