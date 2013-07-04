@@ -376,7 +376,7 @@ public class Server {
 					server.irc_hostname = rs.getString("irc_hostname");
 					server.irc_login = rs.getString("irc_login");
 					server.iwad = rs.getString("iwad");
-					server.mapwads = rs.getString("mapwads").split(","); // Check this!
+					server.mapwads = rs.getString("mapwads").replace(" ","").split(","); // Check this!
 					// server.play_time = 0; // NOT IN THE DATABASE
 					server.rcon_password = rs.getString("rcon_password");
 					server.sender = rs.getString("username"); // ???
