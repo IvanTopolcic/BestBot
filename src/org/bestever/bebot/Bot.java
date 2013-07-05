@@ -283,9 +283,9 @@ public class Bot extends PircBot {
 				case ".killmine":
 					processKillMine(userLevel, keywords, hostname);
 					break;
-				case ".killinactive":
-					processKillInactive(userLevel, keywords);
-					break;
+				// case ".killinactive":
+				//	processKillInactive(userLevel, keywords);
+				//	break;
 				case ".load":
 					mysql.loadSlot(hostname, keywords, userLevel, channel, sender, login);
 					break;
@@ -520,7 +520,7 @@ public class Bot extends PircBot {
 					}
 					sendMessage(cfg_data.irc_channel, "Killing servers that are " + numOfDays + " days old or older...");
 					ListIterator<Server> it = servers.listIterator();
-					Server s = null; 
+					Server s = null;
 					while (it.hasNext()) {
 						s = it.next();
 						if (System.currentTimeMillis() - s.time_started > (Server.DAY_MILLISECONDS * numOfDays))
@@ -528,11 +528,9 @@ public class Bot extends PircBot {
 					}
 				} else {
 					sendMessage(cfg_data.irc_channel, "Using zero or less for .killinactive is not allowed.");
-					return;
 				}
 			} else {
 				sendMessage(cfg_data.irc_channel, "Unexpected parameter for method.");
-				return;
 			}
 		}
 	}

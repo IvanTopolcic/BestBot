@@ -92,6 +92,7 @@ public class MySQL {
 			System.out.println("Could not connect to MySQL Database!");
 			logMessage(LOGLEVEL_CRITICAL, "Error connecting to MySQL database!");
 			e.printStackTrace();
+			System.exit(0);
 		}
 	}
 	
@@ -267,10 +268,6 @@ public class MySQL {
 		if (words.length == 2) {
 			if (Functions.isNumeric(words[1])) {
 				int slot = Integer.parseInt(words[1]);
-				if (words.length < 2) {
-					bot.sendMessage(bot.cfg_data.irc_channel, "Incorrect syntax! Correct syntax is .load 1-10");
-					return;
-				}
 				if (slot > 10 || slot < 1) {
 					bot.sendMessage(bot.cfg_data.irc_channel, "Slot must be between 1 and 10.");
 					return;
