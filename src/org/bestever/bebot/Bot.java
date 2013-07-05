@@ -259,9 +259,6 @@ public class Bot extends PircBot {
 				case ".commands":
 					sendMessage(cfg_data.irc_channel, "Allowed commands: " + processCommands(userLevel));
 					break;
-				case ".debuglevel":
-					processDebugLevel(userLevel, keywords);
-					break;
 				case ".file":
 					processFile(userLevel, keywords, channel);
 					break;
@@ -271,10 +268,9 @@ public class Bot extends PircBot {
 				case ".givememoney":
 					sendMessage(cfg_data.irc_channel, Functions.giveMeMoney());
 					break;
-				//  case ".help":
-				//	for (String line : cfg_data.bot_help)
-				//		sendMessage(cfg_data.irc_channel, line);
-				//	break;
+				case ".help":
+					sendMessage(cfg_data.irc_channel, cfg_data.bot_help);
+					break;
 				case ".host":
 					processHost(userLevel, channel, sender, login, hostname, message);
 					break;
@@ -325,11 +321,6 @@ public class Bot extends PircBot {
 					break;
 			}
 		}
-	}
-
-	// Unfinished yet
-	private void processDebugLevel(int userLevel, String[] keywords) {
-
 	}
 
 	/**
