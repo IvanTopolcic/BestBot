@@ -95,6 +95,30 @@ public class MySQL {
 			System.exit(0);
 		}
 	}
+
+	/**
+	 * Gets the maximum number of servers the user is allowed to host
+	 * @param hostname String - the user's hostname
+	 * @return server_limit Int - maximum server limit of the user
+	 */
+	public int getMaxSlots(String hostname) {
+		if (Functions.checkLoggedIn(hostname)) {
+			String query = "SELECT `server_limit` FROM " + mysql_db + ".`login` WHERE `username` = ?";
+			try (PreparedStatement pst = con.prepareStatement(query)) {
+				pst.setString(1, Functions.getUserName(hostname));
+				ResultSet r = pst.executeQuery();
+				if (r.next())
+					return r.getInt("server_limit");
+				else
+					return 0;
+			} catch (SQLException e) {
+				System.out.println("ERROR: SQL_ERROR in 'getMaxSlots()'");
+				logMessage(LOGLEVEL_IMPORTANT, "ERROR: SQL_ERROR in 'getMaxSlots()'");
+				e.printStackTrace();
+			}
+		}
+		return AccountType.GUEST; // Return 0, which is a guest and means it was not found; also returns this if not logged in
+	}
 	
 	/**
 	 * Queries the database and returns the level of the user
@@ -104,12 +128,9 @@ public class MySQL {
 	public int getLevel(String hostname) {
 		if (Functions.checkLoggedIn(hostname)) {
 			String query = "SELECT `level` FROM " + mysql_db + ".`login` WHERE `username` = ?";
-			try ( PreparedStatement pst = con.prepareStatement(query) ) {
-				// Prepare, bind & execute
+			try (PreparedStatement pst = con.prepareStatement(query)) {
 				pst.setString(1, Functions.getUserName(hostname));
 				ResultSet r = pst.executeQuery();
-				
-				// Check if resultset returned anything
 				if (r.next())
 					return r.getInt("level");
 				else
