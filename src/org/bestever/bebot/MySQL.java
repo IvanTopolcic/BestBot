@@ -245,54 +245,103 @@ public class MySQL {
 					}
 				}
 				else {
-					bot.sendMessage(bot.cfg_data.irc_channel, "You may only specify slot 1-10.");
+					bot.sendMessage(bot.cfg_data.irc_channel, "You may only specify slot 1 to 10.");
 				}
 			}
 		}
 		else {
-			bot.sendMessage(bot.cfg_data.irc_channel, "Incorrect syntax! Correct usage is .save 1-10");
+			bot.sendMessage(bot.cfg_data.irc_channel, "Incorrect syntax! Correct usage is .save 1-10 <host_message>");
 		}
 	}
 
 	/**
-	 *
-	 * @param hostname
-	 * @param words
-	 * @param level
-	 * @param channel
-	 * @param sender
-	 * @param login
+	 * Loads server saved with the .save command
+	 * @param hostname String - their hostname
+	 * @param words String[] - their message
+	 * @param level Int - their user level
+	 * @param channel String - the channel
+	 * @param sender String - sender's name
+	 * @param login String - sender's login name
 	 */
 	public void loadSlot(String hostname, String[] words, int level, String channel, String sender, String login) {
-		if (Functions.isNumeric(words[1])) {
-			int slot = Integer.parseInt(words[1]);
-			if (words.length < 2) {
-				bot.sendMessage(bot.cfg_data.irc_channel, "Incorrect syntax! Correct syntax is .load 1-10");
-				return;
+		if (words.length == 2) {
+			if (Functions.isNumeric(words[1])) {
+				int slot = Integer.parseInt(words[1]);
+				if (words.length < 2) {
+					bot.sendMessage(bot.cfg_data.irc_channel, "Incorrect syntax! Correct syntax is .load 1-10");
+					return;
+				}
+				if (slot > 10 || slot < 1) {
+					bot.sendMessage(bot.cfg_data.irc_channel, "Slot must be between 1 and 10.");
+					return;
+				}
+				try {
+					String query = "SELECT `serverstring` FROM " + mysql_db + ".`save` WHERE `slot` = ? && `username` = ?";
+					PreparedStatement pst = con.prepareStatement(query);
+					pst.setInt(1, slot);
+					pst.setString(2, Functions.getUserName(hostname));
+					ResultSet r = pst.executeQuery();
+					if (r.next()) {
+						String hostCommand = r.getString("serverstring");
+						bot.processHost(level, channel, sender, login, hostname, hostCommand);
+					}
+					else {
+						 bot.sendMessage(bot.cfg_data.irc_channel, "You do not have anything saved to that slot!");
+					}
+				}
+				catch (SQLException e) {
+					bot.sendMessage(bot.cfg_data.irc_channel, "Whoops, something went wrong! If this problem persists, please contact an Administrator!");
+					Logger.logMessage(LOGLEVEL_IMPORTANT, "Exception in loadSlot");
+					e.printStackTrace();
+				}
 			}
-			if (slot > 10 || slot < 1) {
-				bot.sendMessage(bot.cfg_data.irc_channel, "Slot must be between 1 and 10.");
-				return;
-			}
-			try {
-				String query = "SELECT `serverstring` FROM " + mysql_db + ".`save` WHERE `slot` = ? && `username` = ?";
-				PreparedStatement pst = con.prepareStatement(query);
-				pst.setInt(1, slot);
-				pst.setString(2, Functions.getUserName(hostname));
-				ResultSet r = pst.executeQuery();
-				if (r.next()) {
-					String hostCommand = r.getString("serverstring");
-					bot.processHost(level, channel, sender, login, hostname, hostCommand);
+		}
+		else {
+			bot.sendMessage(bot.cfg_data.irc_channel, "Incorrect syntax! Correct syntax is .load 1 to 10");
+		}
+	}
+
+	/**
+	 * Shows a server host string saved with the .save command
+	 * @param hostname String - the user's hostname
+	 * @param words String[] - array of words of message
+	 */
+	public void showSlot(String hostname, String[] words) {
+		if (words.length == 2) {
+			if (Functions.isNumeric(words[1])) {
+				int slot = Integer.parseInt(words[1]);
+				if (slot > 0 && slot < 11) {
+					try {
+						String query = "SELECT `serverstring`,`slot` FROM `server`.`save` WHERE `slot` = ? && `username` = ?";
+						PreparedStatement pst = con.prepareStatement(query);
+						pst.setInt(1, slot);
+						pst.setString(2, Functions.getUserName(hostname));
+						ResultSet rs = pst.executeQuery();
+						if (rs.next())
+						{
+							bot.sendMessage(bot.cfg_data.irc_channel, "In slot " + rs.getString("slot") + ": " + rs.getString("serverstring"));
+						}
+						else
+						{
+							bot.sendMessage(bot.cfg_data.irc_channel, "You do not have anything saved to that slot!");
+						}
+					}
+					catch (SQLException e) {
+						bot.sendMessage(bot.cfg_data.irc_channel, "Whoops, something went wrong! If this problem persists, please contact an Administrator!");
+						Logger.logMessage(LOGLEVEL_IMPORTANT, "Exception in showSlot");
+						e.printStackTrace();
+					}
 				}
 				else {
-					 bot.sendMessage(bot.cfg_data.irc_channel, "You do not have anything saved to that slot!");
+					bot.sendMessage(bot.cfg_data.irc_channel, "Slot must be between 1 and 10!");
 				}
 			}
-			catch (SQLException e) {
-				bot.sendMessage(bot.cfg_data.irc_channel, "Whoops, something went wrong! If this problem persists, please contact an Administrator!");
-				Logger.logMessage(LOGLEVEL_IMPORTANT, "Exception in loadSlot");
-				e.printStackTrace();
+			else {
+				bot.sendMessage(bot.cfg_data.irc_channel, "Slot must be a number.");
 			}
+		}
+		else {
+			bot.sendMessage(bot.cfg_data.irc_channel, "Incorrect syntax! Correct usage is .load <slot>");
 		}
 	}
 	

@@ -319,10 +319,7 @@ public class Bot extends PircBot {
 					processServers(keywords[1]);
 					break;
 				case ".slot":
-					processSlot(userLevel, keywords);
-					break;
-				case ".userlevel":
-					processUserLevel(userLevel, hostname);
+					mysql.showSlot(hostname, keywords);
 					break;
 				default:
 					break;
@@ -622,14 +619,6 @@ public class Bot extends PircBot {
 			
 		}
 	}
-
-	// UNIMPLEMENTED YET
-	private void processSlot(int userLevel, String[] keywords) {
-		logMessage(LOGLEVEL_DEBUG, "Processing a request for what is in a slot.");
-		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
-        }
-	}
-	
 
 	/**
 	 * Invoking this command terminates the bot completely
