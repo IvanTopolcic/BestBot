@@ -304,15 +304,15 @@ public class Server {
 
 		// Now that we've indexed the string, check to see if we have what we need to start a server
 		if (server.iwad == null) {
-			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Incorrect/missing iwad");
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Your iwad is missing or incorrect. You can add it by appending: iwad=your_iwad");
 			return;
 		}
 		if (server.gamemode == null) {
-			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Incorrect/missing gamemode");
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Your gamemode is missing or incorrect. You can add it by appending: gamemode=your_gamemode");
 			return;
 		}
 		if (server.servername == null) {
-			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Error parsing hostname");
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "You hostname is missing or incorrect. You can add it by appending: hostname=\"Your Server Name\"");
 			return;
 		}
 
@@ -400,11 +400,14 @@ public class Server {
 
 	/**
 	 * Returns an array of wads from a String
-	 * @param wads list of wads
+	 * @param wad comma-seperated list of wads
 	 * @return array of wads
 	 */
-	private static String[] addWads(String wads) {
-		return Functions.cleanInputFile(wads).split(",");
+	private static String[] addWads(String wad) {
+		String[] wads = wad.split(",");
+		for (int i = 0; i < wads.length; i++)
+			wads[i] = wads[i].trim();
+		return wads;
 	}
 
 	/**
