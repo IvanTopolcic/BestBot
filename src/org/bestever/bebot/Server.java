@@ -28,6 +28,11 @@ import static org.bestever.bebot.MySQL.SERVER_ONLINE;
 public class Server {
 
 	/**
+	 * Contains whether or not the server should auto-restart when terminated
+	 */
+	public boolean auto_restart = false;
+
+	/**
 	 * Contains the thread of the server process
 	 */
 	public ServerProcess serverprocess;
@@ -188,13 +193,11 @@ public class Server {
 	 * @param botReference The reference to the running bot
 	 * @param servers The linkedlist of servers for us to add on a server if successful
 	 * @param channel The channel it was sent from
-	 * @param sender The sender
-	 * @param login The login of the sender
 	 * @param hostname The hostname of the sender
 	 * @param message The message sent
 	 * @return Null if all went well, otherwise an error message to print to the bot
 	 */
-	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String login, String hostname, String message, int userLevel) {
+	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String hostname, String message, int userLevel) {
 		// Initialize server without linking it to the arraylist
 		Server server = new Server();
 		
@@ -203,9 +206,7 @@ public class Server {
 		
 		// Input basic values
 		server.irc_channel = channel;
-		server.irc_login = login;
 		server.irc_hostname = hostname;
-		server.sender = sender;
 		server.host_command = message;
 		server.user_level = userLevel;
 

@@ -248,10 +248,16 @@ public class ServerProcess extends Thread {
 			bw.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime));
 			
 			// Notify the main channel
-			server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port +"! Server ran for " + Functions.calculateTime(uptime));
+			server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port + "! Server ran for " + Functions.calculateTime(uptime));
 
 			// Remove from the Linked List
 			server.bot.removeServerFromLinkedList(this.server);
+
+			// Auto-restart the server if enabled
+			if (server.auto_restart) {
+				server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Server crashed! Attempting to restart server...");
+				server.bot.processHost(server.user_level, server.bot.cfg_data.irc_channel, server.irc_hostname, server.host_command);
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();

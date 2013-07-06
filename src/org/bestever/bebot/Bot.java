@@ -191,7 +191,7 @@ public class Bot extends PircBot {
 		List<Server> serverList = new ArrayList<Server>();
 		while (it.hasNext()) {
 			desiredServer = it.next();
-			if (desiredServer.sender.equalsIgnoreCase(username)) {
+			if (Functions.getUserName(desiredServer.irc_hostname).equalsIgnoreCase(username)) {
 				serverList.add(desiredServer);
 			}
 		}
@@ -238,10 +238,35 @@ public class Bot extends PircBot {
 		
 		// See if the port is in our linked list, if so signify for it to die
 		Server targetServer = getServer(port);
-		if (targetServer != null)
+		if (targetServer != null) {
+			targetServer.auto_restart = false;
 			targetServer.killServer();
+		}
 		else
 			sendMessage(cfg_data.irc_channel, "Could not find a server with the port " + port + "!");
+	}
+
+	/**
+	 * Toggles the auto-restart feature on or off
+	 * @param level int - the user's level (bitmask)
+	 * @param keywords String[] - array of words in message sent
+	 */
+	private void toggleAutoRestart(int level, String[] keywords) {
+		if (isAccountTypeOf(level, MODERATOR)) {
+			if (keywords.length == 2) {
+				if (Functions.isNumeric(keywords[1])) {
+					Server s = getServer(Integer.parseInt(keywords[1]));
+					if (s.auto_restart)
+						s.auto_restart = false;
+					else
+						s.auto_restart = true;
+				}
+			}
+			else
+				sendMessage(cfg_data.irc_channel, "Correct usage is .autorestart <port>");
+		}
+		else
+			sendMessage(cfg_data.irc_channel, "You do not have permission to use this command.");
 	}
 
 	/**
@@ -253,9 +278,15 @@ public class Bot extends PircBot {
 			// Generate an array of keywords from the message
 			String[] keywords = message.split(" ");
 
+			// Eventually port this over to everything instead of hostname
+			String username = Functions.getUserName(hostname);
+
 			// Perform function based on input (note: login is handled by the MySQL function/class); also mostly in alphabetical order for convenience
 			int userLevel = mysql.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
+				case ".autorestart":
+					toggleAutoRestart(userLevel, keywords);
+					break;
 				case ".commands":
 					sendMessage(cfg_data.irc_channel, "Allowed commands: " + processCommands(userLevel));
 					break;
@@ -272,7 +303,7 @@ public class Bot extends PircBot {
 					sendMessage(cfg_data.irc_channel, cfg_data.bot_help);
 					break;
 				case ".host":
-					processHost(userLevel, channel, sender, login, hostname, message);
+					processHost(userLevel, channel, hostname, message);
 					break;
 				case ".kill":
 					processKill(userLevel, keywords, hostname);
@@ -388,20 +419,18 @@ public class Bot extends PircBot {
 	 * Passes the host command off to a static method to create the server
 	 * @param userLevel The user's bitmask level
 	 * @param channel IRC data associated with the sender
-	 * @param sender IRC data associated with the sender
-	 * @param login IRC data associated with the sender
 	 * @param hostname IRC data associated with the sender
 	 * @param message The entire message to be processed
 	 */
-	public void processHost(int userLevel, String channel, String sender, String login, String hostname, String message) {
-		logMessage(LOGLEVEL_NORMAL, "Processing the host command for " + sender + " with the message \"" + message + "\".");
+	public void processHost(int userLevel, String channel, String hostname, String message) {
+		logMessage(LOGLEVEL_NORMAL, "Processing the host command for " + Functions.getUserName(hostname) + " with the message \"" + message + "\".");
 		if (botEnabled) {
 			if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
-				int slots = mysql.getMaxSlots(hostname);
-				if (slots > getUserServers(Functions.getUserName(hostname)).size())
-					Server.handleHostCommand(this, servers, channel, sender, login, hostname, message, userLevel);
-				else
-					sendMessage(cfg_data.irc_channel, "You have reached your server limit (" + slots + ")");
+				//int slots = mysql.getMaxSlots(hostname);
+				//if (slots > getUserServers(Functions.getUserName(hostname)).size())
+					Server.handleHostCommand(this, servers, channel, hostname, message, userLevel);
+				//else
+				//	sendMessage(cfg_data.irc_channel, "You have reached your server limit (" + slots + ")");
 			}
 			else
 				sendMessage(cfg_data.irc_channel, "You must register and be logged in to IRC to use the bot to host!");
@@ -442,8 +471,10 @@ public class Bot extends PircBot {
 				Server server = getServer(Integer.parseInt(keywords[1]));
 				if (server != null)
 					if (Functions.getUserName(server.irc_hostname).equalsIgnoreCase(Functions.getUserName(hostname)))
-						if (server.serverprocess != null)
+						if (server.serverprocess != null) {
+							server.auto_restart = false;
 							server.serverprocess.terminateServer();
+						}
 						else
 							sendMessage(cfg_data.irc_channel, "Error: Server process is null, contact an administrator.");
 					else
@@ -470,10 +501,11 @@ public class Bot extends PircBot {
 				sendMessage(cfg_data.irc_channel, "ATTENTION: Terminating all servers...");
 				ListIterator<Server> li = servers.listIterator();
 				while (li.hasNext())
+					li.next().auto_restart = false;
 					li.next().killServer();
 				sendMessage(cfg_data.irc_channel, "Servers termination request complete");
 			} else
-				sendMessage(cfg_data.irc_channel, "No servers to kill (" + (servers == null ? "LinkedList is null" : "No servers") + ").");
+				sendMessage(cfg_data.irc_channel, "There are no servers running.");
 		}
 	}
 	
@@ -486,20 +518,18 @@ public class Bot extends PircBot {
 	private void processKillMine(int userLevel, String[] keywords, String hostname) {
 		logMessage(LOGLEVEL_TRIVIAL, "Processing killmine.");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+			List<Server> servers = getUserServers(Functions.getUserName(hostname));
 			if (servers != null) {
-				ListIterator<Server> li = servers.listIterator();
-				Server s;
 				boolean hasServer = false;
-				while (li.hasNext()) {
-					s = li.next();
-					if (s.irc_hostname.equalsIgnoreCase(hostname))
-						s.killServer();
-						hasServer = true;
+				for (Server s : servers) {
+					s.auto_restart = false;
+					s.killServer();
+					hasServer = true;
 				}
 				if (!hasServer)
 					sendMessage(cfg_data.irc_channel, "You do not have any servers running.");
 			} else {
-				sendMessage(cfg_data.irc_channel, "No servers to kill (" + (servers == null ? "LinkedList is null" : "No servers") + ").");
+				sendMessage(cfg_data.irc_channel, "There are no servers running.");
 			}
 		}
 	}
@@ -646,7 +676,7 @@ public class Bot extends PircBot {
 	}
 	
 	/**
-	 * Returns the level of the user <br>
+	 * Returns the level of the user
 	 * Note: Does not support looking up an alias username at the moment
 	 * @param userLevel The level of the invoker requesting the data
 	 * @param hostname The name of the user (this is hostname, not logged in IRC name)
