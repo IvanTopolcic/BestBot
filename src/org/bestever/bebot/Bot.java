@@ -303,7 +303,7 @@ public class Bot extends PircBot {
 					sendMessage(cfg_data.irc_channel, cfg_data.bot_help);
 					break;
 				case ".host":
-					processHost(userLevel, channel, hostname, message);
+					processHost(userLevel, channel, sender, hostname, message);
 					break;
 				case ".kill":
 					processKill(userLevel, keywords, hostname);
@@ -422,13 +422,13 @@ public class Bot extends PircBot {
 	 * @param hostname IRC data associated with the sender
 	 * @param message The entire message to be processed
 	 */
-	public void processHost(int userLevel, String channel, String hostname, String message) {
+	public void processHost(int userLevel, String channel, String sender, String hostname, String message) {
 		logMessage(LOGLEVEL_NORMAL, "Processing the host command for " + Functions.getUserName(hostname) + " with the message \"" + message + "\".");
 		if (botEnabled) {
 			if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 				//int slots = mysql.getMaxSlots(hostname);
 				//if (slots > getUserServers(Functions.getUserName(hostname)).size())
-					Server.handleHostCommand(this, servers, channel, hostname, message, userLevel);
+					Server.handleHostCommand(this, servers, channel, sender, hostname, message, userLevel);
 				//else
 				//	sendMessage(cfg_data.irc_channel, "You have reached your server limit (" + slots + ")");
 			}

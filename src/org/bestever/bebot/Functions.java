@@ -200,9 +200,6 @@ public class Functions {
 	 * @return cleaned string
 	 */
 	public static String cleanInputFile(String input) {
-		System.out.println(input);
-		System.out.println(input.trim());
-		System.out.println(input.replace(" ",""));
 		return input.replace("/", "").trim();
 	}
 

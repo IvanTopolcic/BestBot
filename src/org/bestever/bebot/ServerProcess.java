@@ -201,11 +201,14 @@ public class ServerProcess extends Thread {
 				logFile.createNewFile();
 
 			// Check if global RCON variable is set, or if the user has access to the RCON portion
-			// If either criteria is not met, the bot won't send the RCON message to the user
+			// If either criteria is met, the user will be messaged the RCON password
 			// NOTE: As of now, BE users can still check the RCON password by accessing the control panel on the website.
 			// We'll fix this later by changing the RCON from the unique_id to a random MD5 hash
 			if (server.bot.cfg_data.bot_public_rcon || AccountType.isAccountTypeOf(server.user_level, AccountType.ADMIN, AccountType.MODERATOR, AccountType.RCON))
 				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using send_password. <"+server.server_id+"> via the in-game console.");
+
+			// Send a general information message
+				server.bot.sendMessage(server.sender, "You can kill your server by typing .killmine (this will kill all of your servers) or .kill " + server.port + " in #" + server.bot.cfg_data.irc_channel);
 			
 			// Process server while it outputs text
 			while ((strLine = br.readLine()) != null) {
@@ -256,7 +259,7 @@ public class ServerProcess extends Thread {
 			// Auto-restart the server if enabled
 			if (server.auto_restart) {
 				server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Server crashed! Attempting to restart server...");
-				server.bot.processHost(server.user_level, server.bot.cfg_data.irc_channel, server.irc_hostname, server.host_command);
+				server.bot.processHost(server.user_level, server.bot.cfg_data.irc_channel, server.sender, server.irc_hostname, server.host_command);
 			}
 
 		} catch (Exception e) {

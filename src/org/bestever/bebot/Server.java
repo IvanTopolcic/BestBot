@@ -197,7 +197,7 @@ public class Server {
 	 * @param message The message sent
 	 * @return Null if all went well, otherwise an error message to print to the bot
 	 */
-	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String hostname, String message, int userLevel) {
+	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String hostname, String message, int userLevel) {
 		// Initialize server without linking it to the arraylist
 		Server server = new Server();
 		
@@ -209,6 +209,7 @@ public class Server {
 		server.irc_hostname = hostname;
 		server.host_command = message;
 		server.user_level = userLevel;
+		server.sender = sender;
 
 		// Regex that will match key=value, as well as quotes key="value"
 		Pattern regex = Pattern.compile("(\\w+)=\"*((?<=\")[^\"]+(?=\")|([^\\s]+))\"*");
