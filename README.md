@@ -17,6 +17,7 @@ with managing and setting up servers.
 * Impose a custom server limit on each other (Default: 1)
 * Players can upload their own WAD/PK3 files to use for hosting
 * Players can upload their own configuration files, allowing the hoster to keep an easy persistent server configuration
+* Ability to auto-restart servers on crash
 
 ##Building BestBot
 
