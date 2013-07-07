@@ -276,7 +276,6 @@ public class Bot extends PircBot {
 			Server[] servers = getAllServers();
 			if (servers != null) {
 				String[] message = Arrays.copyOfRange(keywords, 1, keywords.length);
-				char c = 13;
 				for (Server s : servers) {
 					s.in.printf("say GLOBAL ANNOUNCEMENT: " + message);
 					s.in.flush();
@@ -302,7 +301,7 @@ public class Bot extends PircBot {
 			String[] keywords = message.split(" ");
 
 			// Eventually port this over to everything instead of hostname
-			String username = Functions.getUserName(hostname);
+			//String username = Functions.getUserName(hostname);
 
 			// Perform function based on input (note: login is handled by the MySQL function/class); also mostly in alphabetical order for convenience
 			int userLevel = mysql.getLevel(hostname);
@@ -340,9 +339,9 @@ public class Bot extends PircBot {
 				case ".killmine":
 					processKillMine(userLevel, keywords, hostname);
 					break;
-				// case ".killinactive":
-				//	processKillInactive(userLevel, keywords);
-				//	break;
+				case ".killinactive":
+					processKillInactive(userLevel, keywords);
+					break;
 				case ".load":
 					mysql.loadSlot(hostname, keywords, userLevel, channel, sender, login);
 					break;
@@ -699,18 +698,6 @@ public class Bot extends PircBot {
 		}
 		else
 			sendMessage(cfg_data.irc_channel, Functions.getUserName(hostname) + " has no servers running.");
-	}
-	
-	/**
-	 * Returns the level of the user
-	 * Note: Does not support looking up an alias username at the moment
-	 * @param userLevel The level of the invoker requesting the data
-	 * @param hostname The name of the user (this is hostname, not logged in IRC name)
-	 */
-	private void processUserLevel(int userLevel, String hostname) {
-		logMessage(LOGLEVEL_TRIVIAL, "Getting user level.");
-		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
-			sendMessage(cfg_data.irc_channel, "User level of '" + Functions.getUserName(hostname) + "': " +Integer.toString(mysql.getLevel(hostname)));
 	}
 
 	/**
