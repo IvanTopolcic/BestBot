@@ -111,7 +111,7 @@ public class Bot extends PircBot {
 		mysql = new MySQL(this, cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
 		
 		// Begin a server query thread that will run
-		queryManager = new QueryManager();
+		queryManager = new QueryManager(this);
 		queryManager.run();
 	}
 	
@@ -788,6 +788,14 @@ public class Bot extends PircBot {
 		} else {
 			sendMessage(cfg_data.irc_channel, "Your account is not logged in properly to the IRC network. Please log in and re-query.");
 		}
+	}
+	
+	/**
+	 * Allows external objects to send messages to the core channel
+	 * @param msg The message to deploy
+	 */
+	public void sendMessageToChannel(String msg) {
+		sendMessage(cfg_data.irc_channel, msg);
 	}
 	
 	/**

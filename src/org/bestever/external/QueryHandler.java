@@ -1,3 +1,18 @@
+// --------------------------------------------------------------------------
+// Copyright (C) 2012-2013 Best-Ever
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// --------------------------------------------------------------------------
+
 package org.bestever.external;
 
 import java.io.IOException;
@@ -8,6 +23,8 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
+import org.bestever.bebot.Bot;
 
 public class QueryHandler extends Thread {
 
@@ -22,6 +39,11 @@ public class QueryHandler extends Thread {
 	private ServerQueryRequest request;
 	
 	/**
+	 * A reference to the main bot
+	 */
+	private Bot bot;
+	
+	/**
 	 * If we don't hear from the server in 10 seconds, then consider it dead/not working
 	 */
 	public static final int SOCKET_TIMEOUT_MS = 10000;
@@ -33,9 +55,10 @@ public class QueryHandler extends Thread {
 	 * @param request The requested site
 	 * @param handlerThread The query manager that we shall signal when we are done
 	 */
-	public QueryHandler(ServerQueryRequest request, QueryManager handlerThread) {
+	public QueryHandler(ServerQueryRequest request, Bot bot, QueryManager handlerThread) {
 		this.request = request;
 		this.handlerThread = handlerThread;
+		this.bot = bot;
 	}
 	
 	public void run() {
@@ -66,13 +89,16 @@ public class QueryHandler extends Thread {
 			DatagramPacket receivePacket = new DatagramPacket(dataToReceive, dataToReceive.length);
 			connectionSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
 			connectionSocket.receive(receivePacket);
-			System.out.println("Got request back!");
+			bot.sendMessageToChannel("Query request received successfully.");
 			//byte string; byte byte byte; string; byte byte int int int int int
 		} catch (UnknownHostException e) {
+			bot.sendMessageToChannel("IP of the host to query could not be determined. Please see if your IP is a valid address that can be reached.");
 			e.printStackTrace();
 		} catch (SocketException e) {
+			bot.sendMessageToChannel("Error with the socket when handling query. Please try again or contact an administrator.");
 			e.printStackTrace();
 		} catch (IOException e) {
+			bot.sendMessageToChannel("IOException from query. Please try again or contact an administrator.");
 			e.printStackTrace();
 		}
 		

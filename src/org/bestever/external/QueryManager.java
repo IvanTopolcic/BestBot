@@ -1,6 +1,23 @@
+// --------------------------------------------------------------------------
+// Copyright (C) 2012-2013 Best-Ever
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// --------------------------------------------------------------------------
+
 package org.bestever.external;
 
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.bestever.bebot.Bot;
 
 /**
  * Runs on its own thread and handles incoming requests for servery querying <br>
@@ -25,6 +42,11 @@ public class QueryManager extends Thread {
 	private boolean processingQuery = false;
 	
 	/**
+	 * Reference to the bot
+	 */
+	private Bot bot;
+	
+	/**
 	 * We should not exceed four requests at the same time, this would
 	 * indicate we are getting flooded
 	 */
@@ -33,8 +55,9 @@ public class QueryManager extends Thread {
 	/**
 	 * Initializes the QueryManager object, does not run it (must be done manually)
 	 */
-	public QueryManager() {
-		queryRequests = new LinkedBlockingQueue<>(MAX_REQUESTS);
+	public QueryManager(Bot bot) {
+		this.queryRequests = new LinkedBlockingQueue<>(MAX_REQUESTS);
+		this.bot = bot;
 	}
 	
 	/**
@@ -72,10 +95,10 @@ public class QueryManager extends Thread {
 		// This should never be null because we check in run() if the size is > 0
 		ServerQueryRequest targetQuery = queryRequests.poll();
 		if (targetQuery != null) {
-			QueryHandler query = new QueryHandler(targetQuery, this);
+			QueryHandler query = new QueryHandler(targetQuery, bot, this);
 			query.run();
 		} else {
-			System.out.println("targetQuery was somehow null, aborting query...");
+			bot.sendMessageToChannel("targetQuery was somehow null, aborting query.");
 			signalProcessQueryComplete();
 		}
 	}
