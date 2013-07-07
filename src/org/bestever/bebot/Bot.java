@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.*;
 
 import org.bestever.external.QueryManager;
+import org.bestever.external.ServerQueryRequest;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
 
@@ -399,6 +400,9 @@ public class Bot extends PircBot {
 				case ".owner":
 					processOwner(userLevel, keywords);
 					break;
+				case ".query":
+					handleQuery(userLevel, keywords);
+					break;
 				case ".quit":
 					processQuit(userLevel);
 					break;
@@ -434,11 +438,11 @@ public class Bot extends PircBot {
 			case GUEST:
 				return "[Not logged in, guests have limited access] .commands, .file, .givememoney, .help";
 			case REGISTERED:
-				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .rcon, .save, .servers, .slot";
+				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .query, .rcon, .save, .servers, .slot";
 			case MODERATOR:
-				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .rcon, .save, .servers, .slot, .userlevel";
+				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .query, .rcon, .save, .servers, .slot, .userlevel";
 			case ADMIN:
-				return ".commands, .debuglevel, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .quit, .rcon, .save, .servers, .slot, .userlevel";
+				return ".commands, .debuglevel, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .query, .quit, .rcon, .save, .servers, .slot, .userlevel";
 		}
 		return "Undocumented type. Contact an administrator.";
 	}
@@ -700,6 +704,33 @@ public class Bot extends PircBot {
 					sendMessage(cfg_data.irc_channel, "Invalid port number.");
 			} else
 				sendMessage(cfg_data.irc_channel, "Improper syntax, use: .owner <port>");
+		}
+	}
+	
+	/**
+	 * Will attempt to query a server and generate a line of text
+	 * @param userLevel The level of the user
+	 * @param keywords The keywords sent
+	 */
+	private void handleQuery(int userLevel, String[] keywords) {
+		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+			if (keywords.length == 2) {
+				String[] ipFragment = keywords[1].split(":");
+				if (ipFragment.length == 2) {
+					if (ipFragment[0].length() > 0 && ipFragment[1].length() > 0 && Functions.isNumeric(ipFragment[1])) {
+						int port = Integer.parseInt(ipFragment[1]);
+						if (port > 0 && port < 65535) {
+							sendMessageToChannel("Attempting to query " + keywords[1] + ", please wait...");
+							ServerQueryRequest request = new ServerQueryRequest(ipFragment[0], port);
+							queryManager.addRequest(request);
+						} else
+							sendMessageToChannel("Port value is not between 0 - 65536 (ends exclusive), please fix your IP:port and try again.");
+					} else
+						sendMessageToChannel("Missing (or too many) port delimiter(s), Usage: .query <ip:port>   (example: .query 98.173.12.44:20555)");
+				} else
+					sendMessageToChannel("Missing (or too many) port delimiter(s), Usage: .query <ip:port>   (example: .query 98.173.12.44:20555)");
+			} else
+				sendMessageToChannel("Usage: .query <ip:port>   (example: .query 98.173.12.44:20555)");
 		}
 	}
 	
