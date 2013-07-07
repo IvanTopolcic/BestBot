@@ -283,21 +283,53 @@ public class Bot extends PircBot {
 	 */
 	private void globalBroadcast(int level, String[] keywords) {
 		if (isAccountTypeOf(level, MODERATOR)) {
-			Server[] servers = getAllServers();
-			if (servers != null) {
-				String[] message = Arrays.copyOfRange(keywords, 1, keywords.length);
-				for (Server s : servers) {
-					s.in.printf("say GLOBAL ANNOUNCEMENT: " + message);
-					s.in.flush();
+			if (keywords.length > 1) {
+				Server[] servers = getAllServers();
+				if (servers != null) {
+					String message = Functions.implode(Arrays.copyOfRange(keywords, 1, keywords.length), " ");
+					for (Server s : servers) {
+						s.in.println("say \\cf--------------\\cc; say GLOBAL ANNOUNCEMENT: " + Functions.escapeQuotes(message) + "; say \\cf--------------\\cc;");
+					}
+					sendMessage(cfg_data.irc_channel, "Global broadcast sent.");
 				}
-				sendMessage(cfg_data.irc_channel, "Global broadcast sent.");
-			}
-			else {
-				sendMessage(cfg_data.irc_channel, "There are no servers running at the moment.");
+				else {
+					sendMessage(cfg_data.irc_channel, "There are no servers running at the moment.");
+				}
 			}
 		}
 		else {
 			sendMessage(cfg_data.irc_channel, "You do not have the required privileges to send a broadcast.");
+		}
+	}
+
+	/**
+	 * Sends a command to specified server
+	 * @param level int - the user's level
+	 * @param keywords String[] - message
+	 * @param recipient String - who to return the message to (since this can be accessed via PM as well as channel)
+	 */
+	private void sendCommand(int level, String[] keywords, String hostname, String recipient) {
+		if (isAccountTypeOf(level, REGISTERED, MODERATOR)) {
+			if (keywords.length > 2) {
+				if (Functions.isNumeric(keywords[1])) {
+					int port = Integer.parseInt(keywords[1]);
+					String message = Functions.implode(Arrays.copyOfRange(keywords, 2, keywords.length), " ");
+					Server s = getServer(port);
+					if (s != null) {
+						if (Functions.getUserName(s.irc_hostname).equals(Functions.getUserName(hostname)) || isAccountTypeOf(level, MODERATOR)) {
+							s.in.println(message);
+						}
+						else
+							sendMessage(recipient, "You do not own this server.");
+					}
+					else
+						sendMessage(recipient, "Server does not exist.");
+				}
+				else
+					sendMessage(recipient, "Port must be a number!");
+			}
+			else
+				sendMessage(recipient, "Incorrect syntax! Correct syntax is .send <port> <command>");
 		}
 	}
 
@@ -377,6 +409,9 @@ public class Bot extends PircBot {
 				case ".save":
 					mysql.saveSlot(hostname, keywords);
 					break;
+				case ".send":
+					sendCommand(userLevel, keywords, hostname, cfg_data.irc_channel);
+					break;
 				case ".servers":
 					processServers(keywords[1]);
 					break;
@@ -419,11 +454,11 @@ public class Bot extends PircBot {
 		if (keywords.length == 2) {
 			File file = new File(cfg_data.bot_wad_directory_path + Functions.cleanInputFile(keywords[1].toLowerCase()));
 			if (file.exists())
-				sendMessage(channel, "File " + keywords[1].toLowerCase() + " exists on the server.");
+				sendMessage(channel, "File '" + keywords[1].toLowerCase() + "' exists on the server.");
 			else
-				sendMessage(channel, "File does not exist.");
+				sendMessage(channel, "Not found!");
 		} else
-			sendMessage(channel, "Incorrect syntax, use: .file <filename.wad/pk3>");
+			sendMessage(channel, "Incorrect syntax, use: .file <filename.wad>");
 	}
 	
 	/**
@@ -743,6 +778,9 @@ public class Bot extends PircBot {
 						mysql.registerAccount(hostname, keywords[1], sender);
 					else
 						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " register <password>");
+					break;
+				case ".send":
+					sendCommand(userLevel, keywords, hostname, sender);
 					break;
 				default:
 					break;

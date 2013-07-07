@@ -65,6 +65,21 @@ public class Functions {
 	}
 
 	/**
+	 * Escapes quotes in a string
+	 * @param input String - input
+	 * @return String - escaped string
+	 */
+	public static String escapeQuotes(String input) {
+		StringBuilder s = new StringBuilder();
+		for (char c : input.toCharArray()) {
+			if (c == '\"')
+				s.append('\\');
+			s.append(c);
+		}
+		return s.toString();
+	}
+
+	/**
 	 * Given a byte array, returns a hexadecimal string
 	 * @param bytes byte array
 	 * @return 16bit hex string

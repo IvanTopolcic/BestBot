@@ -202,7 +202,7 @@ public class ServerProcess extends Thread {
 			br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
 			// Set up the input (with autoflush)
-			server.in = new PrintWriter(proc.getOutputStream());
+			server.in = new PrintWriter(proc.getOutputStream(), true);
 			
 			// Set up file/IO
 			logFile = new File(server.bot.cfg_data.bot_logfiledir + server.server_id + ".txt");
@@ -217,7 +217,7 @@ public class ServerProcess extends Thread {
 			// NOTE: As of now, BE users can still check the RCON password by accessing the control panel on the website.
 			// We'll fix this later by changing the RCON from the unique_id to a random MD5 hash
 			if (server.bot.cfg_data.bot_public_rcon || AccountType.isAccountTypeOf(server.user_level, AccountType.ADMIN, AccountType.MODERATOR, AccountType.RCON))
-				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using send_password. <"+server.server_id+"> via the in-game console.");
+				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using 'send_password "+server.server_id+"' via the in-game console.");
 
 			// Process server while it outputs text
 			while ((strLine = br.readLine()) != null) {
