@@ -72,9 +72,12 @@ public class QueryManager extends Thread {
 		// This should never be null because we check in run() if the size is > 0
 		ServerQueryRequest targetQuery = queryRequests.poll();
 		if (targetQuery != null) {
-			// INCOMPLETE
+			QueryHandler query = new QueryHandler(targetQuery, this);
+			query.run();
+		} else {
+			System.out.println("targetQuery was somehow null, aborting query...");
+			signalProcessQueryComplete();
 		}
-		processingQuery = false; // Remove me later, this shouldnt be here but is just so the prog can run
 	}
 	
 	/**
@@ -86,9 +89,9 @@ public class QueryManager extends Thread {
 			if (!processingQuery && queryRequests.size() > 0)
 				processQuery();
 			
-			// This thread should only check requests every second or so
+			// This thread should only check requests every few seconds or so
 			// The thread should not be demanding at all
-			try { Thread.sleep(1000); } catch (InterruptedException e) { }
+			try { Thread.sleep(5000); } catch (InterruptedException e) { }
 		}
 	}
 }

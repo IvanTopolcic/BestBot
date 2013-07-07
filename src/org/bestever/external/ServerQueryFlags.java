@@ -18,4 +18,22 @@ public class ServerQueryFlags {
 	
 	// This is what we will send to the server
 	public static final int SQF_ALL_REQUEST_FLAGS = SQF_PWADS | SQF_IWAD | SQF_GAMESKILL | SQF_ALL_DMFLAGS;
+	
+	// Game mode enumeration
+	public static final int GAMEMODE_COOPERATIVE = 0;
+	public static final int GAMEMODE_SURVIVAL = 1;
+	public static final int GAMEMODE_INVASION = 2;
+	public static final int GAMEMODE_DEATHMATCH = 3;
+	public static final int GAMEMODE_TEAMPLAY = 4;
+	public static final int GAMEMODE_DUEL = 5;
+	public static final int GAMEMODE_TERMINATOR = 6;
+	public static final int GAMEMODE_LASTMANSTANDING = 7;
+	public static final int GAMEMODE_TEAMLMS = 8;
+	public static final int GAMEMODE_POSSESSION = 9;
+	public static final int GAMEMODE_TEAMPOSSESSION = 10;
+	public static final int GAMEMODE_TEAMGAME = 11;
+	public static final int GAMEMODE_CTF = 12;
+	public static final int GAMEMODE_ONEFLAGCTF = 13;
+	public static final int GAMEMODE_SKULLTAG = 14;
+	public static final int GAMEMODE_DOMINATION = 15;
 }
