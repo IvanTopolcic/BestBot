@@ -20,6 +20,11 @@ public class QueryManager extends Thread {
 	private boolean threadTerminate = false;
 	
 	/**
+	 * Indicates if this thread is processing a query or not
+	 */
+	private boolean processingQuery = false;
+	
+	/**
 	 * We should not exceed four requests at the same time, this would
 	 * indicate we are getting flooded
 	 */
@@ -51,11 +56,35 @@ public class QueryManager extends Thread {
 	}
 	
 	/**
+	 * Allows an external thread (socket handler) to tell this thread it is done
+	 */
+	public void signalProcessQueryComplete() {
+		processingQuery = false;
+	}
+	
+	/**
+	 * Begins processing a query in the queue
+	 */
+	private void processQuery() {
+		// Prevent our thread from trying to do two queries at once
+		processingQuery = true;
+		
+		// This should never be null because we check in run() if the size is > 0
+		ServerQueryRequest targetQuery = queryRequests.poll();
+		if (targetQuery != null) {
+			// INCOMPLETE
+		}
+		processingQuery = false; // Remove me later, this shouldnt be here but is just so the prog can run
+	}
+	
+	/**
 	 * Runs the main thread which loops while solving all query requests <br>
-	 * NOTE: INCOMPLETE CURRENTLY
 	 */
 	public void run() {
 		while (!threadTerminate) {
+			// If we are not processing a request and we have a query, handle it
+			if (!processingQuery && queryRequests.size() > 0)
+				processQuery();
 			
 			// This thread should only check requests every second or so
 			// The thread should not be demanding at all

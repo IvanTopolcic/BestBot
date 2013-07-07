@@ -5,6 +5,11 @@ package org.bestever.external;
  */
 public class ServerQueryFlags {
 	
+	/**
+	 * This is 199 in little endian
+	 */
+	public static final int LAUNCHER_CHALLENGE = 0xC7000000;
+	
 	// These are what we want
 	public static final int SQF_PWADS = 0x00000040;
 	public static final int SQF_IWAD = 0x00000200;

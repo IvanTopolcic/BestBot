@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import org.bestever.external.QueryManager;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
 
@@ -69,6 +70,11 @@ public class Bot extends PircBot {
 	public LinkedList<Server> servers;
 	
 	/**
+	 * A query manager thread for handling external server requests
+	 */
+	private QueryManager queryManager;
+	
+	/**
 	 * Set the bot up with the constructor
 	 */
 	public Bot(ConfigData cfgfile) {
@@ -103,6 +109,10 @@ public class Bot extends PircBot {
 		
 		// Set up MySQL
 		mysql = new MySQL(this, cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
+		
+		// Begin a server query thread that will run
+		queryManager = new QueryManager();
+		queryManager.run();
 	}
 	
 	/**
