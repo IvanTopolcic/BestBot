@@ -20,6 +20,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -75,8 +76,9 @@ public class QueryHandler extends Thread {
 			port = request.getPort();
 			
 			// Put our data into a buffer and transform it before sending
-			ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+			ByteBuffer byteBuffer = ByteBuffer.allocate(8);
 			byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+			byteBuffer.putInt(ServerQueryFlags.LAUNCHER_CHALLENGE);
 			byteBuffer.putInt(ServerQueryFlags.SQF_ALL_REQUEST_FLAGS);
 			byteBuffer.rewind();
 			dataToSend = Huffman.encode(byteBuffer.array());
@@ -96,6 +98,9 @@ public class QueryHandler extends Thread {
 			e.printStackTrace();
 		} catch (SocketException e) {
 			bot.sendMessageToChannel("Error with the socket when handling query. Please try again or contact an administrator.");
+			e.printStackTrace();
+		} catch (SocketTimeoutException e) {
+			bot.sendMessageToChannel("Socket timeout, IP is incorrect or server is down/unreachable (consider trying again if it is your first try).");
 			e.printStackTrace();
 		} catch (IOException e) {
 			bot.sendMessageToChannel("IOException from query. Please try again or contact an administrator.");
