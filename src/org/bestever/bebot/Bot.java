@@ -20,10 +20,7 @@ import static org.bestever.bebot.AccountType.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
@@ -270,6 +267,32 @@ public class Bot extends PircBot {
 	}
 
 	/**
+	 * Sends a message to all servers
+	 * @param level int - the user's level
+	 * @param keywords String[] - array of words in message sent
+	 */
+	private void globalBroadcast(int level, String[] keywords) {
+		if (isAccountTypeOf(level, MODERATOR)) {
+			Server[] servers = getAllServers();
+			if (servers != null) {
+				String[] message = Arrays.copyOfRange(keywords, 1, keywords.length);
+				char c = 13;
+				for (Server s : servers) {
+					s.in.printf("say GLOBAL ANNOUNCEMENT: " + message);
+					s.in.flush();
+				}
+				sendMessage(cfg_data.irc_channel, "Global broadcast sent.");
+			}
+			else {
+				sendMessage(cfg_data.irc_channel, "There are no servers running at the moment.");
+			}
+		}
+		else {
+			sendMessage(cfg_data.irc_channel, "You do not have the required privileges to send a broadcast.");
+		}
+	}
+
+	/**
 	 * Have the bot handle message events
 	 */
 	public void onMessage(String channel, String sender, String login, String hostname, String message) {
@@ -286,6 +309,9 @@ public class Bot extends PircBot {
 			switch (keywords[0].toLowerCase()) {
 				case ".autorestart":
 					toggleAutoRestart(userLevel, keywords);
+					break;
+				case ".broadcast":
+					globalBroadcast(userLevel, keywords);
 					break;
 				case ".commands":
 					sendMessage(cfg_data.irc_channel, "Allowed commands: " + processCommands(userLevel));
@@ -623,7 +649,7 @@ public class Bot extends PircBot {
 				if (Functions.isNumeric(keywords[1])) {
 					Server s = getServer(Integer.parseInt(keywords[1]));
 					if (s != null)
-						sendMessage(cfg_data.irc_channel, "The owner of port " + keywords[1] + " is: " + s.irc_hostname + "[" + s.irc_login + "].");
+						sendMessage(cfg_data.irc_channel, "The owner of port " + keywords[1] + " is: " + s.sender + "[" + Functions.getUserName(s.irc_hostname) + "].");
 					else
 						sendMessage(cfg_data.irc_channel, "No server indexed on port " + keywords[1] + ".");
 				} else

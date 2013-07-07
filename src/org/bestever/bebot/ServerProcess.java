@@ -15,12 +15,7 @@
 
 package org.bestever.bebot;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -191,6 +186,9 @@ public class ServerProcess extends Thread {
 			// Set up the server
 			proc = Runtime.getRuntime().exec(serverRunCommands);
 			br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+			// Set up the input (with autoflush)
+			server.in = new PrintWriter(proc.getOutputStream());
 			
 			// Set up file/IO
 			logFile = new File(server.bot.cfg_data.bot_logfiledir + server.server_id + ".txt");
@@ -207,9 +205,6 @@ public class ServerProcess extends Thread {
 			if (server.bot.cfg_data.bot_public_rcon || AccountType.isAccountTypeOf(server.user_level, AccountType.ADMIN, AccountType.MODERATOR, AccountType.RCON))
 				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using send_password. <"+server.server_id+"> via the in-game console.");
 
-			// Send a general information message
-				server.bot.sendMessage(server.sender, "You can kill your server by typing .killmine (this will kill all of your servers) or .kill " + server.port + " in #" + server.bot.cfg_data.irc_channel);
-			
 			// Process server while it outputs text
 			while ((strLine = br.readLine()) != null) {
 				// Make sure to get the port [Server using alternate port 10666.]
@@ -236,7 +231,7 @@ public class ServerProcess extends Thread {
 					System.out.println(strLine);
 					server.bot.servers.add(server); // Add the server to the linked list since it's fully operational now
 					server.bot.sendMessage(server.irc_channel, "Server started successfully on port " + server.port + "!");
-					server.bot.sendMessage(server.sender, "To kill your server, type .killmine (this will kill all of your servers), or .kill " + server.port);
+					server.bot.sendMessage(server.sender, "To kill your server, in the channel " + server.bot.cfg_data.irc_channel + ", type .killmine to kill all of your servers, or .kill " + server.port + " to kill just this one.");
 				}
 				
 				dateNow = formatter.format(Calendar.getInstance().getTime());
@@ -249,6 +244,7 @@ public class ServerProcess extends Thread {
 			long end = System.nanoTime();
 			long uptime = end - server.time_started;
 			bw.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime));
+			server.in.close();
 			
 			// Notify the main channel
 			server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port + "! Server ran for " + Functions.calculateTime(uptime));

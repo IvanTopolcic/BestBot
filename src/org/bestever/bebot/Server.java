@@ -15,6 +15,7 @@
 
 package org.bestever.bebot;
 
+import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,6 +27,11 @@ import static org.bestever.bebot.Logger.*;
 import static org.bestever.bebot.MySQL.SERVER_ONLINE;
 
 public class Server {
+
+	/**
+	 * Holds the input stream
+	 */
+	public PrintWriter in;
 
 	/**
 	 * Contains whether or not the server should auto-restart when terminated
