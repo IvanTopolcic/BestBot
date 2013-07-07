@@ -583,7 +583,7 @@ public class Bot extends PircBot {
 					Server s = null;
 					while (it.hasNext()) {
 						s = it.next();
-						if (System.currentTimeMillis() - s.time_started > (Server.DAY_MILLISECONDS * numOfDays))
+						if (System.currentTimeMillis() - s.serverprocess.getLastActivity() > (Server.DAY_MILLISECONDS * numOfDays))
 							s.serverprocess.terminateServer();
 					}
 				} else {
@@ -773,9 +773,5 @@ public class Bot extends PircBot {
 		// Start the bot
 		Bot bot = new Bot(cfg_data);
 		bot.hashCode(); // Yes
-	}
-
-	public static void load_config() {
-
 	}
 }

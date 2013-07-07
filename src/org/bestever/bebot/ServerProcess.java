@@ -40,7 +40,12 @@ public class ServerProcess extends Thread {
 	/**
 	 * The process of the server
 	 */
-	private Process proc;	
+	private Process proc;
+	
+	/**
+	 * Used in determining when the last activity of the server was in milliseconds
+	 */
+	private long last_activity;
 	
 	/**
 	 * This should be called before starting run
@@ -66,6 +71,14 @@ public class ServerProcess extends Thread {
 	public void terminateServer() {
 		server.bot.removeServerFromLinkedList(this.server);
 		proc.destroy();
+	}
+	
+	/**
+	 * Gets the last activity of this server
+	 * @return The last activity of the server in [long] milliseconds
+	 */
+	public long getLastActivity() {
+		return last_activity;
 	}
 	
 	/**
@@ -168,6 +181,7 @@ public class ServerProcess extends Thread {
 		File logFile, banlist, whitelist, adminlist;
 		String strLine, dateNow;
 		server.time_started = System.nanoTime();
+		last_activity = System.currentTimeMillis(); // Last activity should be when we start
 		BufferedReader br = null;
 		BufferedWriter bw = null;
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MMM-dd HH:mm:ss");
@@ -233,6 +247,10 @@ public class ServerProcess extends Thread {
 					server.bot.sendMessage(server.irc_channel, "Server started successfully on port " + server.port + "!");
 					server.bot.sendMessage(server.sender, "To kill your server, in the channel " + server.bot.cfg_data.irc_channel + ", type .killmine to kill all of your servers, or .kill " + server.port + " to kill just this one.");
 				}
+				
+				// If we have a player joining or leaving, mark this server as active
+				if (strLine.endsWith("has connected.") || strLine.endsWith("disconnected."))
+					last_activity = System.currentTimeMillis();
 				
 				dateNow = formatter.format(Calendar.getInstance().getTime());
 				bw.write(dateNow + " " + strLine + "\n");
