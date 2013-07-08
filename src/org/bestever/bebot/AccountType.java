@@ -18,28 +18,12 @@ package org.bestever.bebot;
 public class AccountType {
 	
 	/**
-	 * These are generic unknown accounts that have not registered
-	 */
-	public static final int GUEST = 0;
-	
-	/**
-	 * Admin users have access to everything
-	 */
-	public static final int ADMIN = 1 << 0; // 1
-	
-	/**
-	 * Moderators are allowed to do various additional functions most users cant
-	 */
+	 * Below are the bitmask permissions for userroups
+	 **/
+	public static final int GUEST = 0; // 0
+	public static final int REGISTERED = 1 << 0; // 1
 	public static final int MODERATOR = 1 << 1; // 2
-	
-	/**
-	 * This is the basic state people register for
-	 */
-	public static final int REGISTERED = 1 << 2; // 4
-
-	/**
-	 * This is a custom state that has access to RCON
-	 */
+	public static final int ADMIN = 1 << 2; // 4
 	public static final int RCON = 1 << 3; // 8
 	
 	/**

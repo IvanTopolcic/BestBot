@@ -349,8 +349,7 @@ public class Bot extends PircBot {
 			// Generate an array of keywords from the message
 			String[] keywords = message.split(" ");
 
-			// Eventually port this over to everything instead of hostname
-			//String username = Functions.getUserName(hostname);
+			String username = Functions.getUserName(hostname);
 
 			// Perform function based on input (note: login is handled by the MySQL function/class); also mostly in alphabetical order for convenience
 			int userLevel = mysql.getLevel(hostname);
@@ -423,7 +422,7 @@ public class Bot extends PircBot {
 					sendCommand(userLevel, keywords, hostname, cfg_data.irc_channel);
 					break;
 				case ".servers":
-					processServers(keywords[1]);
+					processServers(keywords);
 					break;
 				case ".slot":
 					mysql.showSlot(hostname, keywords);
@@ -772,20 +771,22 @@ public class Bot extends PircBot {
 
 	/**
 	 * Sends a message to the channel with a list of servers from the user
-	 * @param hostname the requested user's hostname
+	 * @param keywords String[] - the message
 	 */
-	private void processServers(String hostname) {
+	private void processServers(String[] keywords) {
 		logMessage(LOGLEVEL_NORMAL, "Getting a list of servers.");
-		List<Server> servers = getUserServers(Functions.getUserName(hostname));
-		if (servers != null && servers.size() > 0) {
-			int i = 1;
-			for (Server server : servers) {
-				sendMessage(cfg_data.irc_channel, i + ". Name: " + server.servername + " Port: " + server.port + " Wads:" + ((server.mapwads != null) ? Functions.implode(server.mapwads, ", ") : "") + ((server.wads != null) ? " " + Functions.implode(server.wads, ", ") : ""));
-				i++;
+		if (keywords.length == 2) {
+			List<Server> servers = getUserServers(Functions.getUserName(keywords[1]));
+			if (servers != null && servers.size() > 0) {
+				for (Server server : servers) {
+					sendMessage(cfg_data.irc_channel,  server.port + ": " + server.servername + ((server.wads != null) ? " with wads " + Functions.implode(server.wads, ", ") : "") + ((server.mapwads != null) ? " and mapwads " + Functions.implode(server.mapwads, ", ") : ""));
+				}
 			}
+			else
+				sendMessage(cfg_data.irc_channel, Functions.getUserName(keywords[1]) + " has no servers running.");
 		}
 		else
-			sendMessage(cfg_data.irc_channel, Functions.getUserName(hostname) + " has no servers running.");
+			sendMessage(cfg_data.irc_channel, "Incorrect syntax! Correct usage is .servers <username>");
 	}
 
 	/**
