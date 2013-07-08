@@ -62,6 +62,10 @@ public class QueryHandler extends Thread {
 		this.bot = bot;
 	}
 	
+	private void processIncomingPacket(byte[] data, int length) {
+		//byte string; byte byte byte; string; byte byte int int int int int
+	}
+	
 	public void run() {
 		// If any of these stay the same then something is wrong
 		InetAddress IPAddress = null;
@@ -91,8 +95,9 @@ public class QueryHandler extends Thread {
 			DatagramPacket receivePacket = new DatagramPacket(dataToReceive, dataToReceive.length);
 			connectionSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
 			connectionSocket.receive(receivePacket);
+			processIncomingPacket(receivePacket.getData(), receivePacket.getLength());
+			
 			bot.sendMessageToChannel("Query request received successfully.");
-			//byte string; byte byte byte; string; byte byte int int int int int
 		} catch (UnknownHostException e) {
 			bot.sendMessageToChannel("IP of the host to query could not be determined. Please see if your IP is a valid address that can be reached.");
 			e.printStackTrace();
