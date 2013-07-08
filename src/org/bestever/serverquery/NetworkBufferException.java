@@ -13,7 +13,7 @@
 //
 // --------------------------------------------------------------------------
 
-package org.bestever.external;
+package org.bestever.serverquery;
 
 /**
  * Indicates something has gone wrong in the network buffer

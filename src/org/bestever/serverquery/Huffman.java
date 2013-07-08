@@ -10,7 +10,7 @@
 //   from the Zandronum wiki
 //-------------------------------------------------------------------------------
 
-package org.bestever.external;
+package org.bestever.serverquery;
 
 import java.util.*;
 

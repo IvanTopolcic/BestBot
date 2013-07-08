@@ -13,7 +13,7 @@
 //
 // --------------------------------------------------------------------------
 
-package org.bestever.external;
+package org.bestever.serverquery;
 
 /**
  * A list of all the flags we want to request in a query from the server

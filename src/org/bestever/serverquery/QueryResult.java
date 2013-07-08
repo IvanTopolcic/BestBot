@@ -1,4 +1,4 @@
-package org.bestever.external;
+package org.bestever.serverquery;
 
 /**
  * A loose encapsulation of the query result

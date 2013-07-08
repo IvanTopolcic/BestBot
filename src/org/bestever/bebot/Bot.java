@@ -22,8 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import org.bestever.external.QueryManager;
-import org.bestever.external.ServerQueryRequest;
+import org.bestever.serverquery.QueryManager;
+import org.bestever.serverquery.ServerQueryRequest;
 import org.jibble.pircbot.IrcException;
 import org.jibble.pircbot.PircBot;
 
@@ -350,6 +350,7 @@ public class Bot extends PircBot {
 			// Generate an array of keywords from the message
 			String[] keywords = message.split(" ");
 
+			@SuppressWarnings("unused")
 			String username = Functions.getUserName(hostname);
 
 			// Perform function based on input (note: login is handled by the MySQL function/class); also mostly in alphabetical order for convenience

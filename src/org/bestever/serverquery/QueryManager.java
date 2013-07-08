@@ -13,7 +13,7 @@
 //
 // --------------------------------------------------------------------------
 
-package org.bestever.external;
+package org.bestever.serverquery;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
