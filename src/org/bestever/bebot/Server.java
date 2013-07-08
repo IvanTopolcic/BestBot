@@ -203,7 +203,7 @@ public class Server {
 	 * @param message The message sent
 	 * @return Null if all went well, otherwise an error message to print to the bot
 	 */
-	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String hostname, String message, int userLevel) {
+	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String hostname, String message, int userLevel, MySQL mysql) {
 		// Initialize server without linking it to the arraylist
 		Server server = new Server();
 		
@@ -341,6 +341,7 @@ public class Server {
 		// Assign and start a new thread
 		server.serverprocess = new ServerProcess(server);
 		server.serverprocess.start();
+		botReference.mysql.logServer(server.servername, server.server_id, Functions.getUserName(server.irc_hostname));
 	}
 	
 	/**
@@ -627,8 +628,6 @@ public class Server {
 		if (this.sender == null) 
 			return false;
 		if (this.irc_channel == null) 
-			return false;
-		if (this.irc_channel == null)
 			return false;
 		if (this.irc_hostname == null)
 			return false;

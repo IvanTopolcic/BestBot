@@ -53,7 +53,7 @@ public class Bot extends PircBot {
 	/**
 	 * Contains the MySQL information
 	 */
-	private MySQL mysql;
+	public MySQL mysql;
 
 	/**
 	 * Contains the configuration file
@@ -507,11 +507,14 @@ public class Bot extends PircBot {
 		logMessage(LOGLEVEL_NORMAL, "Processing the host command for " + Functions.getUserName(hostname) + " with the message \"" + message + "\".");
 		if (botEnabled) {
 			if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
-				//int slots = mysql.getMaxSlots(hostname);
-				//if (slots > getUserServers(Functions.getUserName(hostname)).size())
-					Server.handleHostCommand(this, servers, channel, sender, hostname, message, userLevel);
-				//else
-				//	sendMessage(cfg_data.irc_channel, "You have reached your server limit (" + slots + ")");
+				int slots = mysql.getMaxSlots(hostname);
+				int userServers;
+				if (getUserServers(Functions.getUserName(hostname)) == null) userServers = 0;
+				else userServers = getUserServers(Functions.getUserName(hostname)).size();
+				if (slots > userServers)
+					Server.handleHostCommand(this, servers, channel, sender, hostname, message, userLevel, mysql);
+				else
+					sendMessage(cfg_data.irc_channel, "You have reached your server limit (" + slots + ")");
 			}
 			else
 				sendMessage(cfg_data.irc_channel, "You must register and be logged in to IRC to use the bot to host!");

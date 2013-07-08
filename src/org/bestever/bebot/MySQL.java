@@ -156,7 +156,7 @@ public class MySQL {
 		String checkQuery = "SELECT `username` FROM " + mysql_db + ".`login` WHERE `username` = ?";
 		
 		// Query to add entry to database
-		String executeQuery = "INSERT INTO " + mysql_db + ".`login` ( `username`, `password`, `level`, `activated` ) VALUES ( ?, ?, 0, 1 )";
+		String executeQuery = "INSERT INTO " + mysql_db + ".`login` ( `username`, `password`, `level`, `activated`, `server_limit` ) VALUES ( ?, ?, 0, 1, 1 )";
 		try
 		(
 			PreparedStatement cs = con.prepareStatement(checkQuery);
@@ -316,6 +316,27 @@ public class MySQL {
 		}
 		else {
 			bot.sendMessage(bot.cfg_data.irc_channel, "Incorrect syntax! Correct syntax is .load 1 to 10");
+		}
+	}
+
+	/**
+	 * Logs a server to the database
+	 * @param servername String - the name of the server
+	 * @param unique_id String - the server's unique ID
+	 * @param username String - username of server host
+	 */
+	public void logServer(String servername, String unique_id, String username) {
+		String query = "INSERT INTO `" + mysql_db + "`.`serverlog` (`unique_id`, `servername`, `username`, `date`) VALUES (?, ?, ?, NOW())";
+		try (PreparedStatement pst = con.prepareStatement(query)) {
+			pst.setString(1, unique_id);
+			pst.setString(2, servername);
+			pst.setString(3, username);
+			pst.executeUpdate();
+			pst.close();
+		}
+		catch (SQLException e) {
+			Logger.logMessage(LOGLEVEL_IMPORTANT, "SQLException in logServer()");
+			e.printStackTrace();
 		}
 	}
 
