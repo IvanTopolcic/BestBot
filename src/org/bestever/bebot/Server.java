@@ -503,7 +503,7 @@ public class Server {
 				return "lastmanstanding";
 			case "tlms":
 			case "teamlastmanstanding":
-				return "teamlastmanstanding";
+				return "teamlms";
 			case "skulltag":
 				return "skulltag";
 			case "duel":
