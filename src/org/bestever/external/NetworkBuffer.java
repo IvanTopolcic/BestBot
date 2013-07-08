@@ -1,9 +1,27 @@
+// --------------------------------------------------------------------------
+// Copyright (C) 2012-2013 Best-Ever
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// --------------------------------------------------------------------------
+
 package org.bestever.external;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * Encapsulation of inbound network data, can be extended to outbound as well
+ */
 public class NetworkBuffer {
 	
 	/**
@@ -171,7 +189,8 @@ public class NetworkBuffer {
 			b = data.poll();
 			if (b == null)
 				throw new NetworkBufferException("Buffer offset pointer was desynchronized from the data, attempted extraction of a non-existing byte.");
-			else if (b == 0)
+			offset_pointer--;
+			if (b == 0)
 				break; // End of string while still taking the null terminator out
 			sb.append(b);
 		}
@@ -181,5 +200,17 @@ public class NetworkBuffer {
 		else if (returnString.equals(""))
 			throw new NetworkBufferException("String extraction resulted in an empty string.");
 		return returnString;
+	}
+	
+	/**
+	 * Extracts the entire buffer
+	 * @return The entire buffer as a byte array
+	 */
+	public byte[] extractAll() {
+		byte[] outData = new byte[offset_pointer];
+		for (int i = 0; i < offset_pointer; i++)
+			outData[i] = data.poll();
+		offset_pointer = 0;
+		return outData;
 	}
 }
