@@ -63,8 +63,34 @@ public class QueryHandler extends Thread {
 	}
 	
 	private void processIncomingPacket(byte[] data, int length) {
-		//byte string; byte byte byte; string; byte byte int int int int int
-		bot.sendMessageToChannel("Query done.");
+		NetworkBuffer networkBuffer = new NetworkBuffer(length);
+		try {
+			networkBuffer.add(data, length);
+			QueryResult queryResult = new QueryResult();
+			queryResult.setNumOfPwads(networkBuffer.extractByte());
+			for (int i = 0; i < queryResult.getNumOfPwads(); i++)
+				queryResult.pwad_names[i] = networkBuffer.extractString();
+			queryResult.gamemode = networkBuffer.extractByte();
+			queryResult.instagib = networkBuffer.extractByte();
+			queryResult.buckshot = networkBuffer.extractByte();
+			queryResult.iwad = networkBuffer.extractString();
+			queryResult.skill = networkBuffer.extractByte();
+			queryResult.dmflags = networkBuffer.extractInt(true); // Extract little endians for this
+			queryResult.dmflags2 = networkBuffer.extractInt(true);
+			queryResult.dmflags3 = networkBuffer.extractInt(true);
+			queryResult.compatflags = networkBuffer.extractInt(true);
+			queryResult.compatflags2 = networkBuffer.extractInt(true);
+			bot.sendMessageToChannel("Extraction successful.");
+		} catch (NetworkBufferException nbe) {
+			nbe.printStackTrace();
+			if (nbe.getMessage() != null)
+				bot.sendMessageToChannel(nbe.getMessage());
+			else
+				bot.sendMessageToChannel("NetworkBufferException was thrown, please contact an administrator now.");
+		} catch (Exception e) {
+			e.printStackTrace();
+			bot.sendMessageToChannel("Exception thrown, please contact an administrator now.");
+		}
 	}
 	
 	public void run() {
