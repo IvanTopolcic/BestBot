@@ -144,4 +144,13 @@ public class Utility {
 				temp[i] = b[i];
 		return temp;
 	}
+	
+	public static int flipEndianInt(int n) {
+		ByteBuffer bb = ByteBuffer.allocate(4);
+		bb.order(ByteOrder.BIG_ENDIAN);
+		bb.putInt(n);
+		bb.order(ByteOrder.LITTLE_ENDIAN);
+		bb.rewind();
+		return bb.getInt();
+	}
 }

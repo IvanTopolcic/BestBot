@@ -75,10 +75,16 @@ public class Bot extends PircBot {
 	 */
 	private QueryManager queryManager;
 	
+	// Debugging purposes only
+	public static Bot staticBot;
+	public boolean queryDisabled = true;
+	
 	/**
 	 * Set the bot up with the constructor
 	 */
 	public Bot(ConfigData cfgfile) {
+		staticBot = this; // DEBUG ONLY
+		
 		// Point our config data to what we created back in RunMe.java
 		cfg_data = cfgfile;
 		
@@ -713,6 +719,12 @@ public class Bot extends PircBot {
 	 * @param keywords The keywords sent
 	 */
 	private void handleQuery(int userLevel, String[] keywords) {
+		// When I'm functional, remove me
+		if (queryDisabled) {
+			sendMessageToChannel(".query is disabled for now, please check back soon!");
+			return;
+		}
+		
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 			if (keywords.length == 2) {
 				String[] ipFragment = keywords[1].split(":");

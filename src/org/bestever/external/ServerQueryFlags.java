@@ -18,7 +18,7 @@ package org.bestever.external;
 /**
  * A list of all the flags we want to request in a query from the server
  */
-public class ServerQueryFlags {
+public final class ServerQueryFlags {
 	
 	/**
 	 * This is 199 in little endian
@@ -51,4 +51,9 @@ public class ServerQueryFlags {
 	public static final int GAMEMODE_ONEFLAGCTF = 13;
 	public static final int GAMEMODE_SKULLTAG = 14;
 	public static final int GAMEMODE_DOMINATION = 15;
+	
+	// Server query response flags
+	public static final int SQRF_BEGINNING = 0x565d77; //5660023
+	public static final int SQRF_TOOQUICKREQUEST = 0x565d78; //5660024
+	public static final int SQRF_IPISBANNED = 0x565d79; //5660025
 }

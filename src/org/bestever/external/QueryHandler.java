@@ -24,6 +24,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 import org.bestever.bebot.Bot;
 
@@ -45,9 +46,9 @@ public class QueryHandler extends Thread {
 	private Bot bot;
 	
 	/**
-	 * If we don't hear from the server in 10 seconds, then consider it dead/not working
+	 * If we don't hear from the server in 5 seconds, then consider it dead/not working
 	 */
-	public static final int SOCKET_TIMEOUT_MS = 10000;
+	public static final int SOCKET_TIMEOUT_MS = 5000;
 	
 	/**
 	 * This constructs the object so upon .run() it will gather the data and send it to the bot properly <br>
@@ -62,11 +63,23 @@ public class QueryHandler extends Thread {
 		this.bot = bot;
 	}
 	
-	private void processIncomingPacket(byte[] data, int length) {
-		NetworkBuffer networkBuffer = new NetworkBuffer(length);
+	/**
+	 * Handles the incoming packet we received
+	 * @param data The data from the server
+	 */
+	private void processIncomingPacket(byte[] data) {
+		NetworkBuffer networkBuffer = new NetworkBuffer(data.length);
 		try {
-			networkBuffer.add(data, length);
+			networkBuffer.add(data);
 			QueryResult queryResult = new QueryResult();
+			
+			// Basic extractions we don't care about
+			bot.sendMessageToChannel("Header: " + networkBuffer.extractInt(true)); // Header
+			bot.sendMessageToChannel("Time: " + networkBuffer.extractInt(true)); // time
+			bot.sendMessageToChannel("VersionString: " + networkBuffer.extractString()); // version
+			bot.sendMessageToChannel("Flags: " + networkBuffer.extractInt(true)); //flags
+			
+			// Data extractions of what we want [needs more failsafes because of how it's structured]
 			queryResult.setNumOfPwads(networkBuffer.extractByte());
 			for (int i = 0; i < queryResult.getNumOfPwads(); i++)
 				queryResult.pwad_names[i] = networkBuffer.extractString();
@@ -107,10 +120,11 @@ public class QueryHandler extends Thread {
 			port = request.getPort();
 			
 			// Put our data into a buffer and transform it before sending
-			ByteBuffer byteBuffer = ByteBuffer.allocate(8);
+			ByteBuffer byteBuffer = ByteBuffer.allocate(12);
 			byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
 			byteBuffer.putInt(ServerQueryFlags.LAUNCHER_CHALLENGE);
 			byteBuffer.putInt(ServerQueryFlags.SQF_ALL_REQUEST_FLAGS);
+			byteBuffer.putInt((int)System.currentTimeMillis()); // Zandro wiki specifies no unit for the time and is too ambigious, so I'll just send this
 			byteBuffer.rewind();
 			dataToSend = Huffman.encode(byteBuffer.array());
 			
@@ -122,7 +136,17 @@ public class QueryHandler extends Thread {
 			DatagramPacket receivePacket = new DatagramPacket(dataToReceive, dataToReceive.length);
 			connectionSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
 			connectionSocket.receive(receivePacket);
-			processIncomingPacket(Huffman.decode(receivePacket.getData()), receivePacket.getLength()); // Decoding done here
+			
+			// Prepare the data for processing
+			byte[] receivedData = receivePacket.getData();
+			byte[] receivedTruncatedData = new byte[receivePacket.getLength()];
+			System.arraycopy(receivedData, 0, receivedTruncatedData, 0, receivePacket.getLength());
+			byte[] decodedData = Huffman.decode(receivedTruncatedData);
+			
+			// Process it
+			bot.sendMessageToChannel("Data received: " + Arrays.toString(decodedData));
+			processIncomingPacket(decodedData);
+			
 		} catch (UnknownHostException e) {
 			bot.sendMessageToChannel("IP of the host to query could not be determined. Please see if your IP is a valid address that can be reached.");
 			e.printStackTrace();
@@ -134,6 +158,9 @@ public class QueryHandler extends Thread {
 			e.printStackTrace();
 		} catch (IOException e) {
 			bot.sendMessageToChannel("IOException from query. Please try again or contact an administrator.");
+			e.printStackTrace();
+		} catch (Exception e) {
+			bot.sendMessageToChannel("Unknown exception occured, contact an administrator now.");
 			e.printStackTrace();
 		}
 		
