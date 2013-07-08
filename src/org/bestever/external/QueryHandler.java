@@ -64,6 +64,7 @@ public class QueryHandler extends Thread {
 	
 	private void processIncomingPacket(byte[] data, int length) {
 		//byte string; byte byte byte; string; byte byte int int int int int
+		bot.sendMessageToChannel("Query done.");
 	}
 	
 	public void run() {
@@ -95,9 +96,7 @@ public class QueryHandler extends Thread {
 			DatagramPacket receivePacket = new DatagramPacket(dataToReceive, dataToReceive.length);
 			connectionSocket.setSoTimeout(SOCKET_TIMEOUT_MS);
 			connectionSocket.receive(receivePacket);
-			processIncomingPacket(receivePacket.getData(), receivePacket.getLength());
-			
-			bot.sendMessageToChannel("Query request received successfully.");
+			processIncomingPacket(Huffman.decode(receivePacket.getData()), receivePacket.getLength()); // Decoding done here
 		} catch (UnknownHostException e) {
 			bot.sendMessageToChannel("IP of the host to query could not be determined. Please see if your IP is a valid address that can be reached.");
 			e.printStackTrace();

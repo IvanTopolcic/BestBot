@@ -1,5 +1,7 @@
 package org.bestever.external;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class NetworkBuffer {
@@ -60,6 +62,8 @@ public class NetworkBuffer {
 	 * @param b The byte to add
 	 */
 	public void add(byte b) {
+		if (offset_pointer + 1 > max_capacity)
+			throw new NetworkBufferException("Buffer is full, adding a byte would cause an overflow.");
 		data.add(b);
 		offset_pointer++;
 	}
@@ -69,6 +73,8 @@ public class NetworkBuffer {
 	 * @param b The byte array to add
 	 */
 	public void add(byte[] b) {
+		if (offset_pointer + b.length > max_capacity)
+			throw new NetworkBufferException("Buffer is full, adding a byte array would cause an overflow.");
 		for (int i = 0; i < b.length; i++) {
 			data.add(b[i]);
 			offset_pointer++;
@@ -81,6 +87,8 @@ public class NetworkBuffer {
 	 * @param length The length to add [0 - length)
 	 */
 	public void add(byte[] b, int length) {
+		if (offset_pointer + length > max_capacity)
+			throw new NetworkBufferException("Buffer is full, adding a byte array with length would cause an overflow.");
 		for (int i = 0; i < length; i++) {
 			data.add(b[i]);
 			offset_pointer++;
@@ -92,7 +100,10 @@ public class NetworkBuffer {
 	 * @return The byte from the front of the buffer
 	 */
 	public byte extractByte() {
-		return 0;
+		if (offset_pointer - 1 < 0)
+			throw new NetworkBufferException("Buffer is empty, cannot extract a byte.");
+		offset_pointer--;
+		return data.poll();
 	}
 	
 	/**
@@ -102,7 +113,14 @@ public class NetworkBuffer {
 	 * @return The short from the front of the buffer
 	 */
 	public short extractShort(boolean littleEndian) {
-		return 0;
+		if (offset_pointer - 2 < 0)
+			throw new NetworkBufferException("Buffer is empty, cannot extract a short.");
+		ByteBuffer byteBuffer = ByteBuffer.allocate(2);
+		byteBuffer.order(littleEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+		for (int i = 0; i < 2; i++)
+			byteBuffer.put(data.poll()); // Unroll me one day
+		offset_pointer -= 2;
+		return byteBuffer.getShort();
 	}
 	
 	/**
@@ -112,7 +130,14 @@ public class NetworkBuffer {
 	 * @return The int from the front of the buffer
 	 */
 	public int extractInt(boolean littleEndian) {
-		return 0;
+		if (offset_pointer - 4 < 0)
+			throw new NetworkBufferException("Buffer is empty, cannot extract an integer.");
+		ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+		byteBuffer.order(littleEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+		for (int i = 0; i < 4; i++)
+			byteBuffer.put(data.poll()); // Unroll me one day
+		offset_pointer -= 4;
+		return byteBuffer.getInt();
 	}
 	
 	/**
@@ -122,7 +147,14 @@ public class NetworkBuffer {
 	 * @return The long from the front of the buffer
 	 */
 	public long extractLong(boolean littleEndian) {
-		return 0;
+		if (offset_pointer - 8 < 0)
+			throw new NetworkBufferException("Buffer is empty, cannot extract a long.");
+		ByteBuffer byteBuffer = ByteBuffer.allocate(8);
+		byteBuffer.order(littleEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
+		for (int i = 0; i < 8; i++)
+			byteBuffer.put(data.poll()); // Unroll me one day
+		offset_pointer -= 8;
+		return byteBuffer.getLong();
 	}
 	
 	/**
@@ -131,6 +163,23 @@ public class NetworkBuffer {
 	 * @return The string from the front of the buffer
 	 */
 	public String extractString() {
-		return null;
+		if (offset_pointer <= 0)
+			throw new NetworkBufferException("Buffer is empty, cannot extract a string.");
+		StringBuilder sb = new StringBuilder(max_capacity); // Just to be safe in case the string is the length of our array
+		Byte b = null;
+		for (int i = 0; i < offset_pointer; i++) {
+			b = data.poll();
+			if (b == null)
+				throw new NetworkBufferException("Buffer offset pointer was desynchronized from the data, attempted extraction of a non-existing byte.");
+			else if (b == 0)
+				break; // End of string while still taking the null terminator out
+			sb.append(b);
+		}
+		String returnString = sb.toString();
+		if (returnString == null)
+			throw new NetworkBufferException("String extraction resulted in a null string.");
+		else if (returnString.equals(""))
+			throw new NetworkBufferException("String extraction resulted in an empty string.");
+		return returnString;
 	}
 }
