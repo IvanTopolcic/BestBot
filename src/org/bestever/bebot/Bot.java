@@ -325,6 +325,7 @@ public class Bot extends PircBot {
 					if (s != null) {
 						if (Functions.getUserName(s.irc_hostname).equals(Functions.getUserName(hostname)) || isAccountTypeOf(level, MODERATOR)) {
 							s.in.println(message);
+							sendMessage(recipient, "Command successfully sent.");
 						}
 						else
 							sendMessage(recipient, "You do not own this server.");
