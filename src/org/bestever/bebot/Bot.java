@@ -442,7 +442,7 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
 		if (isAccountTypeOf(userLevel, ADMIN))
-			return ".commands, .debuglevel, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .query, .quit, .rcon, .save, .servers, .slot";
+			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .query, .quit, .rcon, .save, .servers, .slot";
 		if (isAccountTypeOf(userLevel, MODERATOR))
 			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .query, .rcon, .save, .servers, .slot";
 		if (isAccountTypeOf(userLevel, REGISTERED))
