@@ -220,7 +220,7 @@ public class ServerProcess extends Thread {
 			// NOTE: As of now, BE users can still check the RCON password by accessing the control panel on the website.
 			// We'll fix this later by changing the RCON from the unique_id to a random MD5 hash
 			if (server.bot.cfg_data.bot_public_rcon || AccountType.isAccountTypeOf(server.user_level, AccountType.ADMIN, AccountType.MODERATOR, AccountType.RCON))
-				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using 'send_password "+server.server_id+"' via the in-game console.");
+				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using 'send_password "+server.server_id+"' via the in-game console. You can view your logfile at http://www.best-ever.org/logs/" + server.server_id + ".txt");
 
 			// Process server while it outputs text
 			while ((strLine = br.readLine()) != null) {
@@ -275,8 +275,9 @@ public class ServerProcess extends Thread {
 			bw.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime));
 			server.in.close();
 			
-			// Notify the main channel
-			server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port + "! Server ran for " + Functions.calculateTime(uptime));
+			// Notify the main channel if enabled
+			if (!server.hide_stop_message)
+				server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port + "! Server ran for " + Functions.calculateTime(uptime));
 
 			// Remove from the Linked List
 			server.bot.removeServerFromLinkedList(this.server);

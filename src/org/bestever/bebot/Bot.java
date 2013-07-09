@@ -581,13 +581,15 @@ public class Bot extends PircBot {
 	private void processKillAll(int userLevel, String[] keywords) {
 		logMessage(LOGLEVEL_IMPORTANT, "Processing killall.");
 		if (isAccountTypeOf(userLevel, ADMIN)) {
-			if (servers != null && servers.size() > 0) {
-				sendMessage(cfg_data.irc_channel, "ATTENTION: Terminating all servers...");
-				ListIterator<Server> li = servers.listIterator();
-				while (li.hasNext())
-					li.next().auto_restart = false;
-					li.next().killServer();
-				sendMessage(cfg_data.irc_channel, "Servers termination request complete");
+			Server[] servers = getAllServers();
+			if (servers != null && servers.length > 0) {
+				sendMessage(cfg_data.irc_channel, "Terminating all servers...");
+				for (Server s : servers) {
+					s.hide_stop_message = true;
+					s.auto_restart = false;
+					s.killServer();
+				}
+				sendMessage(cfg_data.irc_channel, "All servers killed.");
 			} else
 				sendMessage(cfg_data.irc_channel, "There are no servers running.");
 		}

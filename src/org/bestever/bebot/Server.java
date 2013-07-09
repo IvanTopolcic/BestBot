@@ -27,6 +27,10 @@ import static org.bestever.bebot.Logger.*;
 import static org.bestever.bebot.MySQL.SERVER_ONLINE;
 
 public class Server {
+	/**
+	 * If true, servers will not say "server stopped on port..."
+	 */
+	public boolean hide_stop_message = false;
 
 	/**
 	 * Holds the input stream
