@@ -270,10 +270,14 @@ public class Bot extends PircBot {
 			if (keywords.length == 2) {
 				if (Functions.isNumeric(keywords[1])) {
 					Server s = getServer(Integer.parseInt(keywords[1]));
-					if (s.auto_restart)
+					if (s.auto_restart) {
 						s.auto_restart = false;
-					else
+						sendMessage(cfg_data.irc_channel, "Autorestart disabled on server.");
+					}
+					else {
 						s.auto_restart = true;
+						sendMessage(cfg_data.irc_channel, "Autorestart set up on server.");
+					}
 				}
 			}
 			else
@@ -800,7 +804,8 @@ public class Bot extends PircBot {
 			List<Server> servers = getUserServers(Functions.getUserName(keywords[1]));
 			if (servers != null && servers.size() > 0) {
 				for (Server server : servers) {
-					sendMessage(cfg_data.irc_channel,  server.port + ": " + server.servername + ((server.wads != null) ? " with wads " + Functions.implode(server.wads, ", ") : "") + ((server.mapwads != null) ? " and mapwads " + Functions.implode(server.mapwads, ", ") : ""));
+					sendMessage(cfg_data.irc_channel,  server.port + ": " + server.servername + ((server.wads != null) ? " with wads " + Functions.implode(server.wads, ", ") : "") +
+							((server.mapwads != null) ? " and mapwads " + Functions.implode(server.mapwads, ", ") : ""));
 				}
 			}
 			else
