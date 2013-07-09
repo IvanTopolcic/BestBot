@@ -171,13 +171,13 @@ public class MySQL {
 				bot.sendMessage(sender, "Account already exists!");
 			else {
 				// Prepare, bind & execute
-				xs.setString(1, r.getString("username"));
+				xs.setString(1, Functions.getUserName(hostname));
 				// Hash the PW with BCrypt
 				xs.setString(2, BCrypt.hashpw(password, BCrypt.gensalt(14)));
 				if (xs.executeUpdate() == 1)
-					this.bot.sendMessage(sender, "Account created! Your username is " + r.getString("username") + " and your password is " + password);
+					bot.sendMessage(sender, "Account created! Your username is " + Functions.getUserName(hostname) + " and your password is " + password);
 				else
-					this.bot.sendMessage(sender, "There was an error registering your account.");
+					bot.sendMessage(sender, "There was an error registering your account.");
 				}
 			} catch (SQLException e) {
 			System.out.println("ERROR: SQL_ERROR in 'registerAccount()'");
