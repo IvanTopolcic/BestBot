@@ -550,7 +550,7 @@ public class Bot extends PircBot {
 		if (isAccountTypeOf(userLevel, REGISTERED)) {
 			if (Functions.isNumeric(keywords[1])) {
 				Server server = getServer(Integer.parseInt(keywords[1]));
-				if (server != null)
+				if (server != null) {
 					if (Functions.getUserName(server.irc_hostname).equalsIgnoreCase(Functions.getUserName(hostname)) || isAccountTypeOf(userLevel, MODERATOR, ADMIN))
 						if (server.serverprocess != null) {
 							server.auto_restart = false;
@@ -560,8 +560,9 @@ public class Bot extends PircBot {
 							sendMessage(cfg_data.irc_channel, "Error: Server process is null, contact an administrator.");
 					else
 						sendMessage(cfg_data.irc_channel, "Error: You do not own this server!");
+				}
 				else
-					sendMessage(cfg_data.irc_channel, "Error: You do not own this server!");
+					sendMessage(cfg_data.irc_channel, "Error: There is no server running on this port.");
 			} else 
 				sendMessage(cfg_data.irc_channel, "Improper port number.");
 		// Admins/mods can kill anything
