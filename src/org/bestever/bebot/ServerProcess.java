@@ -156,6 +156,9 @@ public class ServerProcess extends Thread {
 		runCommand.add("+sv_banfile " + server.bot.cfg_data.bot_banlistdir + server.server_id + ".txt");
 		runCommand.add("+sv_adminlistfile " + server.bot.cfg_data.bot_adminlistdir + server.server_id + ".txt");
 		runCommand.add("+sv_banexemptionfile " + server.bot.cfg_data.bot_whitelistdir + server.server_id + ".txt");
+
+		// Add the RCON
+		server.rcon_password = server.server_id;
 		
 		String execCommand = "";
 		ListIterator<String> it = runCommand.listIterator();
@@ -221,6 +224,7 @@ public class ServerProcess extends Thread {
 
 			// Process server while it outputs text
 			while ((strLine = br.readLine()) != null) {
+				String[] keywords = strLine.split(" ");
 				// Make sure to get the port [Server using alternate port 10666.]
 				if (strLine.startsWith("Server using alternate port ")) {
 					System.out.println(strLine);
@@ -246,6 +250,13 @@ public class ServerProcess extends Thread {
 					server.bot.servers.add(server); // Add the server to the linked list since it's fully operational now
 					server.bot.sendMessage(server.irc_channel, "Server started successfully on port " + server.port + "!");
 					server.bot.sendMessage(server.sender, "To kill your server, in the channel " + server.bot.cfg_data.irc_channel + ", type .killmine to kill all of your servers, or .kill " + server.port + " to kill just this one.");
+				}
+
+				// Check for RCON password changes
+				if (keywords.length > 3) {
+					if (keywords[2].equals("->") && keywords[3].equals("sv_rconpassword")) {
+						server.rcon_password = keywords[4];
+					}
 				}
 				
 				// If we have a player joining or leaving, mark this server as active

@@ -749,11 +749,10 @@ public class Bot extends PircBot {
 				sendMessageToChannel("Usage: .query <ip:port>   (example: .query 98.173.12.44:20555)");
 		}
 	}
-	
-	// UNIMPLEMENTED YET
+
 	private void processRcon(int userLevel, String[] keywords, String sender, String hostname) {
 		logMessage(LOGLEVEL_NORMAL, "Processing a request for rcon (from " + sender + ").");
-		if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
+		if (isAccountTypeOf(userLevel, REGISTERED, MODERATOR, ADMIN)) {
 			if (keywords.length == 2) {
 				if (Functions.isNumeric(keywords[1])) {
 					int port = Integer.parseInt(keywords[1]);
@@ -762,7 +761,7 @@ public class Bot extends PircBot {
 						if (Functions.getUserName(s.irc_hostname).equals(Functions.getUserName(hostname)) || isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
 							sendMessage(sender, "RCON: " + s.rcon_password);
 							sendMessage(sender, "ID: " + s.server_id);
-							sendMessage(sender, "LOG: http://www.best-ever.org/logs/ " + s.server_id + ".txt");
+							sendMessage(sender, "LOG: http://www.best-ever.org/logs/" + s.server_id + ".txt");
 						}
 						else
 							sendMessage(sender, "You do not own this server.");
@@ -825,10 +824,7 @@ public class Bot extends PircBot {
 			int userLevel = mysql.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
 				case ".rcon":
-					if (keywords.length == 2)
-						processRcon(userLevel, keywords, sender, hostname);
-					else
-						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " rcon <port>");
+					processRcon(userLevel, keywords, sender, hostname);
 					break;
 				case "changepass":
 				case "changepassword":
