@@ -283,7 +283,7 @@ public class ServerProcess extends Thread {
 			// Auto-restart the server if enabled
 			if (server.auto_restart) {
 				server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Server crashed! Attempting to restart server...");
-				server.bot.processHost(server.user_level, server.bot.cfg_data.irc_channel, server.sender, server.irc_hostname, server.host_command);
+				server.bot.processHost(server.user_level, server.bot.cfg_data.irc_channel, server.sender, server.irc_hostname, server.host_command, true);
 			}
 
 		} catch (Exception e) {

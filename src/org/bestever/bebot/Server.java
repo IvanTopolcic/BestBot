@@ -207,12 +207,16 @@ public class Server {
 	 * @param message The message sent
 	 * @return Null if all went well, otherwise an error message to print to the bot
 	 */
-	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String hostname, String message, int userLevel, MySQL mysql) {
+	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String hostname, String message, int userLevel, boolean autoRestart) {
 		// Initialize server without linking it to the arraylist
 		Server server = new Server();
 		
 		// Reference server to bot
 		server.bot = botReference;
+
+		// Check if autoRestart was enabled
+		if (autoRestart)
+			server.auto_restart = true;
 		
 		// Input basic values
 		server.irc_channel = channel;
