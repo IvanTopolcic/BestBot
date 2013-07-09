@@ -86,8 +86,10 @@ public class ServerProcess extends Thread {
 		ArrayList<String> runCommand = new ArrayList<>();
 		
 		runCommand.add(server.bot.cfg_data.bot_executable); // This must always be first
-		
+
 		runCommand.add("-port " + Integer.toString(server.bot.getMinPort())); // Always start on the minimum port and let zandronum handle the rest
+
+		runCommand.add("+exec " + server.bot.cfg_data.bot_cfg_directory_path + "global.cfg"); // Load the global configuration file
 		
 		if (server.iwad != null)
 			runCommand.add("-iwad " + server.bot.cfg_data.bot_iwad_directory_path + server.iwad);
