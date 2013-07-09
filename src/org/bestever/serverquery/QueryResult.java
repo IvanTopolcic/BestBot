@@ -6,14 +6,9 @@ package org.bestever.serverquery;
 public class QueryResult {
 	
 	/**
-	 * How many pwads there are
-	 */
-	private byte num_of_pwads;
-	
-	/**
 	 * A list of all the pwads
 	 */
-	public String[] pwad_names;
+	public String pwad_names;
 
 	/**
 	 * The gamemode constant (can be found in ServerQueryFlags
@@ -69,23 +64,16 @@ public class QueryResult {
 	 * Default constructor for now
 	 */
 	public QueryResult() {
-	}
-	
-	/**
-	 * This should be used instead of
-	 * @param amount How many pwads there are to set
-	 */
-	public void setNumOfPwads(byte amount) {
-		if (amount < 0)
-			throw new NetworkBufferException("setNumOfPwads got a negative number from the NetworkBuffer. Contact an administrator.");
-		pwad_names = new String[amount];
-	}
-	
-	/**
-	 * Returns how many pwads there are loaded onto the server
-	 * @return The number of pwads in byte form
-	 */
-	public byte getNumOfPwads() {
-		return num_of_pwads;
+		this.pwad_names = null;
+		this.gamemode = -1;
+		this.instagib = -1;
+		this.buckshot = -1;
+		this.iwad = null;
+		this.skill = -1;
+		this.dmflags = -1;
+		this.dmflags2 = -1;
+		this.dmflags3 = -1;
+		this.compatflags = -1;
+		this.compatflags2 = -1;
 	}
 }

@@ -95,7 +95,7 @@ public class QueryManager extends Thread {
 		// This should never be null because we check in run() if the size is > 0
 		ServerQueryRequest targetQuery = queryRequests.poll();
 		if (targetQuery != null) {
-			QueryHandler query = new QueryHandler(targetQuery, bot, this);
+			QueryHandler query = new QueryHandler(targetQuery, bot, this); // Must give it a reference to ourselves to signal query completion
 			query.run();
 		} else {
 			bot.sendMessageToChannel("targetQuery was somehow null, aborting query.");

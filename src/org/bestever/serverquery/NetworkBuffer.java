@@ -19,8 +19,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.bestever.bebot.Bot;
-
 /**
  * Encapsulation of inbound network data, can be extended to outbound as well
  */
@@ -155,7 +153,6 @@ public class NetworkBuffer {
 			throw new NetworkBufferException("Buffer is empty, cannot extract an integer.");
 		ByteBuffer byteBuffer = ByteBuffer.allocate(4);
 		byteBuffer.order(littleEndian ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN);
-		Bot.staticBot.sendMessageToChannel("Beginning to unroll");
 		for (int i = 0; i < 4; i++)
 			byteBuffer.put(data.poll()); // Unroll me one day
 		offset_pointer -= 4;
@@ -198,7 +195,7 @@ public class NetworkBuffer {
 			offset_pointer--;
 			if (b == 0)
 				break; // End of string while still taking the null terminator out
-			sb.append(b);
+			sb.append((char)((byte)b));
 		}
 		String returnString = sb.toString();
 		if (returnString == null)

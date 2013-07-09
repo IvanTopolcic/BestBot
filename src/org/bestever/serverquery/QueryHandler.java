@@ -22,11 +22,9 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Arrays;
 
 import org.bestever.bebot.Bot;
+import org.bestever.bebot.Utility;
 
 public class QueryHandler extends Thread {
 
@@ -38,6 +36,7 @@ public class QueryHandler extends Thread {
 	/**
 	 * The requested IP/port to query
 	 */
+	@SuppressWarnings("unused") // WHY JAVA
 	private ServerQueryRequest request;
 	
 	/**
@@ -74,62 +73,186 @@ public class QueryHandler extends Thread {
 			QueryResult queryResult = new QueryResult();
 			
 			// Basic extractions we don't care about
-			bot.sendMessageToChannel("Header: " + networkBuffer.extractInt(true)); // Header
-			bot.sendMessageToChannel("Time: " + networkBuffer.extractInt(true)); // time
-			bot.sendMessageToChannel("VersionString: " + networkBuffer.extractString()); // version
-			bot.sendMessageToChannel("Flags: " + networkBuffer.extractInt(true)); //flags
+			int header = networkBuffer.extractInt(true);
+			if (header == 5660024)
+				throw new NetworkPacketProcessException("Querying server too much.");
+			else if (header == 5660025)
+				throw new NetworkPacketProcessException("Host has banned the IP.");
 			
-			// Data extractions of what we want [needs more failsafes because of how it's structured]
-			queryResult.setNumOfPwads(networkBuffer.extractByte());
-			for (int i = 0; i < queryResult.getNumOfPwads(); i++)
-				queryResult.pwad_names[i] = networkBuffer.extractString();
-			queryResult.gamemode = networkBuffer.extractByte();
-			queryResult.instagib = networkBuffer.extractByte();
-			queryResult.buckshot = networkBuffer.extractByte();
-			queryResult.iwad = networkBuffer.extractString();
-			queryResult.skill = networkBuffer.extractByte();
-			queryResult.dmflags = networkBuffer.extractInt(true); // Extract little endians for this
-			queryResult.dmflags2 = networkBuffer.extractInt(true);
-			queryResult.dmflags3 = networkBuffer.extractInt(true);
-			queryResult.compatflags = networkBuffer.extractInt(true);
-			queryResult.compatflags2 = networkBuffer.extractInt(true);
-			bot.sendMessageToChannel("Extraction successful.");
+			// Extract time, as it's useles to us right now
+			networkBuffer.extractInt(true); 
+			
+			// Extract version string, as it's useles to us right now
+			networkBuffer.extractString(); 
+			
+			// What the server wants to send back to us (and read every flag safely)
+			int inboundFlags = Utility.flipEndianInt(networkBuffer.extractInt(true));
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_NAME) == ServerQueryFlags.SQF_NAME)
+				networkBuffer.extractString(); // Server name
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_URL) == ServerQueryFlags.SQF_URL)
+				networkBuffer.extractString(); // Server URL
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_EMAIL) == ServerQueryFlags.SQF_EMAIL)
+				networkBuffer.extractString(); // Server email
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_MAPNAME) == ServerQueryFlags.SQF_MAPNAME)
+				networkBuffer.extractString(); // Map name
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_MAXCLIENTS) == ServerQueryFlags.SQF_MAXCLIENTS)
+				networkBuffer.extractByte(); // Max clients
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_MAXPLAYERS) == ServerQueryFlags.SQF_MAXPLAYERS)
+				networkBuffer.extractByte();
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_PWADS) == ServerQueryFlags.SQF_PWADS) {
+				byte numOfPwads = networkBuffer.extractByte();
+				if (numOfPwads > 0) {
+					String pwadList = "";
+					for (int i = 0; i < numOfPwads; i++)
+						if (i == numOfPwads - 1)
+							pwadList += networkBuffer.extractString(); // Don't add a delimiter for the end of the list
+						else
+							pwadList += networkBuffer.extractString() + ",";
+					queryResult.pwad_names = pwadList;
+				}
+			}
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_GAMETYPE) == ServerQueryFlags.SQF_GAMETYPE) {
+				networkBuffer.extractByte();
+				networkBuffer.extractByte();
+				networkBuffer.extractByte();
+			}
+			if ((inboundFlags & ServerQueryFlags.SQF_GAMENAME) == ServerQueryFlags.SQF_GAMENAME)
+				networkBuffer.extractString();
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_IWAD) == ServerQueryFlags.SQF_IWAD)
+				networkBuffer.extractString();
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_FORCEPASSWORD) == ServerQueryFlags.SQF_FORCEPASSWORD)
+				networkBuffer.extractByte();
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_FORCEJOINPASSWORD) == ServerQueryFlags.SQF_FORCEJOINPASSWORD)
+				networkBuffer.extractByte();
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_GAMESKILL) == ServerQueryFlags.SQF_GAMESKILL)
+				networkBuffer.extractByte();
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_BOTSKILL) == ServerQueryFlags.SQF_BOTSKILL)
+				networkBuffer.extractByte();
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_DMFLAGS) == ServerQueryFlags.SQF_DMFLAGS) {
+				networkBuffer.extractInt(true);
+				networkBuffer.extractInt(true);
+				networkBuffer.extractInt(true);
+			}
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_LIMITS) == ServerQueryFlags.SQF_LIMITS) {
+				networkBuffer.extractShort(true);
+				networkBuffer.extractShort(true);
+				networkBuffer.extractShort(true);
+				networkBuffer.extractShort(true);
+				networkBuffer.extractShort(true);
+				networkBuffer.extractShort(true);
+			}
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_TEAMDAMAGE) == ServerQueryFlags.SQF_TEAMDAMAGE)
+				networkBuffer.extractInt(true); // This is a 32 bit float, no support right now
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_TEAMSCORES) == ServerQueryFlags.SQF_TEAMSCORES)
+				networkBuffer.extractShort(true);
+			
+			byte numPlayers = 0;
+			if ((inboundFlags & ServerQueryFlags.SQF_NUMPLAYERS) == ServerQueryFlags.SQF_NUMPLAYERS)
+				numPlayers = networkBuffer.extractByte();
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_PLAYERDATA) == ServerQueryFlags.SQF_PLAYERDATA)
+				for (int i = 0; i < numPlayers; i ++) {
+					networkBuffer.extractString();
+					networkBuffer.extractShort(true);
+					networkBuffer.extractShort(true);
+					networkBuffer.extractByte();
+					networkBuffer.extractByte();
+					networkBuffer.extractByte();
+					networkBuffer.extractByte();
+				}
+			
+			byte numTeams = 0;
+			if ((inboundFlags & ServerQueryFlags.SQF_TEAMINFO_NUMBER) == ServerQueryFlags.SQF_TEAMINFO_NUMBER)
+				numTeams = networkBuffer.extractByte();
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_TEAMINFO_NAME) == ServerQueryFlags.SQF_TEAMINFO_NAME)
+				for (int i = 0; i < numTeams; i++)
+					networkBuffer.extractString();
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_TEAMINFO_COLOR) == ServerQueryFlags.SQF_TEAMINFO_COLOR)
+				for (int i = 0; i < numTeams; i++)
+					networkBuffer.extractInt(true);
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_TEAMINFO_SCORE) == ServerQueryFlags.SQF_TEAMINFO_SCORE)
+				for (int i = 0; i < numTeams; i++)
+					networkBuffer.extractShort(true);
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_TESTING_SERVER) == ServerQueryFlags.SQF_TESTING_SERVER)
+				networkBuffer.extractString();
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_DATA_MD5SUM) == ServerQueryFlags.SQF_DATA_MD5SUM)
+				networkBuffer.extractString();
+			
+			if ((inboundFlags & ServerQueryFlags.SQF_ALL_DMFLAGS) == ServerQueryFlags.SQF_ALL_DMFLAGS) {
+				int numOfFlags = networkBuffer.extractByte();
+				if (numOfFlags > 0)
+					networkBuffer.extractInt(true);
+				if (numOfFlags > 1)
+					networkBuffer.extractInt(true);
+				if (numOfFlags > 2)
+					networkBuffer.extractInt(true);
+				if (numOfFlags > 3)
+					networkBuffer.extractInt(true);
+				if (numOfFlags > 4)
+					networkBuffer.extractInt(true);
+			}
+				
+			if ((inboundFlags & ServerQueryFlags.SQF_SECURITY_SETTINGS) == ServerQueryFlags.SQF_SECURITY_SETTINGS)
+				networkBuffer.extractByte();
+			
+			// Display the final result in the channel
+			displayQueryResult(queryResult);
 		} catch (NetworkBufferException nbe) {
 			nbe.printStackTrace();
 			if (nbe.getMessage() != null)
 				bot.sendMessageToChannel(nbe.getMessage());
 			else
 				bot.sendMessageToChannel("NetworkBufferException was thrown, please contact an administrator now.");
+		} catch (NetworkPacketProcessException nppe) {
+			nppe.printStackTrace();
+			bot.sendMessageToChannel("Network exception: " + nppe.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 			bot.sendMessageToChannel("Exception thrown, please contact an administrator now.");
 		}
 	}
 	
+	public void displayQueryResult(QueryResult queryResult) {
+		System.out.println(queryResult.dmflags);
+	}
+	
 	public void run() {
 		// If any of these stay the same then something is wrong
 		InetAddress IPAddress = null;
 		int port = 0;
-		byte[] dataToSend;
+		byte[] dataToSend = null;
 		byte[] dataToReceive = new byte[2048]; // Doubled standard size in case there's some dumb wad list with a lot of characters
 		
 		// Try with resources, we want to always have the socket close
-		try (DatagramSocket connectionSocket = new DatagramSocket()) {
-			// Setup our connection data
-			IPAddress = InetAddress.getByName(request.getIP());
-			port = request.getPort();
-			
-			// Put our data into a buffer and transform it before sending
-			ByteBuffer byteBuffer = ByteBuffer.allocate(12);
-			byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
-			byteBuffer.putInt(ServerQueryFlags.LAUNCHER_CHALLENGE);
-			byteBuffer.putInt(ServerQueryFlags.SQF_ALL_REQUEST_FLAGS);
-			byteBuffer.putInt((int)System.currentTimeMillis()); // Zandro wiki specifies no unit for the time and is too ambigious, so I'll just send this
-			byteBuffer.rewind();
-			dataToSend = Huffman.encode(byteBuffer.array());
+		try (DatagramSocket connectionSocket = new DatagramSocket()) {		
+			// Prepare our send packet		
+			dataToSend = new byte[] { (byte)199, 0, 0, 0, 1, 0, 0, 0 }; // Send challenge and then SQF_Flags
+			byte[] huffmanToSend = Huffman.encode(dataToSend);
 			
 			// Now send the data
-			DatagramPacket sendPacket = new DatagramPacket(dataToSend, dataToSend.length, IPAddress, port);
+			DatagramPacket sendPacket = new DatagramPacket(huffmanToSend, huffmanToSend.length, IPAddress, port);
 			connectionSocket.send(sendPacket);
 			
 			// Block until we receive something or time out
@@ -142,11 +265,9 @@ public class QueryHandler extends Thread {
 			byte[] receivedTruncatedData = new byte[receivePacket.getLength()];
 			System.arraycopy(receivedData, 0, receivedTruncatedData, 0, receivePacket.getLength());
 			byte[] decodedData = Huffman.decode(receivedTruncatedData);
-			
+				
 			// Process it
-			bot.sendMessageToChannel("Data received: " + Arrays.toString(decodedData));
-			processIncomingPacket(decodedData);
-			
+			processIncomingPacket(decodedData);	
 		} catch (UnknownHostException e) {
 			bot.sendMessageToChannel("IP of the host to query could not be determined. Please see if your IP is a valid address that can be reached.");
 			e.printStackTrace();

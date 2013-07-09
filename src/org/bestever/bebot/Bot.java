@@ -721,10 +721,12 @@ public class Bot extends PircBot {
 	 */
 	private void handleQuery(int userLevel, String[] keywords) {
 		// When I'm functional, remove me
+		/*
 		if (queryDisabled) {
 			sendMessageToChannel(".query is disabled for now, please check back soon!");
 			return;
 		}
+		*/
 		
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 			if (keywords.length == 2) {
@@ -735,7 +737,8 @@ public class Bot extends PircBot {
 						if (port > 0 && port < 65535) {
 							sendMessageToChannel("Attempting to query " + keywords[1] + ", please wait...");
 							ServerQueryRequest request = new ServerQueryRequest(ipFragment[0], port);
-							queryManager.addRequest(request);
+							if (!queryManager.addRequest(request)) 
+								sendMessageToChannel("Too many people requesting queries. Please try again later.");
 						} else
 							sendMessageToChannel("Port value is not between 0 - 65536 (ends exclusive), please fix your IP:port and try again.");
 					} else
