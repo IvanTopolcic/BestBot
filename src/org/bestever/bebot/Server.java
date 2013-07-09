@@ -128,6 +128,11 @@ public class Server {
 	public String[] mapwads;
 
 	/**
+	 *  Holds the skill of the game
+	 */
+	public int skill;
+
+	/**
 	 * If this is true, that means skulltag data will be enabled
 	 */
 	public boolean enable_skulltag_data;
@@ -292,6 +297,13 @@ public class Server {
 				case "mapwad":
 					server.mapwads = addWads(m.group(2));
 					break;
+				case "skill":
+					server.skill = handleSkill(m.group(2));
+					if (server.skill == -1) {
+						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Skill must be between 0-4");
+						return;
+					}
+					break;
 				case "wad":
 					server.wads = addWads(m.group(2));
 					break;
@@ -413,6 +425,19 @@ public class Server {
 			logMessage(LOGLEVEL_CRITICAL, "MySQL exception loading servers at " + database_id + "!");
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Returns the skill of the game
+	 * @param skill String - skill level
+	 * @return int - skill level
+	 */
+	private static int handleSkill(String skill) {
+		if (!Functions.isNumeric(skill) || Integer.parseInt(skill) > 4 || Integer.parseInt(skill) < 0) {
+			return -1;
+		}
+		else
+			return Integer.parseInt(skill);
 	}
 
 	/**

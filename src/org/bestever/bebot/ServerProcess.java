@@ -114,6 +114,9 @@ public class ServerProcess extends Thread {
 				}
 			}
 		}
+
+		if (server.skill > -1)
+			runCommand.add("+skill" + server.skill);
 		
 		if (server.gamemode != null)
 			runCommand.add("+" + server.gamemode + " 1");

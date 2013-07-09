@@ -114,7 +114,7 @@ public class QueryManager extends Thread {
 			
 			// This thread should only check requests every few seconds or so
 			// The thread should not be demanding at all
-			try { Thread.sleep(5000); } catch (InterruptedException e) { }
+			try { Thread.sleep(1000); } catch (InterruptedException e) { }
 		}
 	}
 }
