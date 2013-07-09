@@ -375,9 +375,6 @@ public class Bot extends PircBot {
 				case ".get":
 					processGet(userLevel, keywords);
 					break;
-				case ".givememoney":
-					sendMessage(cfg_data.irc_channel, Functions.giveMeMoney());
-					break;
 				case ".help":
 					sendMessage(cfg_data.irc_channel, cfg_data.bot_help);
 					break;
@@ -398,9 +395,6 @@ public class Bot extends PircBot {
 					break;
 				case ".load":
 					mysql.loadSlot(hostname, keywords, userLevel, channel, sender, login);
-					break;
-				case ".numservers":
-					processNumServers(userLevel, keywords);
 					break;
 				case ".off":
 					processOff(userLevel);
@@ -446,13 +440,13 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
 		if (isAccountTypeOf(userLevel, ADMIN))
-			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .query, .quit, .rcon, .save, .servers, .slot";
+			return ".commands, .file, .get, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .query, .quit, .rcon, .save, .servers, .slot";
 		if (isAccountTypeOf(userLevel, MODERATOR))
-			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .query, .rcon, .save, .servers, .slot";
+			return ".commands, .file, .get, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .query, .rcon, .save, .servers, .slot";
 		if (isAccountTypeOf(userLevel, REGISTERED))
-			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .query, .rcon, .save, .servers, .slot";
+			return ".commands, .file, .get, .help, .host, .kill, .killmine, .load, .owner, .query, .rcon, .save, .servers, .slot";
 		if (isAccountTypeOf(userLevel, GUEST))
-			return "[Not logged in, guests have limited access] .commands, .file, .givememoney, .help";
+			return "[Not logged in, guests have limited access] .commands, .file, .help";
 		else
 			return "Undocumented type. Contact an administrator.";
 	}
@@ -814,8 +808,11 @@ public class Bot extends PircBot {
 			else
 				sendMessage(cfg_data.irc_channel, Functions.getUserName(keywords[1]) + " has no servers running.");
 		}
+		else if (keywords.length == 1) {
+			sendMessage(cfg_data.irc_channel, "There are " + servers.size() + " servers running on Best Ever right now.");
+		}
 		else
-			sendMessage(cfg_data.irc_channel, "Incorrect syntax! Correct usage is .servers <username>");
+			sendMessage(cfg_data.irc_channel, "Incorrect syntax! Correct usage is .servers or .servers <username>");
 	}
 
 	/**
