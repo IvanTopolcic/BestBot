@@ -172,15 +172,15 @@ public class Functions {
 	 * Function that takes a time in seconds
 	 * and converts it to a string with days, hours, minutes
 	 * and seconds.
-	 * @param nanoSeconds in long format
+	 * @param milliseconds in long format
 	 * @return A String in a readable format
 	 */
-	public static String calculateTime(long nanoSeconds) {
-		nanoSeconds = nanoSeconds / 1000000000;
-		int day = (int)TimeUnit.SECONDS.toDays(nanoSeconds);
-		long hours = TimeUnit.SECONDS.toHours(nanoSeconds) - (day *24);
-		long minute = TimeUnit.SECONDS.toMinutes(nanoSeconds) - (TimeUnit.SECONDS.toHours(nanoSeconds)* 60);
-		long second = TimeUnit.SECONDS.toSeconds(nanoSeconds) - (TimeUnit.SECONDS.toMinutes(nanoSeconds) *60);
+	public static String calculateTime(long milliseconds) {
+		long seconds = milliseconds / 1000;
+		int day = (int)TimeUnit.SECONDS.toDays(seconds);
+		long hours = TimeUnit.SECONDS.toHours(seconds) - (day *24);
+		long minute = TimeUnit.SECONDS.toMinutes(seconds) - (TimeUnit.SECONDS.toHours(seconds)* 60);
+		long second = TimeUnit.SECONDS.toSeconds(seconds) - (TimeUnit.SECONDS.toMinutes(seconds) *60);
 		return day + " days " + hours + " hours " + minute + " minutes and " + second + " seconds.";
 	}
 

@@ -156,7 +156,7 @@ public class MySQL {
 		String checkQuery = "SELECT `username` FROM " + mysql_db + ".`login` WHERE `username` = ?";
 		
 		// Query to add entry to database
-		String executeQuery = "INSERT INTO " + mysql_db + ".`login` ( `username`, `password`, `level`, `activated` ) VALUES ( ?, ?, 0, 1 )";
+		String executeQuery = "INSERT INTO " + mysql_db + ".`login` ( `username`, `password`, `level`, `activated`, `server_limit` ) VALUES ( ?, ?, 1, 1, 4 )";
 		try
 		(
 			PreparedStatement cs = con.prepareStatement(checkQuery);
@@ -171,13 +171,13 @@ public class MySQL {
 				bot.sendMessage(sender, "Account already exists!");
 			else {
 				// Prepare, bind & execute
-				xs.setString(1, r.getString("username"));
+				xs.setString(1, Functions.getUserName(hostname));
 				// Hash the PW with BCrypt
 				xs.setString(2, BCrypt.hashpw(password, BCrypt.gensalt(14)));
 				if (xs.executeUpdate() == 1)
-					this.bot.sendMessage(sender, "Account created! Your username is " + r.getString("username") + " and your password is " + password);
+					bot.sendMessage(sender, "Account created! Your username is " + Functions.getUserName(hostname) + " and your password is " + password);
 				else
-					this.bot.sendMessage(sender, "There was an error registering your account.");
+					bot.sendMessage(sender, "There was an error registering your account.");
 				}
 			} catch (SQLException e) {
 			System.out.println("ERROR: SQL_ERROR in 'registerAccount()'");
@@ -316,6 +316,27 @@ public class MySQL {
 		}
 		else {
 			bot.sendMessage(bot.cfg_data.irc_channel, "Incorrect syntax! Correct syntax is .load 1 to 10");
+		}
+	}
+
+	/**
+	 * Logs a server to the database
+	 * @param servername String - the name of the server
+	 * @param unique_id String - the server's unique ID
+	 * @param username String - username of server host
+	 */
+	public void logServer(String servername, String unique_id, String username) {
+		String query = "INSERT INTO `" + mysql_db + "`.`serverlog` (`unique_id`, `servername`, `username`, `date`) VALUES (?, ?, ?, NOW())";
+		try (PreparedStatement pst = con.prepareStatement(query)) {
+			pst.setString(1, unique_id);
+			pst.setString(2, servername);
+			pst.setString(3, username);
+			pst.executeUpdate();
+			pst.close();
+		}
+		catch (SQLException e) {
+			Logger.logMessage(LOGLEVEL_IMPORTANT, "SQLException in logServer()");
+			e.printStackTrace();
 		}
 	}
 

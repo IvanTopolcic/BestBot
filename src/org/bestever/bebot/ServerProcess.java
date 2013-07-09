@@ -43,9 +43,9 @@ public class ServerProcess extends Thread {
 	private Process proc;
 	
 	/**
-	 * Used in determining when the last activity of the server was in milliseconds
+	 * Used in determining when the last activity of the server was in ms
 	 */
-	private long last_activity;
+	public long last_activity;
 	
 	/**
 	 * This should be called before starting run
@@ -71,14 +71,6 @@ public class ServerProcess extends Thread {
 	public void terminateServer() {
 		server.bot.removeServerFromLinkedList(this.server);
 		proc.destroy();
-	}
-	
-	/**
-	 * Gets the last activity of this server
-	 * @return The last activity of the server in [long] milliseconds
-	 */
-	public long getLastActivity() {
-		return last_activity;
 	}
 	
 	/**
@@ -121,9 +113,6 @@ public class ServerProcess extends Thread {
 			}
 		}
 		
-		if (server.config != null)
-			runCommand.add("+exec " + server.bot.cfg_data.bot_cfg_directory_path + server.config);
-		
 		if (server.gamemode != null)
 			runCommand.add("+" + server.gamemode + " 1");
 		
@@ -150,12 +139,18 @@ public class ServerProcess extends Thread {
 		
 		if (server.servername != null)
 			runCommand.add("+sv_hostname \"" + server.bot.cfg_data.bot_hostname_base + " " + server.servername + "\"");
+
+		if (server.config != null)
+			runCommand.add("+exec " + server.bot.cfg_data.bot_cfg_directory_path + server.config);
 		
 		// Add rcon/file based stuff
 		runCommand.add("+sv_rconpassword " + server.server_id);
 		runCommand.add("+sv_banfile " + server.bot.cfg_data.bot_banlistdir + server.server_id + ".txt");
 		runCommand.add("+sv_adminlistfile " + server.bot.cfg_data.bot_adminlistdir + server.server_id + ".txt");
 		runCommand.add("+sv_banexemptionfile " + server.bot.cfg_data.bot_whitelistdir + server.server_id + ".txt");
+
+		// Add the RCON
+		server.rcon_password = server.server_id;
 		
 		String execCommand = "";
 		ListIterator<String> it = runCommand.listIterator();
@@ -180,7 +175,7 @@ public class ServerProcess extends Thread {
 		String portNumber = ""; // This will hold the port number
 		File logFile, banlist, whitelist, adminlist;
 		String strLine, dateNow;
-		server.time_started = System.nanoTime();
+		server.time_started = System.currentTimeMillis();
 		last_activity = System.currentTimeMillis(); // Last activity should be when we start
 		BufferedReader br = null;
 		BufferedWriter bw = null;
@@ -217,10 +212,11 @@ public class ServerProcess extends Thread {
 			// NOTE: As of now, BE users can still check the RCON password by accessing the control panel on the website.
 			// We'll fix this later by changing the RCON from the unique_id to a random MD5 hash
 			if (server.bot.cfg_data.bot_public_rcon || AccountType.isAccountTypeOf(server.user_level, AccountType.ADMIN, AccountType.MODERATOR, AccountType.RCON))
-				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using 'send_password "+server.server_id+"' via the in-game console.");
+				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using 'send_password "+server.server_id+"' via the in-game console. You can view your logfile at http://www.best-ever.org/logs/" + server.server_id + ".txt");
 
 			// Process server while it outputs text
 			while ((strLine = br.readLine()) != null) {
+				String[] keywords = strLine.split(" ");
 				// Make sure to get the port [Server using alternate port 10666.]
 				if (strLine.startsWith("Server using alternate port ")) {
 					System.out.println(strLine);
@@ -247,6 +243,13 @@ public class ServerProcess extends Thread {
 					server.bot.sendMessage(server.irc_channel, "Server started successfully on port " + server.port + "!");
 					server.bot.sendMessage(server.sender, "To kill your server, in the channel " + server.bot.cfg_data.irc_channel + ", type .killmine to kill all of your servers, or .kill " + server.port + " to kill just this one.");
 				}
+
+				// Check for RCON password changes
+				if (keywords.length > 3) {
+					if (keywords[2].equals("->") && keywords[3].equals("sv_rconpassword")) {
+						server.rcon_password = keywords[4];
+					}
+				}
 				
 				// If we have a player joining or leaving, mark this server as active
 				if (strLine.endsWith("has connected.") || strLine.endsWith("disconnected."))
@@ -259,13 +262,18 @@ public class ServerProcess extends Thread {
 			
 			// Handle cleanup
 			dateNow = formatter.format(Calendar.getInstance().getTime());
-			long end = System.nanoTime();
+			long end = System.currentTimeMillis();
 			long uptime = end - server.time_started;
 			bw.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime));
 			server.in.close();
 			
-			// Notify the main channel
-			server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port + "! Server ran for " + Functions.calculateTime(uptime));
+			// Notify the main channel if enabled
+			if (!server.hide_stop_message) {
+				if (server.port != 0)
+					server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port + "! Server ran for " + Functions.calculateTime(uptime));
+				else
+					server.bot.sendMessage(server.irc_channel, "Server was not started. This is most likely due to a wad error.");
+			}
 
 			// Remove from the Linked List
 			server.bot.removeServerFromLinkedList(this.server);

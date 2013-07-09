@@ -53,7 +53,7 @@ public class Bot extends PircBot {
 	/**
 	 * Contains the MySQL information
 	 */
-	private MySQL mysql;
+	public MySQL mysql;
 
 	/**
 	 * Contains the configuration file
@@ -270,10 +270,14 @@ public class Bot extends PircBot {
 			if (keywords.length == 2) {
 				if (Functions.isNumeric(keywords[1])) {
 					Server s = getServer(Integer.parseInt(keywords[1]));
-					if (s.auto_restart)
+					if (s.auto_restart) {
 						s.auto_restart = false;
-					else
+						sendMessage(cfg_data.irc_channel, "Autorestart disabled on server.");
+					}
+					else {
 						s.auto_restart = true;
+						sendMessage(cfg_data.irc_channel, "Autorestart set up on server.");
+					}
 				}
 			}
 			else
@@ -316,7 +320,7 @@ public class Bot extends PircBot {
 	 * @param recipient String - who to return the message to (since this can be accessed via PM as well as channel)
 	 */
 	private void sendCommand(int level, String[] keywords, String hostname, String recipient) {
-		if (isAccountTypeOf(level, REGISTERED, MODERATOR)) {
+		if (isAccountTypeOf(level, REGISTERED, MODERATOR, ADMIN)) {
 			if (keywords.length > 2) {
 				if (Functions.isNumeric(keywords[1])) {
 					int port = Integer.parseInt(keywords[1]);
@@ -415,7 +419,7 @@ public class Bot extends PircBot {
 					break;
 				case ".rcon":
 					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED))
-						sendMessage(cfg_data.irc_channel, "Please PM the bot for your rcon.");
+						sendMessage(cfg_data.irc_channel, "Please PM the bot for the rcon.");
 					break;
 				case ".save":
 					mysql.saveSlot(hostname, keywords);
@@ -441,17 +445,16 @@ public class Bot extends PircBot {
 	 */
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
-		switch (userLevel) {
-			case GUEST:
-				return "[Not logged in, guests have limited access] .commands, .file, .givememoney, .help";
-			case REGISTERED:
-				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .query, .rcon, .save, .servers, .slot";
-			case MODERATOR:
-				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .query, .rcon, .save, .servers, .slot, .userlevel";
-			case ADMIN:
-				return ".commands, .debuglevel, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .query, .quit, .rcon, .save, .servers, .slot, .userlevel";
-		}
-		return "Undocumented type. Contact an administrator.";
+		if (isAccountTypeOf(userLevel, ADMIN))
+			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .query, .quit, .rcon, .save, .servers, .slot";
+		if (isAccountTypeOf(userLevel, MODERATOR))
+			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .query, .rcon, .save, .servers, .slot";
+		if (isAccountTypeOf(userLevel, REGISTERED))
+			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .query, .rcon, .save, .servers, .slot";
+		if (isAccountTypeOf(userLevel, GUEST))
+			return "[Not logged in, guests have limited access] .commands, .file, .givememoney, .help";
+		else
+			return "Undocumented type. Contact an administrator.";
 	}
 	
 	/**
@@ -481,7 +484,7 @@ public class Bot extends PircBot {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processGet().");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 			if (keywords.length != 3) {
-				sendMessage(cfg_data.irc_channel, "Proper syntax: .get <port> <property> -- see http://www.best-ever.org for what properties you can get");
+				sendMessage(cfg_data.irc_channel, "Proper syntax: .get <port> <property>");
 				return;
 			}
 			if (!Functions.isNumeric(keywords[1])) {
@@ -507,11 +510,14 @@ public class Bot extends PircBot {
 		logMessage(LOGLEVEL_NORMAL, "Processing the host command for " + Functions.getUserName(hostname) + " with the message \"" + message + "\".");
 		if (botEnabled) {
 			if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
-				//int slots = mysql.getMaxSlots(hostname);
-				//if (slots > getUserServers(Functions.getUserName(hostname)).size())
-					Server.handleHostCommand(this, servers, channel, sender, hostname, message, userLevel);
-				//else
-				//	sendMessage(cfg_data.irc_channel, "You have reached your server limit (" + slots + ")");
+				int slots = mysql.getMaxSlots(hostname);
+				int userServers;
+				if (getUserServers(Functions.getUserName(hostname)) == null) userServers = 0;
+				else userServers = getUserServers(Functions.getUserName(hostname)).size();
+				if (slots > userServers)
+					Server.handleHostCommand(this, servers, channel, sender, hostname, message, userLevel, mysql);
+				else
+					sendMessage(cfg_data.irc_channel, "You have reached your server limit (" + slots + ")");
 			}
 			else
 				sendMessage(cfg_data.irc_channel, "You must register and be logged in to IRC to use the bot to host!");
@@ -551,7 +557,7 @@ public class Bot extends PircBot {
 			if (Functions.isNumeric(keywords[1])) {
 				Server server = getServer(Integer.parseInt(keywords[1]));
 				if (server != null)
-					if (Functions.getUserName(server.irc_hostname).equalsIgnoreCase(Functions.getUserName(hostname)))
+					if (Functions.getUserName(server.irc_hostname).equalsIgnoreCase(Functions.getUserName(hostname)) || isAccountTypeOf(userLevel, MODERATOR, ADMIN))
 						if (server.serverprocess != null) {
 							server.auto_restart = false;
 							server.serverprocess.terminateServer();
@@ -578,13 +584,15 @@ public class Bot extends PircBot {
 	private void processKillAll(int userLevel, String[] keywords) {
 		logMessage(LOGLEVEL_IMPORTANT, "Processing killall.");
 		if (isAccountTypeOf(userLevel, ADMIN)) {
-			if (servers != null && servers.size() > 0) {
-				sendMessage(cfg_data.irc_channel, "ATTENTION: Terminating all servers...");
-				ListIterator<Server> li = servers.listIterator();
-				while (li.hasNext())
-					li.next().auto_restart = false;
-					li.next().killServer();
-				sendMessage(cfg_data.irc_channel, "Servers termination request complete");
+			Server[] servers = getAllServers();
+			if (servers != null && servers.length > 0) {
+				sendMessage(cfg_data.irc_channel, "Terminating all servers...");
+				for (Server s : servers) {
+					s.hide_stop_message = true;
+					s.auto_restart = false;
+					s.killServer();
+				}
+				sendMessage(cfg_data.irc_channel, "All servers killed.");
 			} else
 				sendMessage(cfg_data.irc_channel, "There are no servers running.");
 		}
@@ -639,7 +647,7 @@ public class Bot extends PircBot {
 					Server s = null;
 					while (it.hasNext()) {
 						s = it.next();
-						if (System.currentTimeMillis() - s.serverprocess.getLastActivity() > (Server.DAY_MILLISECONDS * numOfDays))
+						if (System.currentTimeMillis() - s.serverprocess.last_activity > (Server.DAY_MILLISECONDS * numOfDays))
 							s.serverprocess.terminateServer();
 					}
 				} else {
@@ -749,16 +757,31 @@ public class Bot extends PircBot {
 				sendMessageToChannel("Usage: .query <ip:port>   (example: .query 98.173.12.44:20555)");
 		}
 	}
-	
-	// UNIMPLEMENTED YET
-	private void processRcon(int userLevel, String[] keywords, String sender) {
+
+	private void processRcon(int userLevel, String[] keywords, String sender, String hostname) {
 		logMessage(LOGLEVEL_NORMAL, "Processing a request for rcon (from " + sender + ").");
-		// Admins should see everything
-		if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
-			
-		// Registered should only see their own server
-		} else if (isAccountTypeOf(userLevel, REGISTERED)) {
-			
+		if (isAccountTypeOf(userLevel, REGISTERED, MODERATOR, ADMIN)) {
+			if (keywords.length == 2) {
+				if (Functions.isNumeric(keywords[1])) {
+					int port = Integer.parseInt(keywords[1]);
+					Server s = getServer(port);
+					if (s != null) {
+						if (Functions.getUserName(s.irc_hostname).equals(Functions.getUserName(hostname)) || isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
+							sendMessage(sender, "RCON: " + s.rcon_password);
+							sendMessage(sender, "ID: " + s.server_id);
+							sendMessage(sender, "LOG: http://www.best-ever.org/logs/" + s.server_id + ".txt");
+						}
+						else
+							sendMessage(sender, "You do not own this server.");
+					}
+					else
+						sendMessage(sender, "Server does not exist.");
+				}
+				else
+					sendMessage(sender, "Port must be a number!");
+			}
+			else
+				sendMessage(sender, "Incorrect syntax! Correct syntax is .rcon <port>");
 		}
 	}
 
@@ -784,7 +807,8 @@ public class Bot extends PircBot {
 			List<Server> servers = getUserServers(Functions.getUserName(keywords[1]));
 			if (servers != null && servers.size() > 0) {
 				for (Server server : servers) {
-					sendMessage(cfg_data.irc_channel,  server.port + ": " + server.servername + ((server.wads != null) ? " with wads " + Functions.implode(server.wads, ", ") : "") + ((server.mapwads != null) ? " and mapwads " + Functions.implode(server.mapwads, ", ") : ""));
+					sendMessage(cfg_data.irc_channel,  server.port + ": " + server.servername + ((server.wads != null) ? " with wads " + Functions.implode(server.wads, ", ") : "") +
+							((server.mapwads != null) ? " and mapwads " + Functions.implode(server.mapwads, ", ") : ""));
 				}
 			}
 			else
@@ -809,10 +833,7 @@ public class Bot extends PircBot {
 			int userLevel = mysql.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
 				case ".rcon":
-					if (keywords.length == 2)
-						processRcon(userLevel, keywords, sender);
-					else
-						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " rcon <port>");
+					processRcon(userLevel, keywords, sender, hostname);
 					break;
 				case "changepass":
 				case "changepassword":
