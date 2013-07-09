@@ -316,7 +316,7 @@ public class Bot extends PircBot {
 	 * @param recipient String - who to return the message to (since this can be accessed via PM as well as channel)
 	 */
 	private void sendCommand(int level, String[] keywords, String hostname, String recipient) {
-		if (isAccountTypeOf(level, REGISTERED, MODERATOR)) {
+		if (isAccountTypeOf(level, REGISTERED, MODERATOR, ADMIN)) {
 			if (keywords.length > 2) {
 				if (Functions.isNumeric(keywords[1])) {
 					int port = Integer.parseInt(keywords[1]);
@@ -751,14 +751,30 @@ public class Bot extends PircBot {
 	}
 	
 	// UNIMPLEMENTED YET
-	private void processRcon(int userLevel, String[] keywords, String sender) {
+	private void processRcon(int userLevel, String[] keywords, String sender, String hostname) {
 		logMessage(LOGLEVEL_NORMAL, "Processing a request for rcon (from " + sender + ").");
-		// Admins should see everything
 		if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
-			
-		// Registered should only see their own server
-		} else if (isAccountTypeOf(userLevel, REGISTERED)) {
-			
+			if (keywords.length == 2) {
+				if (Functions.isNumeric(keywords[1])) {
+					int port = Integer.parseInt(keywords[1]);
+					Server s = getServer(port);
+					if (s != null) {
+						if (Functions.getUserName(s.irc_hostname).equals(Functions.getUserName(hostname)) || isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
+							sendMessage(sender, "RCON: " + s.rcon_password);
+							sendMessage(sender, "ID: " + s.server_id);
+							sendMessage(sender, "LOG: http://www.best-ever.org/logs/ " + s.server_id + ".txt");
+						}
+						else
+							sendMessage(sender, "You do not own this server.");
+					}
+					else
+						sendMessage(sender, "Server does not exist.");
+				}
+				else
+					sendMessage(sender, "Port must be a number!");
+			}
+			else
+				sendMessage(sender, "Incorrect syntax! Correct syntax is .rcon <port>");
 		}
 	}
 
@@ -810,7 +826,7 @@ public class Bot extends PircBot {
 			switch (keywords[0].toLowerCase()) {
 				case ".rcon":
 					if (keywords.length == 2)
-						processRcon(userLevel, keywords, sender);
+						processRcon(userLevel, keywords, sender, hostname);
 					else
 						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " rcon <port>");
 					break;
