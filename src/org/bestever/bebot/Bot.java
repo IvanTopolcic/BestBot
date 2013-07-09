@@ -557,7 +557,7 @@ public class Bot extends PircBot {
 			if (Functions.isNumeric(keywords[1])) {
 				Server server = getServer(Integer.parseInt(keywords[1]));
 				if (server != null)
-					if (Functions.getUserName(server.irc_hostname).equalsIgnoreCase(Functions.getUserName(hostname)))
+					if (Functions.getUserName(server.irc_hostname).equalsIgnoreCase(Functions.getUserName(hostname)) || isAccountTypeOf(userLevel, MODERATOR, ADMIN))
 						if (server.serverprocess != null) {
 							server.auto_restart = false;
 							server.serverprocess.terminateServer();
