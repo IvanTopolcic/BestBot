@@ -266,7 +266,7 @@ public class Bot extends PircBot {
 	 * @param keywords String[] - array of words in message sent
 	 */
 	private void toggleAutoRestart(int level, String[] keywords) {
-		if (isAccountTypeOf(level, MODERATOR)) {
+		if (isAccountTypeOf(level, ADMIN, MODERATOR)) {
 			if (keywords.length == 2) {
 				if (Functions.isNumeric(keywords[1])) {
 					Server s = getServer(Integer.parseInt(keywords[1]));
@@ -293,7 +293,7 @@ public class Bot extends PircBot {
 	 * @param keywords String[] - array of words in message sent
 	 */
 	private void globalBroadcast(int level, String[] keywords) {
-		if (isAccountTypeOf(level, MODERATOR)) {
+		if (isAccountTypeOf(level, ADMIN, MODERATOR)) {
 			if (keywords.length > 1) {
 				Server[] servers = getAllServers();
 				if (servers != null) {
@@ -354,7 +354,7 @@ public class Bot extends PircBot {
 			// Generate an array of keywords from the message
 			String[] keywords = message.split(" ");
 
-			@SuppressWarnings("unused")
+			@SuppressWarnings("unused") // Fix me later
 			String username = Functions.getUserName(hostname);
 
 			// Perform function based on input (note: login is handled by the MySQL function/class); also mostly in alphabetical order for convenience
@@ -395,6 +395,9 @@ public class Bot extends PircBot {
 					break;
 				case ".load":
 					mysql.loadSlot(hostname, keywords, userLevel, channel, sender, login);
+					break;
+				case ".numservers":
+					processNumServers(userLevel);
 					break;
 				case ".off":
 					processOff(userLevel);
@@ -440,15 +443,13 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
 		if (isAccountTypeOf(userLevel, ADMIN))
-			return ".commands, .file, .get, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .query, .quit, .rcon, .save, .servers, .slot";
-		if (isAccountTypeOf(userLevel, MODERATOR))
-			return ".commands, .file, .get, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .query, .rcon, .save, .servers, .slot";
-		if (isAccountTypeOf(userLevel, REGISTERED))
-			return ".commands, .file, .get, .help, .host, .kill, .killmine, .load, .owner, .query, .rcon, .save, .servers, .slot";
-		if (isAccountTypeOf(userLevel, GUEST))
-			return "[Not logged in, guests have limited access] .commands, .file, .help";
-		else
-			return "Undocumented type. Contact an administrator.";
+			return ".autorestart .broadcast .commands .file .get .help .host .kill .killall .killmine .killinactive .load .numservers .off .on .owner .query .quit .rcon .save .send .servers .slot";
+		else if (isAccountTypeOf(userLevel, MODERATOR))
+			return ".autorestart .broadcast .commands .file .get .help .host .kill .killmine .killinactive .load .numservers .owner .query .rcon .save .send .servers .slot";
+		else if (isAccountTypeOf(userLevel, REGISTERED))
+			return ".commands .file .get .help .host .kill .killmine .killinactive .load .numservers .owner .query .rcon .save .send .servers .slot";
+		else 
+			return "[Not logged in, guests have limited access] .commands, .file, .help, .numservers, .servers";
 	}
 	
 	/**
@@ -659,12 +660,12 @@ public class Bot extends PircBot {
 	 * @param userLevel The level of the user invoking
 	 * @param keywords The keywords sent
 	 */
-	private void processNumServers(int userLevel, String[] keywords) {
+	private void processNumServers(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Listing number of servers.");
-		if (keywords.length == 1)
+		if (servers != null)
 			sendMessage(cfg_data.irc_channel, "There are " + servers.size() + " servers running on Best Ever right now.");
 		else
-			sendMessage(cfg_data.irc_channel, "Improper syntax, use: .numservers");
+			sendMessage(cfg_data.irc_channel, "Error getting servers list object.");
 	}
 	
 	/**
@@ -723,14 +724,6 @@ public class Bot extends PircBot {
 	 * @param keywords The keywords sent
 	 */
 	private void handleQuery(int userLevel, String[] keywords) {
-		// When I'm functional, remove me
-		/*
-		if (queryDisabled) {
-			sendMessageToChannel(".query is disabled for now, please check back soon!");
-			return;
-		}
-		*/
-		
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 			if (keywords.length == 2) {
 				String[] ipFragment = keywords[1].split(":");
