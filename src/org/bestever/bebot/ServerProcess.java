@@ -43,9 +43,9 @@ public class ServerProcess extends Thread {
 	private Process proc;
 	
 	/**
-	 * Used in determining when the last activity of the server was in milliseconds
+	 * Used in determining when the last activity of the server was in ms
 	 */
-	private long last_activity;
+	public long last_activity;
 	
 	/**
 	 * This should be called before starting run
@@ -71,14 +71,6 @@ public class ServerProcess extends Thread {
 	public void terminateServer() {
 		server.bot.removeServerFromLinkedList(this.server);
 		proc.destroy();
-	}
-	
-	/**
-	 * Gets the last activity of this server
-	 * @return The last activity of the server in [long] milliseconds
-	 */
-	public long getLastActivity() {
-		return last_activity;
 	}
 	
 	/**
@@ -183,7 +175,7 @@ public class ServerProcess extends Thread {
 		String portNumber = ""; // This will hold the port number
 		File logFile, banlist, whitelist, adminlist;
 		String strLine, dateNow;
-		server.time_started = System.nanoTime();
+		server.time_started = System.currentTimeMillis();
 		last_activity = System.currentTimeMillis(); // Last activity should be when we start
 		BufferedReader br = null;
 		BufferedWriter bw = null;
@@ -270,7 +262,7 @@ public class ServerProcess extends Thread {
 			
 			// Handle cleanup
 			dateNow = formatter.format(Calendar.getInstance().getTime());
-			long end = System.nanoTime();
+			long end = System.currentTimeMillis();
 			long uptime = end - server.time_started;
 			bw.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime));
 			server.in.close();

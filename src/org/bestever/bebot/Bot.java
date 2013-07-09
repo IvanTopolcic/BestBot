@@ -441,17 +441,16 @@ public class Bot extends PircBot {
 	 */
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
-		switch (userLevel) {
-			case GUEST:
-				return "[Not logged in, guests have limited access] .commands, .file, .givememoney, .help";
-			case REGISTERED:
-				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .query, .rcon, .save, .servers, .slot";
-			case MODERATOR:
-				return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .query, .rcon, .save, .servers, .slot, .userlevel";
-			case ADMIN:
-				return ".commands, .debuglevel, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .query, .quit, .rcon, .save, .servers, .slot, .userlevel";
-		}
-		return "Undocumented type. Contact an administrator.";
+		if (isAccountTypeOf(userLevel, ADMIN))
+			return ".commands, .debuglevel, .file, .get, .givememoney, .help, .host, .kill, .killall, .killmine, .killinactive, .load, .on, .off, .owner, .players, .query, .quit, .rcon, .save, .servers, .slot";
+		if (isAccountTypeOf(userLevel, MODERATOR))
+			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .killinactive, .load, .owner, .players, .query, .rcon, .save, .servers, .slot";
+		if (isAccountTypeOf(userLevel, REGISTERED))
+			return ".commands, .file, .get, .givememoney, .help, .host, .kill, .killmine, .load, .owner, .players, .query, .rcon, .save, .servers, .slot";
+		if (isAccountTypeOf(userLevel, GUEST))
+			return "[Not logged in, guests have limited access] .commands, .file, .givememoney, .help";
+		else
+			return "Undocumented type. Contact an administrator.";
 	}
 	
 	/**
@@ -644,7 +643,7 @@ public class Bot extends PircBot {
 					Server s = null;
 					while (it.hasNext()) {
 						s = it.next();
-						if (System.currentTimeMillis() - s.serverprocess.getLastActivity() > (Server.DAY_MILLISECONDS * numOfDays))
+						if (System.currentTimeMillis() - s.serverprocess.last_activity > (Server.DAY_MILLISECONDS * numOfDays))
 							s.serverprocess.terminateServer();
 					}
 				} else {
