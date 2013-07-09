@@ -268,8 +268,12 @@ public class ServerProcess extends Thread {
 			server.in.close();
 			
 			// Notify the main channel if enabled
-			if (!server.hide_stop_message)
-				server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port + "! Server ran for " + Functions.calculateTime(uptime));
+			if (!server.hide_stop_message) {
+				if (server.port != 0)
+					server.bot.sendMessage(server.irc_channel, "Server stopped on port " + server.port + "! Server ran for " + Functions.calculateTime(uptime));
+				else
+					server.bot.sendMessage(server.irc_channel, "Server was not started. This is most likely due to a wad error.");
+			}
 
 			// Remove from the Linked List
 			server.bot.removeServerFromLinkedList(this.server);

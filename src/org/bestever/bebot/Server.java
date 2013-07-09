@@ -246,7 +246,7 @@ public class Server {
 					}
 					break;
 				case "config":
-					server.config = Functions.cleanInputFile(m.group(2));
+					server.config = Functions.cleanInputFile(m.group(2).toLowerCase());
 					break;
 				case "data":
 				case "stdata":
@@ -419,7 +419,7 @@ public class Server {
 	private static String[] addWads(String wad) {
 		String[] wads = wad.split(",");
 		for (int i = 0; i < wads.length; i++)
-			wads[i] = wads[i].trim();
+			wads[i] = wads[i].trim().toLowerCase();
 		return wads;
 	}
 
