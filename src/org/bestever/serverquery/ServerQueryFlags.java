@@ -56,7 +56,7 @@ public final class ServerQueryFlags {
 	public static final int SQF_SECURITY_SETTINGS = 0x10000000;
 	
 	// This is what we will send to the server
-	public static final int SQF_ALL_REQUEST_FLAGS = SQF_PWADS | SQF_IWAD | SQF_GAMESKILL | SQF_ALL_DMFLAGS;
+	public static final int SQF_ALL_REQUEST_FLAGS = SQF_PWADS | SQF_IWAD | SQF_GAMETYPE | SQF_ALL_DMFLAGS;
 	
 	// Game mode enumeration
 	public static final int GAMEMODE_COOPERATIVE = 0;
