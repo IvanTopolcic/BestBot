@@ -156,7 +156,7 @@ public class MySQL {
 		String checkQuery = "SELECT `username` FROM " + mysql_db + ".`login` WHERE `username` = ?";
 		
 		// Query to add entry to database
-		String executeQuery = "INSERT INTO " + mysql_db + ".`login` ( `username`, `password`, `level`, `activated`, `server_limit` ) VALUES ( ?, ?, 0, 1, 1 )";
+		String executeQuery = "INSERT INTO " + mysql_db + ".`login` ( `username`, `password`, `level`, `activated`, `server_limit` ) VALUES ( ?, ?, 1, 1, 4 )";
 		try
 		(
 			PreparedStatement cs = con.prepareStatement(checkQuery);

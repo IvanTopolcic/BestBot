@@ -113,9 +113,6 @@ public class ServerProcess extends Thread {
 			}
 		}
 		
-		if (server.config != null)
-			runCommand.add("+exec " + server.bot.cfg_data.bot_cfg_directory_path + server.config);
-		
 		if (server.gamemode != null)
 			runCommand.add("+" + server.gamemode + " 1");
 		
@@ -142,6 +139,9 @@ public class ServerProcess extends Thread {
 		
 		if (server.servername != null)
 			runCommand.add("+sv_hostname \"" + server.bot.cfg_data.bot_hostname_base + " " + server.servername + "\"");
+
+		if (server.config != null)
+			runCommand.add("+exec " + server.bot.cfg_data.bot_cfg_directory_path + server.config);
 		
 		// Add rcon/file based stuff
 		runCommand.add("+sv_rconpassword " + server.server_id);
