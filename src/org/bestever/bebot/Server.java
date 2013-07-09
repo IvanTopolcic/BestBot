@@ -525,6 +525,8 @@ public class Server {
 				return "survival";
 			case "invasion":
 				return "invasion";
+			case "oneflagctf":
+				return "oneflagctf"; // NEEDS SUPPORT (please check)
 		}
 		
 		// If the gametype is unknown, return null

@@ -26,6 +26,11 @@ import java.net.UnknownHostException;
 import org.bestever.bebot.Bot;
 import org.bestever.bebot.Utility;
 
+/**
+ * This is designed to handle a single process by messaging the server and then
+ * waiting for a response; if a response is gotten it will then create the info
+ * needed for the user, or state there was an error
+ */
 public class QueryHandler extends Thread {
 
 	/**
@@ -101,13 +106,13 @@ public class QueryHandler extends Thread {
 				networkBuffer.extractString(); // Map name
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_MAXCLIENTS) == ServerQueryFlags.SQF_MAXCLIENTS)
-				networkBuffer.extractByte(); // Max clients
+				networkBuffer.extractByte(); // Max clients allowed in the server (sv_maxclients)
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_MAXPLAYERS) == ServerQueryFlags.SQF_MAXPLAYERS)
-				networkBuffer.extractByte();
+				networkBuffer.extractByte(); // Max players allowed in the server (sv_maxplayers)
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_PWADS) == ServerQueryFlags.SQF_PWADS) {
-				byte numOfPwads = networkBuffer.extractByte();
+				byte numOfPwads = networkBuffer.extractByte(); // How many loaded wads there are
 				if (numOfPwads > 0) {
 					String pwadList = "";
 					for (int i = 0; i < numOfPwads; i++)
@@ -120,102 +125,104 @@ public class QueryHandler extends Thread {
 			}
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_GAMETYPE) == ServerQueryFlags.SQF_GAMETYPE) {
-				networkBuffer.extractByte();
-				networkBuffer.extractByte();
-				networkBuffer.extractByte();
+				queryResult.gamemode = networkBuffer.extractByte(); // Gamemode 
+				queryResult.instagib = networkBuffer.extractByte(); // Instagib
+				queryResult.buckshot = networkBuffer.extractByte(); // Buckshot
 			}
 			if ((inboundFlags & ServerQueryFlags.SQF_GAMENAME) == ServerQueryFlags.SQF_GAMENAME)
-				networkBuffer.extractString();
+				networkBuffer.extractString(); // Game base name (ex: DOOM, DOOM II, ...etc)
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_IWAD) == ServerQueryFlags.SQF_IWAD)
-				networkBuffer.extractString();
+				queryResult.iwad = networkBuffer.extractString(); // IWAD name
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_FORCEPASSWORD) == ServerQueryFlags.SQF_FORCEPASSWORD)
-				networkBuffer.extractByte();
+				queryResult.skill = networkBuffer.extractByte(); // If a password is required
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_FORCEJOINPASSWORD) == ServerQueryFlags.SQF_FORCEJOINPASSWORD)
-				networkBuffer.extractByte();
+				networkBuffer.extractByte(); // If a join password is required
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_GAMESKILL) == ServerQueryFlags.SQF_GAMESKILL)
-				networkBuffer.extractByte();
+				networkBuffer.extractByte(); // Skill level
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_BOTSKILL) == ServerQueryFlags.SQF_BOTSKILL)
-				networkBuffer.extractByte();
+				networkBuffer.extractByte(); // Bot skill level
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_DMFLAGS) == ServerQueryFlags.SQF_DMFLAGS) {
-				networkBuffer.extractInt(true);
-				networkBuffer.extractInt(true);
-				networkBuffer.extractInt(true);
+				queryResult.dmflags = networkBuffer.extractInt(true); // dmflags
+				queryResult.dmflags2 = networkBuffer.extractInt(true); // dmflags2
+				queryResult.compatflags = networkBuffer.extractInt(true); // compatflags
 			}
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_LIMITS) == ServerQueryFlags.SQF_LIMITS) {
-				networkBuffer.extractShort(true);
-				networkBuffer.extractShort(true);
-				networkBuffer.extractShort(true);
-				networkBuffer.extractShort(true);
-				networkBuffer.extractShort(true);
-				networkBuffer.extractShort(true);
+				networkBuffer.extractShort(true); // fraglimit
+				networkBuffer.extractShort(true); // timelimit
+				networkBuffer.extractShort(true); // time left (in minutes)
+				networkBuffer.extractShort(true); // duellimit
+				networkBuffer.extractShort(true); // pointlimit
+				networkBuffer.extractShort(true); // winlimit
 			}
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_TEAMDAMAGE) == ServerQueryFlags.SQF_TEAMDAMAGE)
 				networkBuffer.extractInt(true); // This is a 32 bit float, no support right now
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_TEAMSCORES) == ServerQueryFlags.SQF_TEAMSCORES)
-				networkBuffer.extractShort(true);
+				networkBuffer.extractShort(true); // UNSURE: Claims deprecated, supposed to be the score for each team...
 			
 			byte numPlayers = 0;
 			if ((inboundFlags & ServerQueryFlags.SQF_NUMPLAYERS) == ServerQueryFlags.SQF_NUMPLAYERS)
-				numPlayers = networkBuffer.extractByte();
+				numPlayers = networkBuffer.extractByte(); // Number of players in the server
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_PLAYERDATA) == ServerQueryFlags.SQF_PLAYERDATA)
 				for (int i = 0; i < numPlayers; i ++) {
-					networkBuffer.extractString();
-					networkBuffer.extractShort(true);
-					networkBuffer.extractShort(true);
-					networkBuffer.extractByte();
-					networkBuffer.extractByte();
-					networkBuffer.extractByte();
-					networkBuffer.extractByte();
+					networkBuffer.extractString(); // Player's name
+					networkBuffer.extractShort(true); // Player's pointcount/fragcount/killcount
+					networkBuffer.extractShort(true); // Player's ping
+					networkBuffer.extractByte(); // Is spectator
+					networkBuffer.extractByte(); // Is bot
+					networkBuffer.extractByte(); // Player team (255 = no team)
+					networkBuffer.extractByte(); // Player time in minutes in he server
 				}
 			
 			byte numTeams = 0;
 			if ((inboundFlags & ServerQueryFlags.SQF_TEAMINFO_NUMBER) == ServerQueryFlags.SQF_TEAMINFO_NUMBER)
-				numTeams = networkBuffer.extractByte();
+				numTeams = networkBuffer.extractByte(); // Number of teams
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_TEAMINFO_NAME) == ServerQueryFlags.SQF_TEAMINFO_NAME)
 				for (int i = 0; i < numTeams; i++)
-					networkBuffer.extractString();
+					networkBuffer.extractString(); // Team's name
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_TEAMINFO_COLOR) == ServerQueryFlags.SQF_TEAMINFO_COLOR)
 				for (int i = 0; i < numTeams; i++)
-					networkBuffer.extractInt(true);
+					networkBuffer.extractInt(true); // Team's color
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_TEAMINFO_SCORE) == ServerQueryFlags.SQF_TEAMINFO_SCORE)
 				for (int i = 0; i < numTeams; i++)
-					networkBuffer.extractShort(true);
+					networkBuffer.extractShort(true); // Team's score
 			
-			if ((inboundFlags & ServerQueryFlags.SQF_TESTING_SERVER) == ServerQueryFlags.SQF_TESTING_SERVER)
-				networkBuffer.extractString();
+			if ((inboundFlags & ServerQueryFlags.SQF_TESTING_SERVER) == ServerQueryFlags.SQF_TESTING_SERVER) {
+				networkBuffer.extractByte(); // True/false if using a custom binary
+				networkBuffer.extractString(); // Empty string if stable binary, testing binary name otherwise
+			}
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_DATA_MD5SUM) == ServerQueryFlags.SQF_DATA_MD5SUM)
-				networkBuffer.extractString();
+				networkBuffer.extractString(); // MD5 sum
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_ALL_DMFLAGS) == ServerQueryFlags.SQF_ALL_DMFLAGS) {
 				int numOfFlags = networkBuffer.extractByte();
 				if (numOfFlags > 0)
-					networkBuffer.extractInt(true);
+					queryResult.dmflags = networkBuffer.extractInt(true); // dmflags
 				if (numOfFlags > 1)
-					networkBuffer.extractInt(true);
+					queryResult.dmflags2 = networkBuffer.extractInt(true); // dmflags2
 				if (numOfFlags > 2)
-					networkBuffer.extractInt(true);
+					queryResult.dmflags3 = networkBuffer.extractInt(true); // dmflags3
 				if (numOfFlags > 3)
-					networkBuffer.extractInt(true);
+					queryResult.compatflags = networkBuffer.extractInt(true); // compatflags
 				if (numOfFlags > 4)
-					networkBuffer.extractInt(true);
+					queryResult.compatflags2 = networkBuffer.extractInt(true); // compatflags2
 			}
 				
 			if ((inboundFlags & ServerQueryFlags.SQF_SECURITY_SETTINGS) == ServerQueryFlags.SQF_SECURITY_SETTINGS)
-				networkBuffer.extractByte();
+				networkBuffer.extractByte(); // If enforcing the master
 			
 			// Display the final result in the channel
 			displayQueryResult(queryResult);
@@ -235,7 +242,43 @@ public class QueryHandler extends Thread {
 	}
 	
 	public void displayQueryResult(QueryResult queryResult) {
-		System.out.println(queryResult.dmflags);
+		String queryOutput = "";
+		
+		if (queryResult.pwad_names != null)
+			queryOutput += " wads=" + queryResult.pwad_names;
+			
+		if (queryResult.gamemode != -1)
+			queryOutput += " gamemode=" + ServerQueryFlags.getGamemodeFromFlag(queryResult.gamemode);
+			
+		if (queryResult.instagib != -1)
+			queryOutput += " instagib=on";
+			
+		if (queryResult.buckshot != -1)
+			queryOutput += " buckshot=on";
+			
+		if (queryResult.iwad != null)
+			queryOutput += " " + queryResult.iwad;
+			
+		// We do not support skill right now
+		//if (queryResult.skill != -1)
+		//	queryOutput += ;
+			
+		if (queryResult.dmflags != -1)
+			queryOutput += " dmflags=" + queryResult.dmflags;
+			
+		if (queryResult.dmflags2 != -1)
+			queryOutput += " dmflags2=" + queryResult.dmflags2;
+			
+		if (queryResult.dmflags3 != -1)
+			queryOutput += " dmflags3=" + queryResult.dmflags3;
+			
+		if (queryResult.compatflags != -1)
+			queryOutput += " compatflags=" + queryResult.compatflags;
+		
+		if (queryResult.compatflags2 != -1)
+			queryOutput += " compatflags2=" + queryResult.compatflags2;
+		
+		bot.sendMessageToChannel("Query complete: .host " + queryOutput);
 	}
 	
 	public void run() {

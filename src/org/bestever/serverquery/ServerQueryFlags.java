@@ -80,4 +80,47 @@ public final class ServerQueryFlags {
 	public static final int SQRF_BEGINNING = 0x565d77; //5660023
 	public static final int SQRF_TOOQUICKREQUEST = 0x565d78; //5660024
 	public static final int SQRF_IPISBANNED = 0x565d79; //5660025
+	
+	/**
+	 * Gets the gamemode flag from the received byte
+	 * @param flag The constant number from the SQF result
+	 * @return A string that the bot will recognize to host with
+	 */
+	public static String getGamemodeFromFlag(int flag) {
+		switch (flag) {
+		case GAMEMODE_COOPERATIVE:
+			return "cooperative";
+		case GAMEMODE_SURVIVAL:
+			return "survival";
+		case GAMEMODE_INVASION:
+			return "invasion";
+		case GAMEMODE_DEATHMATCH:
+			return "deathmatch";
+		case GAMEMODE_TEAMPLAY:
+			return "teamplay"; // TDM
+		case GAMEMODE_DUEL:
+			return "duel";
+		case GAMEMODE_TERMINATOR:
+			return "terminator";
+		case GAMEMODE_LASTMANSTANDING:
+			return "lastmanstanding";
+		case GAMEMODE_TEAMLMS:
+			return "teamlms";
+		case GAMEMODE_POSSESSION:
+			return "possession";
+		case GAMEMODE_TEAMPOSSESSION:
+			return "teampossession";
+		case GAMEMODE_TEAMGAME:
+			return "teamgame";
+		case GAMEMODE_CTF:
+			return "ctf";
+		case GAMEMODE_ONEFLAGCTF:
+			return "oneflagctf";
+		case GAMEMODE_SKULLTAG:
+			return "skulltag";
+		case GAMEMODE_DOMINATION:
+			return "domination";
+		}
+		return "ERROR";
+	}
 }
