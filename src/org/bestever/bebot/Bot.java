@@ -481,7 +481,7 @@ public class Bot extends PircBot {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processGet().");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 			if (keywords.length != 3) {
-				sendMessage(cfg_data.irc_channel, "Proper syntax: .get <port> <property> -- see http://www.best-ever.org for what properties you can get");
+				sendMessage(cfg_data.irc_channel, "Proper syntax: .get <port> <property>");
 				return;
 			}
 			if (!Functions.isNumeric(keywords[1])) {
