@@ -24,7 +24,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import org.bestever.bebot.Bot;
-import org.bestever.bebot.Utility;
 
 /**
  * This is designed to handle a single process by messaging the server and then
@@ -90,7 +89,7 @@ public class QueryHandler extends Thread {
 			networkBuffer.extractString(); 
 			
 			// What the server wants to send back to us (and read every flag safely)
-			int inboundFlags = Utility.flipEndianInt(networkBuffer.extractInt(true));
+			int inboundFlags = networkBuffer.extractInt(true);
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_NAME) == ServerQueryFlags.SQF_NAME)
 				networkBuffer.extractString(); // Server name
@@ -241,7 +240,7 @@ public class QueryHandler extends Thread {
 	}
 	
 	public void displayQueryResult(QueryResult queryResult) {
-		String queryOutput = "";
+		String queryOutput = ".host";
 		
 		if (queryResult.pwad_names != null)
 			queryOutput += " wads=" + queryResult.pwad_names;
@@ -256,7 +255,7 @@ public class QueryHandler extends Thread {
 			queryOutput += " buckshot=on";
 			
 		if (queryResult.iwad != null)
-			queryOutput += " " + queryResult.iwad;
+			queryOutput += " iwad=" + queryResult.iwad;
 			
 		// We do not support skill right now
 		//if (queryResult.skill != -1)
@@ -277,7 +276,7 @@ public class QueryHandler extends Thread {
 		if (queryResult.compatflags2 != -1)
 			queryOutput += " compatflags2=" + queryResult.compatflags2;
 		
-		bot.sendMessageToChannel("Query complete: .host " + queryOutput);
+		bot.sendMessageToChannel("Query complete: " + queryOutput);
 	}
 	
 	public void run() {
