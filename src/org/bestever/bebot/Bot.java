@@ -488,6 +488,7 @@ public class Bot extends PircBot {
 			}
 			Server tempServer = getServer(Integer.parseInt(keywords[1]));
 			if (tempServer == null) {
+				sendMessage(cfg_data.irc_channel, "There is no server running on this port.");
 				return;
 			}
 			sendMessage(cfg_data.irc_channel, tempServer.getField(keywords[2]));
