@@ -847,7 +847,7 @@ public class Bot extends PircBot {
 					break;
 			}
 		} else {
-			sendMessage(cfg_data.irc_channel, "Your account is not logged in properly to the IRC network. Please log in and re-query.");
+			sendMessage(sender, "Your account is not logged in properly to the IRC network. Please log in and re-query.");
 		}
 	}
 	
