@@ -415,7 +415,7 @@ public class Bot extends PircBot {
 					break;
 				case ".rcon":
 					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED))
-						sendMessage(cfg_data.irc_channel, "Please PM the bot for your rcon.");
+						sendMessage(cfg_data.irc_channel, "Please PM the bot for the rcon.");
 					break;
 				case ".save":
 					mysql.saveSlot(hostname, keywords);
