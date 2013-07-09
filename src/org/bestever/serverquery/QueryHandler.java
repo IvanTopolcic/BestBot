@@ -41,7 +41,6 @@ public class QueryHandler extends Thread {
 	/**
 	 * The requested IP/port to query
 	 */
-	@SuppressWarnings("unused") // WHY JAVA
 	private ServerQueryRequest request;
 	
 	/**
@@ -283,15 +282,22 @@ public class QueryHandler extends Thread {
 	
 	public void run() {
 		// If any of these stay the same then something is wrong
-		InetAddress IPAddress = null;
-		int port = 0;
+		InetAddress IPAddress;
+		try {
+			IPAddress = InetAddress.getByName(request.getIP());
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+			bot.sendMessageToChannel("Error: Query IP address could not be resolved or is using IPv6.");
+			return;
+		}
+		int port = request.getPort();
 		byte[] dataToSend = null;
 		byte[] dataToReceive = new byte[2048]; // Doubled standard size in case there's some dumb wad list with a lot of characters
 		
 		// Try with resources, we want to always have the socket close
 		try (DatagramSocket connectionSocket = new DatagramSocket()) {		
 			// Prepare our send packet		
-			dataToSend = new byte[] { (byte)199, 0, 0, 0, 1, 0, 0, 0 }; // Send challenge and then SQF_Flags
+			dataToSend = new byte[] { (byte)199, 0, 0, 0, (byte)0x40, (byte)0x12, 0, 8, 0 }; // Send challenge and then SQF_Flags
 			byte[] huffmanToSend = Huffman.encode(dataToSend);
 			
 			// Now send the data
