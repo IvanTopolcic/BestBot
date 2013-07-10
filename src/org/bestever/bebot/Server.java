@@ -248,7 +248,7 @@ public class Server {
 					}
 					break;
 				case "compatflags2":
-					server.compatflags = handleGameFlags(m.group(2));
+					server.compatflags2 = handleGameFlags(m.group(2));
 					if (server.compatflags == FLAGS_ERROR) {
 						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing compatflags2");
 						return;
@@ -269,7 +269,7 @@ public class Server {
 					}
 					break;
 				case "dmflags2":
-					server.dmflags = handleGameFlags(m.group(2));
+					server.dmflags2 = handleGameFlags(m.group(2));
 					if (server.dmflags2 == FLAGS_ERROR) {
 						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Problem with parsing dmflags2");
 						return;
