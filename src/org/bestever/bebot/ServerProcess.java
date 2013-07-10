@@ -253,9 +253,10 @@ public class ServerProcess extends Thread {
 
 				// Check for RCON password changes
 				if (keywords.length > 3) {
-					if (keywords[0].equals("->") && keywords[1].equalsIgnoreCase("sv_rconpassword")) {
+					if (keywords[0].equals("->") && keywords[1].equalsIgnoreCase("sv_rconpassword"))
 						server.rcon_password = keywords[2];
-					}
+					else if (keywords[0].equalsIgnoreCase("\"sv_rconpassword\""))
+						server.rcon_password = keywords[2].replace("\"","");
 				}
 				
 				// If we have a player joining or leaving, mark this server as active
