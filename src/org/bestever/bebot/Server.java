@@ -643,7 +643,9 @@ public class Server {
 			case "server_name":
 			case "hostname":
 			case "servername":
-				return "hostname " + this.servername;
+				return "hostname: " + this.servername;
+			case "skill":
+				return "skill: " + this.skill;
 			case "wad":
 			case "wads":
 				return "wads: " + checkWads(this.wads);
