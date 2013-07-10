@@ -15,6 +15,7 @@
 
 package org.bestever.bebot;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
@@ -255,6 +256,10 @@ public class Server {
 					}
 					break;
 				case "config":
+					if (!server.checkConfig(server.bot.cfg_data.bot_cfg_directory_path + Functions.cleanInputFile(m.group(2).toLowerCase()))) {
+						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Config file '" + m.group(2) + "' does not exist.");
+						return;
+					}
 					server.config = Functions.cleanInputFile(m.group(2).toLowerCase());
 					break;
 				case "data":
@@ -425,6 +430,19 @@ public class Server {
 			logMessage(LOGLEVEL_CRITICAL, "MySQL exception loading servers at " + database_id + "!");
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Checks to see if the configuration file exists
+	 * @param config String - config name
+	 * @return true/false
+	 */
+	private boolean checkConfig(String config) {
+		File f = new File(config);
+		if (f.exists())
+			return true;
+		else
+			return false;
 	}
 
 	/**
