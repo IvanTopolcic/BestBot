@@ -659,7 +659,6 @@ public class Bot extends PircBot {
 	/**
 	 * Sends a string to the channel with how many total servers are running
 	 * @param userLevel The level of the user invoking
-	 * @param keywords The keywords sent
 	 */
 	private void processNumServers(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Listing number of servers.");
@@ -801,7 +800,7 @@ public class Bot extends PircBot {
 				}
 			}
 			else
-				sendMessage(cfg_data.irc_channel, Functions.getUserName(keywords[1]) + " has no servers running.");
+				sendMessage(cfg_data.irc_channel, "User " + Functions.getUserName(keywords[1]) + " has no servers running.");
 		}
 		else if (keywords.length == 1) {
 			sendMessage(cfg_data.irc_channel, "There are " + servers.size() + " servers running on Best Ever right now.");

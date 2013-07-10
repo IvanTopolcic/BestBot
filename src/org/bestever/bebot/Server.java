@@ -605,48 +605,48 @@ public class Server {
 	public String getField(String fieldToGet) {
 		switch (fieldToGet.toLowerCase()) {
 			case "buckshot":
-				return Boolean.toString(this.buckshot);
+				return "buckshot: " + Boolean.toString(this.buckshot);
 			case "compatflags":
-				return Integer.toString(this.compatflags);
+				return "compatflags: " + Integer.toString(this.compatflags);
 			case "compatflags2":
-				return Integer.toString(this.compatflags2);
+				return "compatflags2: " + Integer.toString(this.compatflags2);
 			case "config":
 			case "cfg":
 			case "configuration":
-				return nullToNone(this.config);
+				return "config: " + nullToNone(this.config);
 			case "enable_skulltag_data":
 			case "stdata":
 			case "skulltag_data":
 			case "skulltagdata":
-				return Boolean.toString(this.enable_skulltag_data);
+				return "data: " + Boolean.toString(this.enable_skulltag_data);
 			case "dmflags":
-				return Integer.toString(this.dmflags);
+				return "dmflags: " + Integer.toString(this.dmflags);
 			case "dmflags2":
-				return Integer.toString(this.dmflags2);
+				return "dmflags2 " + Integer.toString(this.dmflags2);
 			case "dmflags3":
-				return Integer.toString(this.dmflags3);
+				return "dmflags3 " + Integer.toString(this.dmflags3);
 			case "gamemode":
 			case "gametype":
-				return this.gamemode;
+				return "gamemode " + this.gamemode;
 			case "host":
 			case "hostcommand":
 			case "host_command":
-				return this.host_command;
+				return "host command " + this.host_command;
 			case "instagib":
-				return Boolean.toString(this.instagib);
+				return "instagib: " + Boolean.toString(this.instagib);
 			case "iwad":
-				return this.iwad;
+				return "iwad: " + this.iwad;
 			case "mapwad":
 			case "mapwads":
-				return checkWads(this.mapwads);
+				return "mapwads: " + checkWads(this.mapwads);
 			case "name":
 			case "server_name":
 			case "hostname":
 			case "servername":
-				return this.servername;
+				return "hostname " + this.servername;
 			case "wad":
 			case "wads":
-				return checkWads(this.wads);
+				return "wads: " + checkWads(this.wads);
 			default:
 				break;
 		}
