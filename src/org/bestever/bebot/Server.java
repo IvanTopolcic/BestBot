@@ -613,7 +613,7 @@ public class Server {
 			case "config":
 			case "cfg":
 			case "configuration":
-				return this.config;
+				return nullToNone(this.config);
 			case "enable_skulltag_data":
 			case "stdata":
 			case "skulltag_data":
@@ -638,7 +638,7 @@ public class Server {
 				return this.iwad;
 			case "mapwad":
 			case "mapwads":
-				return Functions.implode(this.mapwads, ", ");
+				return checkWads(this.mapwads);
 			case "name":
 			case "server_name":
 			case "hostname":
@@ -646,11 +646,36 @@ public class Server {
 				return this.servername;
 			case "wad":
 			case "wads":
-				return Functions.implode(this.wads, ", ");
+				return checkWads(this.wads);
 			default:
 				break;
 		}
 		return "Error: Not a supported keyword";
+	}
+
+	/**
+	 * Checks for null values and returns and more user friendly message
+	 * @param input String[] input
+	 * @return String[] result
+	 */
+	public String checkWads(String[] input) {
+		if (input == null)
+			return "None";
+		else if (Functions.implode(this.wads, ", ") == null)
+			return input[0];
+		else
+			return Functions.implode(input, ", ");
+	}
+
+	/**
+	 * Checks for null values and returns and more user friendly message
+	 * @param input String input
+	 * @return String result
+	 */
+	public String nullToNone(String input) {
+		if (input == null)
+			return "None";
+		else return input;
 	}
 	
 	/**

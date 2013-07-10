@@ -251,7 +251,7 @@ public class ServerProcess extends Thread {
 
 				// Check for RCON password changes
 				if (keywords.length > 3) {
-					if (keywords[2].equals("->") && keywords[3].equals("sv_rconpassword")) {
+					if (keywords[2].equals("->") && keywords[3].equalsIgnoreCase("sv_rconpassword")) {
 						server.rcon_password = keywords[4];
 					}
 				}
