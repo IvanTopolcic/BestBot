@@ -329,6 +329,9 @@ public class Bot extends PircBot {
 					if (s != null) {
 						if (Functions.getUserName(s.irc_hostname).equals(Functions.getUserName(hostname)) || isAccountTypeOf(level, MODERATOR)) {
 							s.in.println(message);
+							if (keywords[2].equalsIgnoreCase("sv_rconpassword") && keywords[3] != null && !keywords[3].equals("")) {
+								s.rcon_password = keywords[3];
+							}
 							sendMessage(recipient, "Command successfully sent.");
 						}
 						else
