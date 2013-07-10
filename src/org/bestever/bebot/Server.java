@@ -632,7 +632,7 @@ public class Server {
 			case "host":
 			case "hostcommand":
 			case "host_command":
-				return "host command " + this.host_command;
+				return "hostcommand: " + this.host_command;
 			case "instagib":
 				return "instagib: " + Boolean.toString(this.instagib);
 			case "iwad":
