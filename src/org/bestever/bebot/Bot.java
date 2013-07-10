@@ -504,8 +504,8 @@ public class Bot extends PircBot {
 	 */
 	public void processHost(int userLevel, String channel, String sender, String hostname, String message, boolean autoRestart) {
 		logMessage(LOGLEVEL_NORMAL, "Processing the host command for " + Functions.getUserName(hostname) + " with the message \"" + message + "\".");
-		if (botEnabled) {
-			if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
+		if (botEnabled || isAccountTypeOf(userLevel, ADMIN, MODERATOR)) {
+			if (isAccountTypeOf(userLevel, REGISTERED)) {
 				int slots = mysql.getMaxSlots(hostname);
 				int userServers;
 				if (getUserServers(Functions.getUserName(hostname)) == null) userServers = 0;
