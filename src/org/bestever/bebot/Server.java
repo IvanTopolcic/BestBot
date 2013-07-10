@@ -614,6 +614,7 @@ public class Server {
 			case "cfg":
 			case "configuration":
 				return "config: " + nullToNone(this.config);
+			case "data":
 			case "enable_skulltag_data":
 			case "stdata":
 			case "skulltag_data":
