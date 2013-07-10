@@ -399,9 +399,6 @@ public class Bot extends PircBot {
 				case ".load":
 					mysql.loadSlot(hostname, keywords, userLevel, channel, sender, login);
 					break;
-				case ".numservers":
-					processNumServers(userLevel);
-					break;
 				case ".off":
 					processOff(userLevel);
 					break;
