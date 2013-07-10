@@ -443,13 +443,13 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
 		if (isAccountTypeOf(userLevel, ADMIN))
-			return ".autorestart .broadcast .commands .file .get .help .host .kill .killall .killmine .killinactive .load .numservers .off .on .owner .query .quit .rcon .save .send .servers .slot";
+			return ".autorestart .broadcast .commands .file .get .help .host .kill .killall .killmine .killinactive .load .off .on .owner .query .quit .rcon .save .send .servers .slot";
 		else if (isAccountTypeOf(userLevel, MODERATOR))
-			return ".autorestart .broadcast .commands .file .get .help .host .kill .killmine .killinactive .load .numservers .owner .query .rcon .save .send .servers .slot";
+			return ".autorestart .broadcast .commands .file .get .help .host .kill .killmine .killinactive .load .owner .query .rcon .save .send .servers .slot";
 		else if (isAccountTypeOf(userLevel, REGISTERED))
-			return ".commands .file .get .help .host .kill .killmine .killinactive .load .numservers .owner .query .rcon .save .send .servers .slot";
+			return ".commands .file .get .help .host .kill .killmine .killinactive .load .owner .query .rcon .save .send .servers .slot";
 		else 
-			return "[Not logged in, guests have limited access] .commands, .file, .help, .numservers, .servers";
+			return "[Not logged in, guests have limited access] .commands .file .help .servers";
 	}
 	
 	/**
@@ -660,13 +660,13 @@ public class Bot extends PircBot {
 	 * Sends a string to the channel with how many total servers are running
 	 * @param userLevel The level of the user invoking
 	 */
-	private void processNumServers(int userLevel) {
-		logMessage(LOGLEVEL_TRIVIAL, "Listing number of servers.");
-		if (servers != null)
-			sendMessage(cfg_data.irc_channel, "There are " + servers.size() + " servers running on Best Ever right now.");
-		else
-			sendMessage(cfg_data.irc_channel, "Error getting servers list object.");
-	}
+	//private void processNumServers(int userLevel) {
+	//	logMessage(LOGLEVEL_TRIVIAL, "Listing number of servers.");
+	//	if (servers != null)
+	//		sendMessage(cfg_data.irc_channel, "There are " + servers.size() + " servers running on Best Ever right now.");
+	//	else
+	//		sendMessage(cfg_data.irc_channel, "Error getting servers list object.");
+	//}
 	
 	/**
 	 * Admins can turn off hosting with this

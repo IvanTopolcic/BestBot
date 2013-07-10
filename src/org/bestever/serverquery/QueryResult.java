@@ -24,7 +24,7 @@ public class QueryResult {
 	 * If buckshot is on (acts like a boolean)
 	 */
 	public byte buckshot;
-
+	
 	/**
 	 * What iwad is being used
 	 */

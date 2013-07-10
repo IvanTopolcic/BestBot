@@ -113,8 +113,8 @@ public class QueryHandler extends Thread {
 				byte numOfPwads = networkBuffer.extractByte(); // How many loaded wads there are
 				if (numOfPwads > 0) {
 					String pwadList = "";
-					for (int i = 0; i < numOfPwads; i++)
-						if (i == numOfPwads - 1)
+					for (int n = 0; n < numOfPwads; n++)
+						if (n == numOfPwads - 1)
 							pwadList += networkBuffer.extractString(); // Don't add a delimiter for the end of the list
 						else
 							pwadList += networkBuffer.extractString() + ",";
@@ -123,10 +123,11 @@ public class QueryHandler extends Thread {
 			}
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_GAMETYPE) == ServerQueryFlags.SQF_GAMETYPE) {
-				queryResult.gamemode = networkBuffer.extractByte(); // Gamemode 
+				queryResult.gamemode = networkBuffer.extractByte(); // Gamemode
 				queryResult.instagib = networkBuffer.extractByte(); // Instagib
 				queryResult.buckshot = networkBuffer.extractByte(); // Buckshot
 			}
+			
 			if ((inboundFlags & ServerQueryFlags.SQF_GAMENAME) == ServerQueryFlags.SQF_GAMENAME)
 				networkBuffer.extractString(); // Game base name (ex: DOOM, DOOM II, ...etc)
 			
@@ -134,13 +135,13 @@ public class QueryHandler extends Thread {
 				queryResult.iwad = networkBuffer.extractString(); // IWAD name
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_FORCEPASSWORD) == ServerQueryFlags.SQF_FORCEPASSWORD)
-				queryResult.skill = networkBuffer.extractByte(); // If a password is required
+				networkBuffer.extractByte(); // If a password is required
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_FORCEJOINPASSWORD) == ServerQueryFlags.SQF_FORCEJOINPASSWORD)
 				networkBuffer.extractByte(); // If a join password is required
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_GAMESKILL) == ServerQueryFlags.SQF_GAMESKILL)
-				networkBuffer.extractByte(); // Skill level
+				queryResult.skill = networkBuffer.extractByte(); // Skill level
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_BOTSKILL) == ServerQueryFlags.SQF_BOTSKILL)
 				networkBuffer.extractByte(); // Bot skill level
@@ -171,7 +172,7 @@ public class QueryHandler extends Thread {
 				numPlayers = networkBuffer.extractByte(); // Number of players in the server
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_PLAYERDATA) == ServerQueryFlags.SQF_PLAYERDATA)
-				for (int i = 0; i < numPlayers; i ++) {
+				for (int n = 0; n < numPlayers; n++) {
 					networkBuffer.extractString(); // Player's name
 					networkBuffer.extractShort(true); // Player's pointcount/fragcount/killcount
 					networkBuffer.extractShort(true); // Player's ping
@@ -186,15 +187,15 @@ public class QueryHandler extends Thread {
 				numTeams = networkBuffer.extractByte(); // Number of teams
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_TEAMINFO_NAME) == ServerQueryFlags.SQF_TEAMINFO_NAME)
-				for (int i = 0; i < numTeams; i++)
+				for (int n = 0; n < numTeams; n++)
 					networkBuffer.extractString(); // Team's name
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_TEAMINFO_COLOR) == ServerQueryFlags.SQF_TEAMINFO_COLOR)
-				for (int i = 0; i < numTeams; i++)
+				for (int n = 0; n < numTeams; n++)
 					networkBuffer.extractInt(true); // Team's color
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_TEAMINFO_SCORE) == ServerQueryFlags.SQF_TEAMINFO_SCORE)
-				for (int i = 0; i < numTeams; i++)
+				for (int n = 0; n < numTeams; n++)
 					networkBuffer.extractShort(true); // Team's score
 			
 			if ((inboundFlags & ServerQueryFlags.SQF_TESTING_SERVER) == ServerQueryFlags.SQF_TESTING_SERVER) {
@@ -249,17 +250,22 @@ public class QueryHandler extends Thread {
 			queryOutput += " gamemode=" + ServerQueryFlags.getGamemodeFromFlag(queryResult.gamemode);
 			
 		if (queryResult.instagib != -1)
-			queryOutput += " instagib=on";
+			if (queryResult.instagib == 0)
+				queryOutput += " instagib=off";
+			else
+				queryOutput += " instagib=on";
 			
 		if (queryResult.buckshot != -1)
-			queryOutput += " buckshot=on";
+			if (queryResult.buckshot == 0)
+				queryOutput += " buckshot=off";
+			else
+				queryOutput += " buckshot=on";
 			
 		if (queryResult.iwad != null)
 			queryOutput += " iwad=" + queryResult.iwad;
 			
-		// We do not support skill right now
-		//if (queryResult.skill != -1)
-		//	queryOutput += ;
+		if (queryResult.skill != -1)
+			queryOutput += " skill=" + queryResult.skill;
 			
 		if (queryResult.dmflags != -1)
 			queryOutput += " dmflags=" + queryResult.dmflags;
@@ -296,7 +302,7 @@ public class QueryHandler extends Thread {
 		// Try with resources, we want to always have the socket close
 		try (DatagramSocket connectionSocket = new DatagramSocket()) {		
 			// Prepare our send packet		
-			dataToSend = new byte[] { (byte)199, 0, 0, 0, (byte)0x40, (byte)0x12, 0, 8, 0 }; // Send challenge and then SQF_Flags
+			dataToSend = new byte[] { (byte)199, 0, 0, 0, -64, 18, 0, 8 }; // Send challenge and then SQF_FlagsStuff
 			byte[] huffmanToSend = Huffman.encode(dataToSend);
 			
 			// Now send the data

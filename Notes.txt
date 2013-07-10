@@ -5,5 +5,4 @@ MISC NOTES
 	> Above is linked to query stuff (QueryServerFlags object) and server
 	  gamemode stuff
 	  
-- Add support for Skill
-	> Then update QueryResult to allow queries to use it
+- Add support for Skill (skill=0..4)
