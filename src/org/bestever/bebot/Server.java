@@ -341,7 +341,7 @@ public class Server {
 			return;
 		}
 		if (server.gamemode == null) {
-			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "You are missing the gamemode! You can add it by appending: gamemode=your_gamemode");
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "You are missing the gamemode, or have specified an incorrect gamemode. You can add it by appending: gamemode=your_gamemode");
 			return;
 		}
 		if (server.servername == null) {
@@ -681,12 +681,16 @@ public class Server {
 	 * @return String[] result
 	 */
 	public String checkWads(String[] input) {
+		String wads = "";
 		if (input == null)
 			return "None";
+		if (this.enable_skulltag_data)
+			wads += "skulltag_actors.pk3, skulltag_data.pk3 ";
 		else if (Functions.implode(this.wads, ", ") == null)
-			return input[0];
+			wads += input[0];
 		else
-			return Functions.implode(input, ", ");
+			wads += Functions.implode(input, ", ");
+		return wads;
 	}
 
 	/**
