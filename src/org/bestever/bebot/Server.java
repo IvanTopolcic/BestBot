@@ -28,6 +28,12 @@ import static org.bestever.bebot.Logger.*;
 import static org.bestever.bebot.MySQL.SERVER_ONLINE;
 
 public class Server {
+
+	/**
+	 * Holds the temporary port (used for auto-restarting)
+	 */
+	public int temp_port;
+
 	/**
 	 * If true, servers will not say "server stopped on port..."
 	 */
@@ -213,7 +219,7 @@ public class Server {
 	 * @param message The message sent
 	 * @return Null if all went well, otherwise an error message to print to the bot
 	 */
-	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String hostname, String message, int userLevel, boolean autoRestart) {
+	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String hostname, String message, int userLevel, boolean autoRestart, int port) {
 		// Initialize server without linking it to the arraylist
 		Server server = new Server();
 		
@@ -223,6 +229,8 @@ public class Server {
 		// Check if autoRestart was enabled
 		if (autoRestart)
 			server.auto_restart = true;
+
+		server.temp_port = port;
 		
 		// Input basic values
 		server.irc_channel = channel;
@@ -238,6 +246,9 @@ public class Server {
 		// While we have a key=value
 		while (m.find()) {
 			switch (m.group(1)) {
+				case "autorestart":
+					server.auto_restart = handleTrue(m.group(2));
+					break;
 				case "buckshot":
 					server.buckshot = handleTrue(m.group(2));
 					break;
@@ -623,6 +634,8 @@ public class Server {
 	 */
 	public String getField(String fieldToGet) {
 		switch (fieldToGet.toLowerCase()) {
+			case "autorestart":
+				return "autorestart: " + Boolean.toString(this.auto_restart);
 			case "buckshot":
 				return "buckshot: " + Boolean.toString(this.buckshot);
 			case "compatflags":

@@ -87,7 +87,12 @@ public class ServerProcess extends Thread {
 		
 		runCommand.add(server.bot.cfg_data.bot_executable); // This must always be first
 
-		runCommand.add("-port " + Integer.toString(server.bot.getMinPort())); // Always start on the minimum port and let zandronum handle the rest
+		// Check if we have a temporary port (used for auto-restarting)
+		// This will try to host the server on the same port as before
+		if (server.temp_port != 0)
+			runCommand.add("-port " + server.temp_port);
+		else
+			runCommand.add("-port " + Integer.toString(server.bot.getMinPort()));
 
 		runCommand.add("+exec " + server.bot.cfg_data.bot_cfg_directory_path + "global.cfg"); // Load the global configuration file
 		
@@ -218,7 +223,7 @@ public class ServerProcess extends Thread {
 			// If either criteria is met, the user will be messaged the RCON password
 			// NOTE: As of now, BE users can still check the RCON password by accessing the control panel on the website.
 			// We'll fix this later by changing the RCON from the unique_id to a random MD5 hash
-			if (server.bot.cfg_data.bot_public_rcon || AccountType.isAccountTypeOf(server.user_level, AccountType.ADMIN, AccountType.MODERATOR, AccountType.RCON))
+			if ((server.bot.cfg_data.bot_public_rcon || AccountType.isAccountTypeOf(server.user_level, AccountType.ADMIN, AccountType.MODERATOR, AccountType.RCON)) && server.temp_port == 0)
 				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using 'send_password "+server.server_id+"' via the in-game console. You can view your logfile at http://www.best-ever.org/logs/" + server.server_id + ".txt");
 
 			// Process server while it outputs text
@@ -246,9 +251,10 @@ public class ServerProcess extends Thread {
 				// If we see this, the server started
 				if (strLine.equalsIgnoreCase("UDP Initialized.")) {
 					System.out.println(strLine);
-					server.bot.servers.add(server); // Add the server to the linked list since it's fully operational now
+					server.bot.servers.add(server);
 					server.bot.sendMessage(server.irc_channel, "Server started successfully on port " + server.port + "!");
-					server.bot.sendMessage(server.sender, "To kill your server, in the channel " + server.bot.cfg_data.irc_channel + ", type .killmine to kill all of your servers, or .kill " + server.port + " to kill just this one.");
+					if (server.temp_port == 0)
+						server.bot.sendMessage(server.sender, "To kill your server, in the channel " + server.bot.cfg_data.irc_channel + ", type .killmine to kill all of your servers, or .kill " + server.port + " to kill just this one.");
 				}
 
 				// Check for RCON password changes
@@ -286,10 +292,11 @@ public class ServerProcess extends Thread {
 			// Remove from the Linked List
 			server.bot.removeServerFromLinkedList(this.server);
 
-			// Auto-restart the server if enabled
-			if (server.auto_restart) {
+			// Auto-restart the server if enabled, and only if successfully started
+			if (server.auto_restart && server.port != 0) {
+				server.temp_port = server.port;
 				server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Server crashed! Attempting to restart server...");
-				server.bot.processHost(server.user_level, server.bot.cfg_data.irc_channel, server.sender, server.irc_hostname, server.host_command, true);
+				server.bot.processHost(server.user_level, server.bot.cfg_data.irc_channel, server.sender, server.irc_hostname, server.host_command, true, server.port);
 			}
 
 		} catch (Exception e) {

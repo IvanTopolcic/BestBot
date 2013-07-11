@@ -301,7 +301,7 @@ public class MySQL {
 					ResultSet r = pst.executeQuery();
 					if (r.next()) {
 						String hostCommand = r.getString("serverstring");
-						bot.processHost(level, channel, sender, hostname, hostCommand, false);
+						bot.processHost(level, channel, sender, hostname, hostCommand, false, bot.getMinPort());
 					}
 					else {
 						 bot.sendMessage(bot.cfg_data.irc_channel, "You do not have anything saved to that slot!");
