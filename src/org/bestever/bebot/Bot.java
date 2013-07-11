@@ -710,7 +710,7 @@ public class Bot extends PircBot {
 					if (s != null)
 						sendMessage(cfg_data.irc_channel, "The owner of port " + keywords[1] + " is: " + s.sender + "[" + Functions.getUserName(s.irc_hostname) + "].");
 					else
-						sendMessage(cfg_data.irc_channel, "No server indexed on port " + keywords[1] + ".");
+						sendMessage(cfg_data.irc_channel, "There is no server running on " + keywords[1] + ".");
 				} else
 					sendMessage(cfg_data.irc_channel, "Invalid port number.");
 			} else
