@@ -682,14 +682,16 @@ public class Server {
 	 */
 	public String checkWads(String[] input) {
 		String wads = "";
-		if (input == null)
+		if (input == null && !this.enable_skulltag_data)
 			return "None";
-		if (this.enable_skulltag_data)
-			wads += "skulltag_actors.pk3, skulltag_data.pk3 ";
-		else if (Functions.implode(this.wads, ", ") == null)
-			wads += input[0];
+		else if (input == null)
+			return "skulltag_actors.pk3 and skulltag_data.pk3";
+		if (Functions.implode(this.wads, ", ") == null)
+			wads += this.wads[0];
 		else
 			wads += Functions.implode(input, ", ");
+		if (this.enable_skulltag_data)
+			wads += " with skulltag_actors.pk3 and skulltag_data.pk3";
 		return wads;
 	}
 

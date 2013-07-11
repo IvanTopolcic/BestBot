@@ -795,8 +795,10 @@ public class Bot extends PircBot {
 			List<Server> servers = getUserServers(Functions.getUserName(keywords[1]));
 			if (servers != null && servers.size() > 0) {
 				for (Server server : servers) {
-					sendMessage(cfg_data.irc_channel,  server.port + ": " + server.servername + ((server.wads != null) ? " with wads " + Functions.implode(server.wads, ", ") : "") +
-							((server.mapwads != null) ? " and mapwads " + Functions.implode(server.mapwads, ", ") : ""));
+					sendMessage(cfg_data.irc_channel,  server.port + ": " + server.servername + ((server.wads != null) ?
+							" with wads " + Functions.implode(server.wads, ", ") : "") +
+							((server.mapwads != null) ? " and mapwads " + Functions.implode(server.mapwads, ", ") : "") +
+							((server.enable_skulltag_data) ? " and skulltag_actors.pk3, skulltag_data.pk3" : ""));
 				}
 			}
 			else
