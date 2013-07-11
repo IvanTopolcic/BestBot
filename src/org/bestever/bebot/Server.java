@@ -554,6 +554,7 @@ public class Server {
 			case "lastmanstanding":
 				return "lastmanstanding";
 			case "tlms":
+			case "teamlms":
 			case "teamlastmanstanding":
 				return "teamlms";
 			case "skulltag":
