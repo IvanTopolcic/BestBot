@@ -49,11 +49,6 @@ public class Bot extends PircBot {
 	 * A toggle variable for allowing hosting
 	 */
 	private boolean botEnabled = true;
-	
-	/**
-	 * Contains the MySQL information
-	 */
-	public MySQL mysql;
 
 	/**
 	 * Contains the configuration file
@@ -115,8 +110,8 @@ public class Bot extends PircBot {
 		this.servers = new LinkedList<Server>();
 		
 		// Set up MySQL
-		mysql = new MySQL(this, cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
-		
+		 MySQL.setMySQL(this, cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
+
 		// Begin a server query thread that will run
 		queryManager = new QueryManager(this);
 		queryManager.run();
@@ -361,7 +356,7 @@ public class Bot extends PircBot {
 			String username = Functions.getUserName(hostname);
 
 			// Perform function based on input (note: login is handled by the MySQL function/class); also mostly in alphabetical order for convenience
-			int userLevel = mysql.getLevel(hostname);
+			int userLevel = MySQL.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
 				case ".autorestart":
 					toggleAutoRestart(userLevel, keywords);
@@ -397,7 +392,7 @@ public class Bot extends PircBot {
 					processKillInactive(userLevel, keywords);
 					break;
 				case ".load":
-					mysql.loadSlot(hostname, keywords, userLevel, channel, sender, login);
+					MySQL.loadSlot(hostname, keywords, userLevel, channel, sender, login);
 					break;
 				case ".off":
 					processOff(userLevel);
@@ -419,7 +414,7 @@ public class Bot extends PircBot {
 						sendMessage(cfg_data.irc_channel, "Please PM the bot for the rcon.");
 					break;
 				case ".save":
-					mysql.saveSlot(hostname, keywords);
+					MySQL.saveSlot(hostname, keywords);
 					break;
 				case ".send":
 					sendCommand(userLevel, keywords, hostname, cfg_data.irc_channel);
@@ -428,7 +423,7 @@ public class Bot extends PircBot {
 					processServers(keywords);
 					break;
 				case ".slot":
-					mysql.showSlot(hostname, keywords);
+					MySQL.showSlot(hostname, keywords);
 					break;
 				default:
 					break;
@@ -506,7 +501,7 @@ public class Bot extends PircBot {
 		logMessage(LOGLEVEL_NORMAL, "Processing the host command for " + Functions.getUserName(hostname) + " with the message \"" + message + "\".");
 		if (botEnabled || isAccountTypeOf(userLevel, ADMIN, MODERATOR)) {
 			if (isAccountTypeOf(userLevel, REGISTERED)) {
-				int slots = mysql.getMaxSlots(hostname);
+				int slots = MySQL.getMaxSlots(hostname);
 				int userServers;
 				if (getUserServers(Functions.getUserName(hostname)) == null) userServers = 0;
 				else userServers = getUserServers(Functions.getUserName(hostname)).size();
@@ -823,7 +818,7 @@ public class Bot extends PircBot {
 		if (Functions.checkLoggedIn(hostname)) {
 			// Generate an array of keywords from the message (similar to onMessage)
 			String[] keywords = message.split(" ");
-			int userLevel = mysql.getLevel(hostname);
+			int userLevel = MySQL.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
 				case ".rcon":
 					processRcon(userLevel, keywords, sender, hostname);
@@ -832,13 +827,13 @@ public class Bot extends PircBot {
 				case "changepassword":
 				case "changepw":
 					if (keywords.length == 2)
-						mysql.changePassword(hostname, keywords[1], sender);
+						MySQL.changePassword(hostname, keywords[1], sender);
 					else
 						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " changepw <new_password>");
 					break;
 				case "register":
 					if (keywords.length == 2)
-						mysql.registerAccount(hostname, keywords[1], sender);
+						MySQL.registerAccount(hostname, keywords[1], sender);
 					else
 						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " register <password>");
 					break;
@@ -891,6 +886,5 @@ public class Bot extends PircBot {
 		
 		// Start the bot
 		Bot bot = new Bot(cfg_data);
-		bot.hashCode(); // Yes
 	}
 }

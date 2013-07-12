@@ -377,7 +377,7 @@ public class Server {
 		// Assign and start a new thread
 		server.serverprocess = new ServerProcess(server);
 		server.serverprocess.start();
-		botReference.mysql.logServer(server.servername, server.server_id, Functions.getUserName(server.irc_hostname));
+		MySQL.logServer(server.servername, server.server_id, Functions.getUserName(server.irc_hostname));
 	}
 	
 	/**
