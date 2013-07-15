@@ -674,18 +674,6 @@ public class Bot extends PircBot {
 	}
 	
 	/**
-	 * Sends a string to the channel with how many total servers are running
-	 * @param userLevel The level of the user invoking
-	 */
-	//private void processNumServers(int userLevel) {
-	//	logMessage(LOGLEVEL_TRIVIAL, "Listing number of servers.");
-	//	if (servers != null)
-	//		sendMessage(cfg_data.irc_channel, "There are " + servers.size() + " servers running on Best Ever right now.");
-	//	else
-	//		sendMessage(cfg_data.irc_channel, "Error getting servers list object.");
-	//}
-	
-	/**
 	 * Admins can turn off hosting with this
 	 * @param userLevel The user's bitmask level
 	 */
@@ -763,6 +751,13 @@ public class Bot extends PircBot {
 		}
 	}
 
+	/**
+	 * Handles RCON stuff
+	 * @param userLevel int - the user's level (permissions)
+	 * @param keywords String[] - message split by spaces
+	 * @param sender String - the nickname of the sender
+	 * @param hostname String - the hostname of the sender
+	 */
 	private void processRcon(int userLevel, String[] keywords, String sender, String hostname) {
 		logMessage(LOGLEVEL_NORMAL, "Processing a request for rcon (from " + sender + ").");
 		if (isAccountTypeOf(userLevel, REGISTERED, MODERATOR, ADMIN)) {
@@ -884,11 +879,23 @@ public class Bot extends PircBot {
 	 * @param reason String - the reason for being kicked
 	 */
 	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
+		// Rejoin the channel if kicked
 		if (recipientNick.equalsIgnoreCase(getNick()) && channel.equalsIgnoreCase(cfg_data.irc_channel)) {
 			this.joinChannel(cfg_data.irc_channel);
 		}
 	}
-	
+
+	/**
+	 * Handles channel joins
+	 * @param channel String - the name of the channel
+	 * @param sender String - the user who joined
+	 * @param login String - the login of the user who joined
+	 * @param hostname String - the hostname of the user who joined
+	 */
+	public void onJoin(String channel, String sender, String login, String hostname) {
+		// Process joins
+	}
+
 	/**
 	 * Allows external objects to send messages to the core channel
 	 * @param msg The message to deploy
