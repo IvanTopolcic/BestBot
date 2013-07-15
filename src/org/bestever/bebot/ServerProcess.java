@@ -223,7 +223,7 @@ public class ServerProcess extends Thread {
 			// If either criteria is met, the user will be messaged the RCON password
 			// NOTE: As of now, BE users can still check the RCON password by accessing the control panel on the website.
 			// We'll fix this later by changing the RCON from the unique_id to a random MD5 hash
-			if ((server.bot.cfg_data.bot_public_rcon || AccountType.isAccountTypeOf(server.user_level, AccountType.ADMIN, AccountType.MODERATOR, AccountType.RCON)) && server.temp_port == 0)
+			if (server.bot.cfg_data.bot_public_rcon || AccountType.isAccountTypeOf(server.user_level, AccountType.ADMIN, AccountType.MODERATOR, AccountType.RCON))
 				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using 'send_password "+server.server_id+"' via the in-game console. You can view your logfile at http://www.best-ever.org/logs/" + server.server_id + ".txt");
 
 			// Process server while it outputs text
@@ -253,8 +253,7 @@ public class ServerProcess extends Thread {
 					System.out.println(strLine);
 					server.bot.servers.add(server);
 					server.bot.sendMessage(server.irc_channel, "Server started successfully on port " + server.port + "!");
-					if (server.temp_port == 0)
-						server.bot.sendMessage(server.sender, "To kill your server, in the channel " + server.bot.cfg_data.irc_channel + ", type .killmine to kill all of your servers, or .kill " + server.port + " to kill just this one.");
+					server.bot.sendMessage(server.sender, "To kill your server, in the channel " + server.bot.cfg_data.irc_channel + ", type .killmine to kill all of your servers, or .kill " + server.port + " to kill just this one.");
 				}
 
 				// Check for RCON password changes

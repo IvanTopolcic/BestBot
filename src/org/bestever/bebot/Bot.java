@@ -352,8 +352,13 @@ public class Bot extends PircBot {
 			// Generate an array of keywords from the message
 			String[] keywords = message.split(" ");
 
-			@SuppressWarnings("unused") // Fix me later
-			String username = Functions.getUserName(hostname);
+			// Use soon!
+			// String username = Functions.getUserName(hostname);
+
+			// Support custom hostnames
+			if (!Functions.checkLoggedIn(hostname))
+				if (!MySQL.getUsername(hostname).equals("None"))
+					hostname = MySQL.getUsername(hostname);
 
 			// Perform function based on input (note: login is handled by the MySQL function/class); also mostly in alphabetical order for convenience
 			int userLevel = MySQL.getLevel(hostname);

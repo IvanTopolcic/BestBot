@@ -357,6 +357,28 @@ public class MySQL {
 		else
 			bot.sendMessage(bot.cfg_data.irc_channel, "Incorrect syntax! Correct usage is .load <slot>");
 	}
+
+	/**
+	 * Returns a username based on the hostname stored in the database. This is useful for people with custom hostmasks.
+	 * @param hostname String - the user's hostname (or hostmask)
+	 * @return String - username
+	 */
+	public static String getUsername(String hostname) {
+		String query = "SELECT `username` FROM " + mysql_db + ".`hostmasks` WHERE `hostmask` = ?";
+		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
+			pst.setString(1, hostname);
+			ResultSet r = pst.executeQuery();
+			if (r.next())
+				return r.getString("username");
+			else
+				return "None";
+		}
+		catch (SQLException e) {
+			Logger.logMessage(LOGLEVEL_IMPORTANT, "SQL Error in getUsername()");
+			e.printStackTrace();
+			return null;
+		}
+	}
 	
 	/**
 	 * Grabs the data from the mysql database and runs servers by passing their
