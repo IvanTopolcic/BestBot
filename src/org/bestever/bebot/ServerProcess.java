@@ -30,7 +30,7 @@ public class ServerProcess extends Thread {
 	/**
 	 * This contains the strings that will run in the process builder
 	 */
-	private String serverRunCommands;
+	private String[] serverRunCommands;
 	
 	/**
 	 * A reference to the server
@@ -77,7 +77,7 @@ public class ServerProcess extends Thread {
 	 * The Server object is taken and
 	 * @return The hostbuilder string based on the data in the Server object
 	 */
-	private String processServerRunCommand() {
+	private String[] processServerRunCommand() {
 		// This shouldn't happen but you never know
 		if (server == null)
 			return null;
@@ -164,15 +164,7 @@ public class ServerProcess extends Thread {
 		// Add the RCON
 		server.rcon_password = server.server_id;
 		
-		String execCommand = "";
-		ListIterator<String> it = runCommand.listIterator();
-		while (it.hasNext()) {
-			if (it.nextIndex() != 0)
-				execCommand += " " + it.next();
-			else
-				execCommand += it.next();
-		}
-		return execCommand;
+		return runCommand.toArray(new String[runCommand.size()]);
 	}
 	
 	/**
