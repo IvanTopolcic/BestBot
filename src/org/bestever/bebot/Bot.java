@@ -100,7 +100,6 @@ public class Bot extends PircBot {
 			System.exit(0);
 			e.printStackTrace();
 		}
-		joinChannel(cfg_data.irc_channel);
 		
 		// Set initial ports
 		this.min_port = cfg_data.bot_min_port;
@@ -115,6 +114,20 @@ public class Bot extends PircBot {
 		// Begin a server query thread that will run
 		queryManager = new QueryManager(this);
 		queryManager.run();
+	}
+
+	/**
+	 * Called when the bot connects to the irc server
+	 */
+	public void onConnect() {
+		this.joinChannel(cfg_data.irc_channel);
+	}
+
+	/**
+	 * Attemps to rejoin the channel
+	 */
+	public void rejoinChannel() {
+		this.joinChannel(cfg_data.irc_channel);
 	}
 	
 	/**
@@ -371,6 +384,10 @@ public class Bot extends PircBot {
 					break;
 				case ".commands":
 					sendMessage(cfg_data.irc_channel, "Allowed commands: " + processCommands(userLevel));
+					break;
+				case ".disconnect":
+					if (isAccountTypeOf(userLevel, ADMIN))
+						this.disconnect();
 					break;
 				case ".file":
 					processFile(userLevel, keywords, channel);
@@ -836,6 +853,10 @@ public class Bot extends PircBot {
 					else
 						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " changepw <new_password>");
 					break;
+				case ".rejoin":
+					if (isAccountTypeOf(userLevel, ADMIN))
+						rejoinChannel();
+					break;
 				case "register":
 					if (keywords.length == 2)
 						MySQL.registerAccount(hostname, keywords[1], sender);
@@ -852,6 +873,21 @@ public class Bot extends PircBot {
 			sendMessage(sender, "Your account is not logged in properly to the IRC network. Please log in and re-query.");
 		}
 	}
+
+	/**
+	 * Have the bot handle kicks, this is useful for rejoining when kicked
+	 * @param channel String - the channel
+	 * @param kickerNick String - the name of the kicker
+	 * @param kickerLogin String - the login of the kicker
+	 * @param kickerHostname String - the hostname of the kicker
+	 * @param recipientNick String - the name of the kicked user
+	 * @param reason String - the reason for being kicked
+	 */
+	public void onKick(String channel, String kickerNick, String kickerLogin, String kickerHostname, String recipientNick, String reason) {
+		if (recipientNick.equalsIgnoreCase(getNick()) && channel.equalsIgnoreCase(cfg_data.irc_channel)) {
+			this.joinChannel(cfg_data.irc_channel);
+		}
+	}
 	
 	/**
 	 * Allows external objects to send messages to the core channel
@@ -859,6 +895,24 @@ public class Bot extends PircBot {
 	 */
 	public void sendMessageToChannel(String msg) {
 		sendMessage(cfg_data.irc_channel, msg);
+	}
+
+	/**
+	 * Called when the bot is disconnected
+	 * Ideally, attempt to reconnect
+	 */
+	public void onDisconnect() {
+		while (!isConnected()) {
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e1) { }
+			try {
+				reconnect();
+			} catch (Exception e) {
+				System.out.println("Couldn't reconnect... trying again in 30 seconds.");
+				Logger.logMessage(LOGLEVEL_IMPORTANT, "Could not reconnect. Attemption to reconnect in 30 seconds.");
+			}
+		}
 	}
 	
 	/**
