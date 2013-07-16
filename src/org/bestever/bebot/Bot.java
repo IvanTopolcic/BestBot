@@ -468,6 +468,20 @@ public class Bot extends PircBot {
 		else 
 			return "[Not logged in, guests have limited access] .commands .file .help .servers";
 	}
+
+	/**
+	 * Sends a message to the channel, from the bot
+	 * @param keywords String[] - message, split by spaces
+	 * @param sender String - name of the sender
+	 */
+	private void messageChannel(String[] keywords, String sender) {
+		if (keywords.length < 2)
+			sendMessage(sender, "Incorrect syntax! Correct usage is .msg your_message");
+		else {
+			String message = Functions.implode(Arrays.copyOfRange(keywords, 1, keywords.length), " ");
+			sendMessage(cfg_data.irc_channel, message);
+		}
+	}
 	
 	/**
 	 * This checks to see if the file exists in the wad directory (it is lower-cased)
@@ -847,6 +861,10 @@ public class Bot extends PircBot {
 						MySQL.changePassword(hostname, keywords[1], sender);
 					else
 						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " changepw <new_password>");
+					break;
+				case ".msg":
+					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
+						messageChannel(keywords, sender);
 					break;
 				case ".rejoin":
 					if (isAccountTypeOf(userLevel, ADMIN))
