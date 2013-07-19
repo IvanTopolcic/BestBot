@@ -439,7 +439,8 @@ public class Bot extends PircBot {
 					MySQL.saveSlot(hostname, keywords);
 					break;
 				case ".send":
-					sendCommand(userLevel, keywords, hostname, cfg_data.irc_channel);
+					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
+						sendCommand(userLevel, keywords, hostname, cfg_data.irc_channel);
 					break;
 				case ".servers":
 					processServers(keywords);
@@ -877,7 +878,8 @@ public class Bot extends PircBot {
 						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " register <password>");
 					break;
 				case ".send":
-					sendCommand(userLevel, keywords, hostname, sender);
+					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
+						sendCommand(userLevel, keywords, hostname, sender);
 					break;
 				default:
 					break;
