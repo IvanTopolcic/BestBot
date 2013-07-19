@@ -240,8 +240,8 @@ public class ConfigData {
 		this.bot_wad_directory_path = bot.get("waddir");
 		this.bot_iwad_directory_path = bot.get("iwaddir");
 		this.bot_cfg_directory_path = bot.get("cfgdir");
-		this.bot_whitelistdir = bot.get("banlistdir");
-		this.bot_banlistdir = bot.get("whitelistdir");
+		this.bot_whitelistdir = bot.get("whitelistdir");
+		this.bot_banlistdir = bot.get("banlistdir");
 		this.bot_adminlistdir = bot.get("adminlistdir");
 		this.bot_logfiledir = bot.get("logfiledir");
 		this.bot_executable = bot.get("executable");
