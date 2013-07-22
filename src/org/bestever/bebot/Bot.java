@@ -672,7 +672,7 @@ public class Bot extends PircBot {
 						return;
 					}
 					sendMessage(cfg_data.irc_channel, "Killing servers with " + numOfDays + "+ days of inactivity.");
-					Server[] sservers = getAllServers();
+					Server[] servers = getAllServers();
 					for (Server s : servers) {
 						if (System.currentTimeMillis() - s.serverprocess.last_activity > (Server.DAY_MILLISECONDS * numOfDays))
 							s.serverprocess.terminateServer();
