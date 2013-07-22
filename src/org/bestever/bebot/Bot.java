@@ -671,11 +671,9 @@ public class Bot extends PircBot {
 						sendMessage(cfg_data.irc_channel, "No servers to kill.");
 						return;
 					}
-					sendMessage(cfg_data.irc_channel, "Killing servers that are " + numOfDays + " days old or older...");
-					ListIterator<Server> it = servers.listIterator();
-					Server s = null;
-					while (it.hasNext()) {
-						s = it.next();
+					sendMessage(cfg_data.irc_channel, "Killing servers with " + numOfDays + "+ days of inactivity.");
+					Server[] sservers = getAllServers();
+					for (Server s : servers) {
 						if (System.currentTimeMillis() - s.serverprocess.last_activity > (Server.DAY_MILLISECONDS * numOfDays))
 							s.serverprocess.terminateServer();
 					}
