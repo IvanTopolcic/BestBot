@@ -675,6 +675,7 @@ public class Bot extends PircBot {
 					Server[] servers = getAllServers();
 					for (Server s : servers) {
 						if (System.currentTimeMillis() - s.serverprocess.last_activity > (Server.DAY_MILLISECONDS * numOfDays))
+							s.auto_restart = false;
 							s.serverprocess.terminateServer();
 					}
 				} else {
