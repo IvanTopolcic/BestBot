@@ -20,6 +20,7 @@ import static org.bestever.bebot.AccountType.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.*;
 
 import org.bestever.serverquery.QueryManager;
@@ -100,7 +101,7 @@ public class Bot extends PircBot {
 			System.exit(0);
 			e.printStackTrace();
 		}
-		
+
 		// Set initial ports
 		this.min_port = cfg_data.bot_min_port;
 		this.max_port = cfg_data.bot_max_port;
@@ -384,6 +385,9 @@ public class Bot extends PircBot {
 					break;
 				case ".commands":
 					sendMessage(cfg_data.irc_channel, "Allowed commands: " + processCommands(userLevel));
+					break;
+				case ".cpu":
+					sendMessage(cfg_data.irc_channel, String.valueOf(ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage()));
 					break;
 				case ".disconnect":
 					if (isAccountTypeOf(userLevel, ADMIN))
