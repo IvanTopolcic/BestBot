@@ -45,6 +45,11 @@ public class Bot extends PircBot {
 	 * The highest included port number that the bot uses
 	 */
 	private int max_port;
+
+	/**
+	 * When the bot was started
+	 */
+	public long time_started;
 	
 	/**
 	 * A toggle variable for allowing hosting
@@ -111,6 +116,9 @@ public class Bot extends PircBot {
 		
 		// Set up MySQL
 		 MySQL.setMySQL(this, cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
+
+		// Get the time the bot was started
+		this.time_started = System.currentTimeMillis();
 
 		// Begin a server query thread that will run
 		queryManager = new QueryManager(this);
@@ -437,6 +445,9 @@ public class Bot extends PircBot {
 				case ".slot":
 					MySQL.showSlot(hostname, keywords);
 					break;
+				case ".uptime":
+					sendMessage(cfg_data.irc_channel, Functions.calculateTime(System.currentTimeMillis() - time_started));
+					break;
 				default:
 					break;
 			}
@@ -450,13 +461,13 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
 		if (isAccountTypeOf(userLevel, ADMIN))
-			return ".autorestart .broadcast .commands .file .get .help .host .kill .killall .killmine .killinactive .load .off .on .owner .query .quit .rcon .save .send .servers .slot";
+			return ".autorestart .broadcast .commands .cpu .file .get .help .host .kill .killall .killmine .killinactive .load .off .on .owner .query .quit .rcon .save .send .servers .slot .uptime";
 		else if (isAccountTypeOf(userLevel, MODERATOR))
-			return ".autorestart .broadcast .commands .file .get .help .host .kill .killmine .killinactive .load .owner .query .rcon .save .send .servers .slot";
+			return ".autorestart .broadcast .commands .cpu .file .get .help .host .kill .killmine .killinactive .load .owner .query .rcon .save .send .servers .slot .uptime";
 		else if (isAccountTypeOf(userLevel, REGISTERED))
-			return ".commands .file .get .help .host .kill .killmine .killinactive .load .owner .query .rcon .save .send .servers .slot";
+			return ".commands .cpu .file .get .help .host .kill .killmine .killinactive .load .owner .query .rcon .save .send .servers .slot .uptime";
 		else 
-			return "[Not logged in, guests have limited access] .commands .file .help .servers";
+			return "[Not logged in, guests have limited access] .commands .cpu .file .help .servers .uptime";
 	}
 
 	/**
