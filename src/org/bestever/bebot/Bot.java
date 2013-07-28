@@ -222,20 +222,6 @@ public class Bot extends PircBot {
 	}
 	
 	/**
-	 * Returns all of the servers in the linked list
-	 * @return The server object
-	 */
-	// Need to check if it works
-	public Server[] getAllServers() {
-		logMessage(LOGLEVEL_TRIVIAL, "Requested getAllServers().");
-		if (servers == null || servers.isEmpty())
-			return null;
-		Server[] serverList = new Server[servers.size()];
-		serverList = servers.toArray(serverList);
-		return serverList;
-	}
-	
-	/**
 	 * This searches through the linkedlist to kill the server on that port,
 	 * the method does not actually kill it, but signals a boolean to terminate
 	 * which the thread that is running it will handle the termination itself and
@@ -304,7 +290,6 @@ public class Bot extends PircBot {
 	private void globalBroadcast(int level, String[] keywords) {
 		if (isAccountTypeOf(level, ADMIN, MODERATOR)) {
 			if (keywords.length > 1) {
-				Server[] servers = getAllServers();
 				if (servers != null) {
 					String message = Functions.implode(Arrays.copyOfRange(keywords, 1, keywords.length), " ");
 					for (Server s : servers) {
@@ -617,8 +602,7 @@ public class Bot extends PircBot {
 	private void processKillAll(int userLevel, String[] keywords) {
 		logMessage(LOGLEVEL_IMPORTANT, "Processing killall.");
 		if (isAccountTypeOf(userLevel, ADMIN)) {
-			Server[] servers = getAllServers();
-			if (servers != null && servers.length > 0) {
+			if (servers != null && servers.size() > 0) {
 				sendMessage(cfg_data.irc_channel, "Terminating all servers...");
 				for (Server s : servers) {
 					s.hide_stop_message = true;
@@ -676,7 +660,6 @@ public class Bot extends PircBot {
 						return;
 					}
 					sendMessage(cfg_data.irc_channel, "Killing servers with " + numOfDays + "+ days of inactivity.");
-					Server[] servers = getAllServers();
 					for (Server s : servers) {
 						if (System.currentTimeMillis() - s.serverprocess.last_activity > (Server.DAY_MILLISECONDS * numOfDays))
 							s.auto_restart = false;
