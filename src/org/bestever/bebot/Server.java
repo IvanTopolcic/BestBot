@@ -213,14 +213,13 @@ public class Server {
 	 * thread which processes them one by one from the queue to prevent two servers
 	 * attempting to use the same port at the same time
 	 * @param botReference The reference to the running bot
-	 * @param servers The linkedlist of servers for us to add on a server if successful
+	 * @param servers The LinkedList of servers for us to add on a server if successful
 	 * @param channel The channel it was sent from
 	 * @param hostname The hostname of the sender
 	 * @param message The message sent
-	 * @return Null if all went well, otherwise an error message to print to the bot
 	 */
 	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String hostname, String message, int userLevel, boolean autoRestart, int port) {
-		// Initialize server without linking it to the arraylist
+		// Initialize server without linking it to the ArrayList
 		Server server = new Server();
 		
 		// Reference server to bot
@@ -380,13 +379,13 @@ public class Server {
 		server.serverprocess.start();
 		MySQL.logServer(server.servername, server.server_id, Functions.getUserName(server.irc_hostname));
 	}
-	
+
 	/**
 	 * Servers stored in the database should be loaded upon invoking this
-	 * function on bot startup, the bot should call the MySQL's 
+	 * function on bot startup, the bot should call the MySQL's
 	 * {@link org.bestever.bebot.MySQL#pullServerData pullServerData() method}.
 	 * This will automatically (assuming there isn't a MySQL error) begin to get
-	 * the servers up and running and fill the objects with the appropriate 
+	 * the servers up and running and fill the objects with the appropriate
 	 * information.
 	 * @param bot The calling bot reference.
 	 */
@@ -407,17 +406,17 @@ public class Server {
 					database_id = rs.getInt("id");
 					server = new Server(); // Reference a new object each time we run through the servers
 					server.bot = bot;
-					server.buckshot = (rs.getInt("buckshot") == 1 ? true : false);
+					server.buckshot = (rs.getInt("buckshot") == 1);
 					server.compatflags = rs.getInt("compatflags");
 					server.compatflags2 = rs.getInt("compatflags2");
 					server.config = rs.getString("config");
 					server.dmflags = rs.getInt("dmflags");
 					server.dmflags2 = rs.getInt("dmflags2");
 					server.dmflags3 = rs.getInt("dmflags3");
-					server.enable_skulltag_data = (rs.getInt("enable_skulltag_data") == 1 ? true : false);
+					server.enable_skulltag_data = (rs.getInt("enable_skulltag_data") == 1);
 					server.gamemode = rs.getString("gamemode");
 					server.host_command = rs.getString("host_command");
-					server.instagib = (rs.getInt("instagib") == 1 ? true : false);
+					server.instagib = (rs.getInt("instagib") == 1);
 					server.irc_channel = rs.getString("irc_channel");
 					server.irc_hostname = rs.getString("irc_hostname");
 					server.irc_login = rs.getString("irc_login");
@@ -451,10 +450,7 @@ public class Server {
 	 */
 	private boolean checkConfig(String config) {
 		File f = new File(config);
-		if (f.exists())
-			return true;
-		else
-			return false;
+		return f.exists();
 	}
 
 	/**
@@ -718,34 +714,6 @@ public class Server {
 		if (input == null)
 			return "None";
 		else return input;
-	}
-	
-	/**
-	 * Checks to see if the core stuff is needed to start a server
-	 * @return True if it's a valid server, false otherwise
-	 */
-	public boolean validServer() {
-		if (this.time_started == 0 || this.play_time == 0)
-			return false;
-		if (this.sender == null) 
-			return false;
-		if (this.irc_channel == null) 
-			return false;
-		if (this.irc_hostname == null)
-			return false;
-		if (this.irc_login == null)
-			return false;
-		if (this.iwad == null)
-			return false;
-		if (this.gamemode == null)
-			return false;
-		if (this.rcon_password == null)
-			return false;
-		if (this.server_id == null)
-			return false;
-		if (this.servername == null)
-			return false;
-		return true;
 	}
 	
 	/**

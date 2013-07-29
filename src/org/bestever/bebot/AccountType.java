@@ -21,7 +21,7 @@ public class AccountType {
 	 * Below are the bitmask permissions for userroups
 	 **/
 	public static final int GUEST = 0; // 0
-	public static final int REGISTERED = 1 << 0; // 1
+	public static final int REGISTERED = 1; // 1
 	public static final int MODERATOR = 1 << 1; // 2
 	public static final int ADMIN = 1 << 2; // 4
 	public static final int RCON = 1 << 3; // 8
@@ -35,8 +35,8 @@ public class AccountType {
 	 * @return True if one of the types is met, false if none are
 	 */
 	public static boolean isAccountTypeOf(int accountType, int... types) {
-		for (int i = 0; i < types.length; i++) {
-			if ((accountType & types[i]) == types[i])
+		for (int type : types) {
+			if ((accountType & type) == type)
 				return true;
 		}
 		// If we didn't find any matches at all

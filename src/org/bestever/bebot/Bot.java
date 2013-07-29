@@ -55,11 +55,6 @@ public class Bot extends PircBot {
 	 * A toggle variable for allowing hosting
 	 */
 	private boolean botEnabled = true;
-
-	/**
-	 * Contains the configuration file
-	 */
-	private static String cfg_file;
 	
 	/**
 	 * Contains the config data
@@ -78,7 +73,6 @@ public class Bot extends PircBot {
 	
 	// Debugging purposes only
 	public static Bot staticBot;
-	public boolean queryDisabled = true;
 	
 	/**
 	 * Set the bot up with the constructor
@@ -112,7 +106,7 @@ public class Bot extends PircBot {
 		this.max_port = cfg_data.bot_max_port;
 		
 		// Set up the server arrays
-		this.servers = new LinkedList<Server>();
+		this.servers = new LinkedList<>();
 		
 		// Set up MySQL
 		 MySQL.setMySQL(this, cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
@@ -154,26 +148,10 @@ public class Bot extends PircBot {
 	public int getMaxPort() {
 		return max_port;
 	}
-
-	/**
-	 * This method attempts to set the max port to the specified value, if there
-	 * is an odd number entered (<= min_port) then it will not set it
-	 * @param max_port The desired change to a maximum port
-	 * @return True if the port was changed, false if there was an error
-	 */
-	public boolean setMaxPort(int max_port) {
-		logMessage(LOGLEVEL_DEBUG, "Invoked setMaxPort(" + max_port + ").");
-		if (max_port <= min_port)
-			return false;
-		else if (max_port == this.max_port)
-			return true; // Don't change anything
-		this.max_port = max_port;
-		return true;
-	}
 	
 	/**
 	 * This function goes through the linkedlist of servers and removes servers
-	 * @param server
+	 * @param server Server - the server object
 	 */
 	public void removeServerFromLinkedList(Server server) {
 		logMessage(LOGLEVEL_DEBUG, "Removing server from linked list.");
@@ -199,7 +177,7 @@ public class Bot extends PircBot {
 		if (servers == null || servers.isEmpty())
 			return null;
 		ListIterator<Server> it = servers.listIterator();
-		Server desiredServer = null;
+		Server desiredServer;
 		while (it.hasNext()) {
 			desiredServer = it.next();
 			if (desiredServer.port == port)
@@ -219,7 +197,7 @@ public class Bot extends PircBot {
 			return null;
 		Server desiredServer;
 		ListIterator<Server> it = servers.listIterator();
-		List<Server> serverList = new ArrayList<Server>();
+		List<Server> serverList = new ArrayList<>();
 		while (it.hasNext()) {
 			desiredServer = it.next();
 			if (Functions.getUserName(desiredServer.irc_hostname).equalsIgnoreCase(username)) {
@@ -387,7 +365,7 @@ public class Bot extends PircBot {
 						this.disconnect();
 					break;
 				case ".file":
-					processFile(userLevel, keywords, channel);
+					processFile(keywords, channel);
 					break;
 				case ".get":
 					processGet(userLevel, keywords);
@@ -402,16 +380,16 @@ public class Bot extends PircBot {
 					processKill(userLevel, keywords, hostname);
 					break;
 				case ".killall":
-					processKillAll(userLevel, keywords);
+					processKillAll(userLevel);
 					break;
 				case ".killmine":
-					processKillMine(userLevel, keywords, hostname);
+					processKillMine(userLevel, hostname);
 					break;
 				case ".killinactive":
 					processKillInactive(userLevel, keywords);
 					break;
 				case ".load":
-					MySQL.loadSlot(hostname, keywords, userLevel, channel, sender, login);
+					MySQL.loadSlot(hostname, keywords, userLevel, channel, sender);
 					break;
 				case ".off":
 					processOff(userLevel);
@@ -486,11 +464,10 @@ public class Bot extends PircBot {
 	
 	/**
 	 * This checks to see if the file exists in the wad directory (it is lower-cased)
-	 * @param userLevel The level of the user
 	 * @param keywords The keywords sent (should be a length of two)
 	 * @param channel The channel to respond to
 	 */
-	private void processFile(int userLevel, String[] keywords, String channel) {
+	private void processFile(String[] keywords, String channel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processFile().");
 		if (keywords.length == 2) {
 			File file = new File(cfg_data.bot_wad_directory_path + Functions.cleanInputFile(keywords[1].toLowerCase()));
@@ -608,9 +585,8 @@ public class Bot extends PircBot {
 	/**
 	 * When requested it will kill every server in the linked list
 	 * @param userLevel The user level of the person requesting
-	 * @param keywords The keywords requested
 	 */
-	private void processKillAll(int userLevel, String[] keywords) {
+	private void processKillAll(int userLevel) {
 		logMessage(LOGLEVEL_IMPORTANT, "Processing killall.");
 		if (isAccountTypeOf(userLevel, ADMIN)) {
 			if (servers != null && servers.size() > 0) {
@@ -629,10 +605,9 @@ public class Bot extends PircBot {
 	/**
 	 * This will look through the list and kill all the servers that the hostname owns
 	 * @param userLevel The level of the user
-	 * @param keywords The keywords requested
 	 * @param hostname The hostname of the person invoking this command
 	 */
-	private void processKillMine(int userLevel, String[] keywords, String hostname) {
+	private void processKillMine(int userLevel, String hostname) {
 		logMessage(LOGLEVEL_TRIVIAL, "Processing killmine.");
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 			List<Server> servers = getUserServers(Functions.getUserName(hostname));
@@ -929,7 +904,9 @@ public class Bot extends PircBot {
 		while (!isConnected()) {
 			try {
 				Thread.sleep(10000);
-			} catch (InterruptedException e1) { }
+			} catch (InterruptedException e) {
+				Logger.logMessage(LOGLEVEL_CRITICAL, "Could not sleep.");
+			}
 			try {
 				reconnect();
 			} catch (Exception e) {
@@ -950,13 +927,10 @@ public class Bot extends PircBot {
 			return;
 		}
 
-		// Keep the configuration file in case we need to reload it
-		cfg_file = args[0];
-
 		// Attempt to load the config
 		ConfigData cfg_data;
 		try {
-			cfg_data = new ConfigData(cfg_file);
+			cfg_data = new ConfigData(args[0]);
 		} catch (NumberFormatException e) {
 			System.out.println("Warning: ini file has a string where a number should be!");
 			e.printStackTrace();
@@ -968,6 +942,6 @@ public class Bot extends PircBot {
 		}
 		
 		// Start the bot
-		Bot bot = new Bot(cfg_data);
+		new Bot(cfg_data);
 	}
 }

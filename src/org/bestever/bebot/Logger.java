@@ -44,17 +44,9 @@ public class Logger {
 	}
 	
 	/**
-	 * Changes the log level for debugging
-	 * @param logLevel
-	 */
-	public static void setLogLevel(int logLevel) {
-		log_level = logLevel;
-	}
-	
-	/**
 	 * Writes a log message based on the log level
-	 * @param logLevel
-	 * @param message
+	 * @param logLevel int - severity of the message
+	 * @param message String - the message to log
 	 */
 	public static void logMessage(int logLevel, String message) {
 		// If it is not important enough for us then do not print it

@@ -24,11 +24,6 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class Functions {
-	
-	/**
-	 * If no port is available, this is returned
-	 */
-	public static final int NO_AVAILABLE_PORT = 0;
 
 	/**
 	 * Generates an MD5 hash
@@ -39,29 +34,6 @@ public class Functions {
 		MessageDigest md = MessageDigest.getInstance("MD5");
 		md.update(seed.getBytes());
 		return byteArrayToHex(md.digest());
-	}
-
-	/**
-	 * Returns an array of lines from character
-	 * Ignores simple C-style comments (//)
-	 * @param file full path to file
-	 * @return String[] of lines
-	 * @throws IOException
-	 */
-	public static String[] readFile(String file) throws IOException {
-		if (!fileExists(file)) {
-			Logger.logMessage(Logger.LOGLEVEL_IMPORTANT, "Could not open file '" + file + "' for reading.");
-			return null;
-		}
-		ArrayList<String> lines = new ArrayList<>();
-		BufferedReader br = new BufferedReader(new FileReader(file));
-		while (br.readLine() != null) {
-			if (!br.readLine().startsWith("//")) {
-				lines.add(br.readLine());
-			}
-		}
-		br.close();
-		return lines.toArray(new String[lines.size()]);
 	}
 
 	/**
@@ -149,7 +121,7 @@ public class Functions {
 			if (ss != null)
 				try {
 					ss.close();
-				} catch (IOException e) { }
+				} catch (IOException e) {  }
 		}
 		return false;
 	}
@@ -185,33 +157,18 @@ public class Functions {
 	}
 
 	/**
-	 * Takes a comma-seperated list of wads and returns a string parseable by Zandronum
-	 * @param wads comma-seperated list of wads
-	 * @return zandronum-parseable wad list
-	 */
-	public static String parseWads (String wads, String directory) {
-		String wadArray[] = wads.split(",");
-		for (int i = 0; i < wadArray.length; i++)
-			wadArray[i] = directory + wadArray[i].trim();
-		return implode(wadArray, " ");
-	}
-
-	/**
 	 * Check if a file exists
 	 * @param file String path to file
 	 * @return true if exists, false if not
 	 */
 	public static boolean fileExists(String file) {
 		File f = new File(file);
-		if (f.exists())
-			return true;
-		else
-			return false;
+		return f.exists();
 	}
 
 	/**
 	 * Returns a cleaned string for file inputs
-	 * @param input
+	 * @param input String - the string to clean
 	 * @return cleaned string
 	 */
 	public static String cleanInputFile(String input) {
@@ -220,8 +177,8 @@ public class Functions {
 
 	/**
 	 * Implodes a character between a string array
-	 * @param inputArray
-	 * @param glueString
+	 * @param inputArray String[] - array to combine
+	 * @param glueString String - delimiter
 	 * @return String containing all array elements seperated by glue string
 	 */
 	public static String implode(String[] inputArray, String glueString) {

@@ -19,7 +19,6 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.ListIterator;
 
 /**
  * This class is specifically for running the server only and notifying the 
@@ -241,7 +240,7 @@ public class ServerProcess extends Thread {
 				// If the port is used [NETWORK_Construct: Couldn't bind to 10666. Binding to 10667 instead...]
 				} else if (strLine.startsWith("NETWORK_Construct: Couldn't bind to ")) {
 					System.out.println(strLine);
-					portNumber = strLine.replace(new String("NETWORK_Construct: Couldn't bind to " + portNumber + ". Binding to "), "").replace(" instead...", "").trim();
+					portNumber = strLine.replace("NETWORK_Construct: Couldn't bind to " + portNumber + ". Binding to ", "").replace(" instead...", "").trim();
 					if (Functions.isNumeric(portNumber)) {
 						server.port = Integer.parseInt(portNumber);
 					} else

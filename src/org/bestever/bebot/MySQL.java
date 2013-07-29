@@ -269,9 +269,8 @@ public class MySQL {
 	 * @param level Int - their user level
 	 * @param channel String - the channel
 	 * @param sender String - sender's name
-	 * @param login String - sender's login name
 	 */
-	public static void loadSlot(String hostname, String[] words, int level, String channel, String sender, String login) {
+	public static void loadSlot(String hostname, String[] words, int level, String channel, String sender) {
 		if (words.length == 2) {
 			if (Functions.isNumeric(words[1])) {
 				int slot = Integer.parseInt(words[1]);
@@ -378,48 +377,5 @@ public class MySQL {
 			e.printStackTrace();
 			return null;
 		}
-	}
-	
-	/**
-	 * Grabs the data from the mysql database and runs servers by passing their
-	 * information off to a method in the bot that will process accordingly.
-	 * This should be run at startup and only startup.
-	 * @param bot The bot object that will have server data sent to it.
-	 */
-	public static void pullServerData(Bot bot) {
-	}
-	
-	/**
-	 * Writes the server object to the database. This is intended to be for read
-	 * only purposes if the bot goes down, and to be possibly used on the site
-	 * as a means of displaying information.
-	 * @param server The server object by which the data should be written from.
-	 */
-	public static boolean writeServerData(Server server) {
-		//INSERT INTO `server`.`servers` 
-		//       (`id`, `unique_id`, `username`, `date`, `time_started`, `sender`, `irc_channel`, `irc_hostname`, `irc_login`, `host_command`, `servername`, `iwad`,   `gamemode`,   `config`,    `wads`, `mapwads`, `enable_skulltag_data`, `instagib`, `buckshot`, `dmflags`, `dmflags2`, `dmflags3`, `compatflags`, `compatflags2`, `online`) 
-		//VALUES ('1', 'asdij9dmkma', 'dummy', '2013-01-01',    '0',        'me',    'ircchan',     'irchost',    'irclogin',  '.host crap',      'hello',   'doom2', 'deathmatch', 'rofl.cfg', 'yes.wad', 'no.wad',             '1',           '0',         '0',      '3248',     '284',       '4',        '28248',         '1',         '1');
-		return false;
-	}
-	
-	/**
-	 * Clears all the servers starting on the specified key up until the max
-	 * port. This is to be used after the server data from the database have 
-	 * been pulled at startup.
-	 * @param primaryKeyToStartAt The ID of the key by which server rows should
-	 * have the Online column set to zero.
-	 * @return True if it was completed successfully, false if there was any 
-	 * kind of SQLException thrown while trying to set the servers.
-	 */
-	// UNIMPLEMENTED YET
-	@SuppressWarnings("unused")
-	private boolean clearInactiveServerOnlineColumn(int primaryKeyToStartAt) {
-		//try {
-		//	
-		//} catch (SQLException e) {
-		//	e.printStackTrace();
-		//	return false;
-		//}
-		return true;
 	}
 }

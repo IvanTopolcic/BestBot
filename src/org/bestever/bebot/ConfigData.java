@@ -188,7 +188,7 @@ public class ConfigData {
 	 * @throws FileNotFoundException 
 	 * @throws InvalidFileFormatException 
 	 */
-	public ConfigData(String filepath) throws InvalidFileFormatException, FileNotFoundException, IOException, NumberFormatException {
+	public ConfigData(String filepath) throws IOException, NumberFormatException {
 		this.filepath = filepath;
 		parseConfigFile();
 	}
@@ -199,7 +199,7 @@ public class ConfigData {
 	 * @throws FileNotFoundException 
 	 * @throws InvalidFileFormatException 
 	 */
-	private void parseConfigFile() throws InvalidFileFormatException, FileNotFoundException, IOException, NumberFormatException {
+	private void parseConfigFile() throws IOException, NumberFormatException {
 		
 		// Initialize the ini object
 		Ini ini = new Ini();
