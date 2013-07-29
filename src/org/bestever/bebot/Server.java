@@ -699,13 +699,13 @@ public class Server {
 		if (input == null && !this.enable_skulltag_data)
 			return "None";
 		else if (input == null)
-			return "skulltag_actors.pk3 and skulltag_data.pk3";
+			return "skulltag_actors_1-1-1.pk3 and skulltag_data.pk3";
 		if (Functions.implode(this.wads, ", ") == null)
 			wads += this.wads[0];
 		else
 			wads += Functions.implode(input, ", ");
 		if (this.enable_skulltag_data)
-			wads += " with skulltag_actors.pk3 and skulltag_data.pk3";
+			wads += " with skulltag_actors_1-1-1.pk3 and skulltag_data.pk3";
 		return wads;
 	}
 

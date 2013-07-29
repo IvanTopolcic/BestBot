@@ -100,7 +100,7 @@ public class ServerProcess extends Thread {
 			runCommand.add("-iwad " + server.bot.cfg_data.bot_iwad_directory_path + server.iwad);
 		
 		if (server.enable_skulltag_data)
-			runCommand.add("-file " + server.bot.cfg_data.bot_wad_directory_path + "skulltag_actors.pk3 -file " + server.bot.cfg_data.bot_wad_directory_path + "skulltag_data.pk3");
+			runCommand.add("-file " + server.bot.cfg_data.bot_wad_directory_path + "skulltag_actors_1-1-1.pk3 -file " + server.bot.cfg_data.bot_wad_directory_path + "skulltag_data.pk3");
 
 		if (server.wads != null) {
 			for (String wad : server.wads) {
