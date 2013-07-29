@@ -363,6 +363,7 @@ public class Server {
 		// Check if the global server limit has been reached
 		if (Functions.getFirstAvailablePort(server.bot.getMinPort(), server.bot.getMaxPort()) == 0) {
 			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Global server limit has been reached.");
+			return;
 		}
 
 		// Generate the unique ID
