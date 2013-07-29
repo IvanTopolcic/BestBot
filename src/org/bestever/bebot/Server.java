@@ -348,7 +348,7 @@ public class Server {
 
 		// Now that we've indexed the string, check to see if we have what we need to start a server
 		if (server.iwad == null) {
-			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "You are missing an iwad! You can add it by appending: iwad=your_iwad");
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "You are missing an iwad, or have specified an incorrect iwad. You can add it by appending: iwad=your_iwad");
 			return;
 		}
 		if (server.gamemode == null) {
@@ -356,7 +356,7 @@ public class Server {
 			return;
 		}
 		if (server.servername == null) {
-			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "You are missing the hostname! You can add it by appending: hostname=\"Your Server Name\"");
+			server.bot.sendMessage(server.bot.cfg_data.irc_channel, "You are missing the hostname, or your hostname syntax is wrong. You can add it by appending: hostname=\"Your Server Name\"");
 			return;
 		}
 
