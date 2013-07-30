@@ -284,7 +284,7 @@ public class Bot extends PircBot {
 					}
 					else {
 						s.protected_server = true;
-						sendMessage(cfg_data.irc_channel, "Kill protection disabled");
+						sendMessage(cfg_data.irc_channel, "Kill protection disabled.");
 					}
 				}
 			}
@@ -469,9 +469,9 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
 		if (isAccountTypeOf(userLevel, ADMIN))
-			return ".autorestart .broadcast .commands .cpu .file .get .help .host .kill .killall .killmine .killinactive .load .off .on .owner .query .quit .rcon .save .send .servers .slot .uptime";
+			return ".autorestart .broadcast .commands .cpu .file .get .help .host .kill .killall .killmine .killinactive .load .off .on .owner .protect .query .quit .rcon .save .send .servers .slot .uptime";
 		else if (isAccountTypeOf(userLevel, MODERATOR))
-			return ".autorestart .broadcast .commands .cpu .file .get .help .host .kill .killmine .killinactive .load .owner .query .rcon .save .send .servers .slot .uptime";
+			return ".autorestart .broadcast .commands .cpu .file .get .help .host .kill .killmine .killinactive .load .owner .protect .query .rcon .save .send .servers .slot .uptime";
 		else if (isAccountTypeOf(userLevel, REGISTERED))
 			return ".commands .cpu .file .get .help .host .kill .killmine .killinactive .load .owner .query .rcon .save .send .servers .slot .uptime";
 		else 
