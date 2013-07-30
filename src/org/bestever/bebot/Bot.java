@@ -269,6 +269,33 @@ public class Bot extends PircBot {
 	}
 
 	/**
+	 * Toggles the protected server state on or off (protected servers are immune to killinactive)
+	 * @param level int - the user's level (bitmask)
+	 * @param keywords String[] - array of words in message sent
+	 */
+	private void protectServer(int level, String[] keywords) {
+		if (isAccountTypeOf(level, ADMIN, MODERATOR)) {
+			if (keywords.length == 2) {
+				if (Functions.isNumeric(keywords[1])) {
+					Server s = getServer(Integer.parseInt(keywords[1]));
+					if (s.protected_server) {
+						s.protected_server = false;
+						sendMessage(cfg_data.irc_channel, "Kill protection enabled.");
+					}
+					else {
+						s.protected_server = true;
+						sendMessage(cfg_data.irc_channel, "Kill protection disabled");
+					}
+				}
+			}
+			else
+				sendMessage(cfg_data.irc_channel, "Correct usage is .protect <port>");
+		}
+		else
+			sendMessage(cfg_data.irc_channel, "You do not have permission to use this command.");
+	}
+
+	/**
 	 * Sends a message to all servers
 	 * @param level int - the user's level
 	 * @param keywords String[] - array of words in message sent
@@ -399,6 +426,9 @@ public class Bot extends PircBot {
 					break;
 				case ".owner":
 					processOwner(userLevel, keywords);
+					break;
+				case ".protect":
+					protectServer(userLevel, keywords);
 					break;
 				case ".query":
 					handleQuery(userLevel, keywords);
@@ -648,8 +678,10 @@ public class Bot extends PircBot {
 					sendMessage(cfg_data.irc_channel, "Killing servers with " + numOfDays + "+ days of inactivity.");
 					for (Server s : servers) {
 						if (System.currentTimeMillis() - s.serverprocess.last_activity > (Server.DAY_MILLISECONDS * numOfDays))
-							s.auto_restart = false;
-							s.serverprocess.terminateServer();
+							if (!s.protected_server) {
+								s.auto_restart = false;
+								s.serverprocess.terminateServer();
+							}
 					}
 				} else {
 					sendMessage(cfg_data.irc_channel, "Using zero or less for .killinactive is not allowed.");

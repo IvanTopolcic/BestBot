@@ -35,6 +35,11 @@ public class Server {
 	public int temp_port;
 
 	/**
+	 * Protected servers cannot be killed by inactivity
+	 */
+	public boolean protected_server = false;
+
+	/**
 	 * If true, servers will not say "server stopped on port..."
 	 */
 	public boolean hide_stop_message = false;
