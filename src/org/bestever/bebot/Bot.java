@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.bestever.serverquery.QueryManager;
 import org.bestever.serverquery.ServerQueryRequest;
@@ -633,9 +634,13 @@ public class Bot extends PircBot {
 	private void processKillAll(int userLevel) {
 		logMessage(LOGLEVEL_IMPORTANT, "Processing killall.");
 		if (isAccountTypeOf(userLevel, ADMIN)) {
-			if (servers != null && servers.size() > 0) {
+			// If we use this.servers instead of a temporary list, it will remove the servers from the list while iterating over them
+			// This will throw a concurrent modification exception
+			// As a temporary solution, we can create a temporary list that will hold the values of the real list at the time it was called
+			List<Server> tempList = new LinkedList<>(servers);
+			if (tempList.size() > 0) {
 				sendMessage(cfg_data.irc_channel, "Terminating all servers...");
-				for (Server s : servers) {
+				for (Server s : tempList) {
 					s.hide_stop_message = true;
 					s.auto_restart = false;
 					s.killServer();
@@ -827,7 +832,6 @@ public class Bot extends PircBot {
 	private void processQuit(int userLevel) {
 		logMessage(LOGLEVEL_CRITICAL, "Requested bot termination. Shutting down program.");
 		if (isAccountTypeOf(userLevel, ADMIN)) {
-			this.disconnect();
 			System.exit(0);
 		}
 	}
