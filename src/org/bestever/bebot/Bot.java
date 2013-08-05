@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.bestever.serverquery.QueryManager;
 import org.bestever.serverquery.ServerQueryRequest;
