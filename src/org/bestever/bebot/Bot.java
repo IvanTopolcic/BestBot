@@ -113,9 +113,9 @@ public class Bot extends PircBot {
 		// Set up the notice timer (if set)
 		if (cfg_data.bot_notice != null) {
 			timer = new Timer();
-			timer.scheduleAtFixedRate(new NoticeTimer(this), 0, cfg_data.bot_notice_interval * 1000);
+			timer.scheduleAtFixedRate(new NoticeTimer(this), 1000, cfg_data.bot_notice_interval * 1000);
 		}
-		
+
 		// Set up the server arrays
 		this.servers = new LinkedList<>();
 		
