@@ -65,6 +65,11 @@ public class Bot extends PircBot {
 	 * Contained a array list of all the servers
 	 */
 	public LinkedList<Server> servers;
+
+	/**
+	 * Holds the timer (for timed broadcasts)
+	 */
+	public Timer timer;
 	
 	/**
 	 * A query manager thread for handling external server requests
@@ -104,6 +109,12 @@ public class Bot extends PircBot {
 		// Set initial ports
 		this.min_port = cfg_data.bot_min_port;
 		this.max_port = cfg_data.bot_max_port;
+
+		// Set up the notice timer (if set)
+		if (cfg_data.bot_notice != null) {
+			timer = new Timer();
+			timer.scheduleAtFixedRate(new NoticeTimer(this), 0, cfg_data.bot_notice_interval * 1000);
+		}
 		
 		// Set up the server arrays
 		this.servers = new LinkedList<>();
@@ -398,7 +409,10 @@ public class Bot extends PircBot {
 					processGet(userLevel, keywords);
 					break;
 				case ".help":
-					sendMessage(cfg_data.irc_channel, cfg_data.bot_help);
+					if (cfg_data.bot_help != null)
+						sendMessage(cfg_data.irc_channel, cfg_data.bot_help);
+					else
+						sendMessage(cfg_data.irc_channel, "There is no helpfile.");
 					break;
 				case ".host":
 					processHost(userLevel, channel, sender, hostname, message, false, getMinPort());

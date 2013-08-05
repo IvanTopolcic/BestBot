@@ -176,6 +176,16 @@ public class ConfigData {
 	public String bot_help;
 
 	/**
+	 * If set, this message will broadcast to all servers in bot_notice_interval time
+	 */
+	public String bot_notice;
+
+	/**
+	 * Interval time for broadcast of bot_notice (seconds)
+	 */
+	public int bot_notice_interval;
+
+	/**
 	 * Contains the base of the hostname that you wish to append to servers at
 	 * the beginning of their sv_hostname
 	 */
@@ -248,5 +258,9 @@ public class ConfigData {
 		this.bot_public_rcon = Boolean.parseBoolean(bot.get("public_rcon"));
 		this.bot_hostname_base = bot.get("hostname_base");
 		this.bot_help = bot.get("help");
+		if (bot.get("notice") != null)
+			this.bot_notice = bot.get("notice");
+		if (bot.get("notice_interval") != null)
+			this.bot_notice_interval = Integer.parseInt(bot.get("notice_interval"));
 	}
 }
