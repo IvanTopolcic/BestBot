@@ -291,11 +291,11 @@ public class Bot extends PircBot {
 					Server s = getServer(Integer.parseInt(keywords[1]));
 					if (s.protected_server) {
 						s.protected_server = false;
-						sendMessage(cfg_data.irc_channel, "Kill protection enabled.");
+						sendMessage(cfg_data.irc_channel, "Kill protection disabled.");
 					}
 					else {
 						s.protected_server = true;
-						sendMessage(cfg_data.irc_channel, "Kill protection disabled.");
+						sendMessage(cfg_data.irc_channel, "Kill protection enabled.");
 					}
 				}
 			}
