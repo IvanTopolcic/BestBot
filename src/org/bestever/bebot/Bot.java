@@ -487,7 +487,7 @@ public class Bot extends PircBot {
 		else if (isAccountTypeOf(userLevel, MODERATOR))
 			return ".autorestart .broadcast .commands .cpu .file .get .help .host .kill .killmine .killinactive .load .owner .protect .query .rcon .save .send .servers .slot .uptime";
 		else if (isAccountTypeOf(userLevel, REGISTERED))
-			return ".commands .cpu .file .get .help .host .kill .killmine .killinactive .load .owner .query .rcon .save .send .servers .slot .uptime";
+			return ".commands .cpu .file .get .help .host .kill .killmine .load .owner .query .rcon .save .send .servers .slot .uptime";
 		else 
 			return "[Not logged in, guests have limited access] .commands .cpu .file .help .servers .uptime";
 	}
@@ -569,7 +569,7 @@ public class Bot extends PircBot {
 					sendMessage(cfg_data.irc_channel, "You have reached your server limit (" + slots + ")");
 			}
 			else
-				sendMessage(cfg_data.irc_channel, "You must register and be logged in to IRC to use the bot to host!");
+				sendMessage(cfg_data.irc_channel, "You must register with BestEver and be logged in to IRC to use the bot to host!");
 		}
 		else
 			sendMessage(cfg_data.irc_channel, "The bot is currently disabled from hosting for the time being. Sorry for any inconvenience!");
@@ -644,6 +644,8 @@ public class Bot extends PircBot {
 			} else
 				sendMessage(cfg_data.irc_channel, "There are no servers running.");
 		}
+		else
+			sendMessage(cfg_data.irc_channel, "You do not have permission to use this command.");
 	}
 	
 	/**
