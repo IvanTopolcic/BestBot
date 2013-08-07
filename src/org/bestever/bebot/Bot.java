@@ -696,7 +696,9 @@ public class Bot extends PircBot {
 						return;
 					}
 					sendMessage(cfg_data.irc_channel, "Killing servers with " + numOfDays + "+ days of inactivity.");
-					for (Server s : servers) {
+					// Temporary list to avoid concurrent modification exception
+					List<Server> tempList = new LinkedList<>(servers);
+					for (Server s : tempList) {
 						if (System.currentTimeMillis() - s.serverprocess.last_activity > (Server.DAY_MILLISECONDS * numOfDays))
 							if (!s.protected_server) {
 								s.auto_restart = false;
