@@ -93,6 +93,44 @@ public class MySQL {
 	}
 
 	/**
+	 * Adds a ban to the banlist
+	 * @param ip String - ip of the person to ban
+	 * @param reason String - the reason to show they are banned for
+	 */
+	public static void addBan(String ip, String reason) {
+		String query = "INSERT INTO `" + mysql_db + "`.`banlist` VALUES (?, ?)";
+		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
+			pst.setString(1, ip);
+			pst.setString(2, reason);
+			if (pst.executeUpdate() == 1)
+				bot.sendMessage(bot.cfg_data.irc_channel, "Added ban to banlist.");
+			else
+				bot.sendMessage(bot.cfg_data.irc_channel, "Could not add ban to banlist.");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logMessage(LOGLEVEL_IMPORTANT, "Could not add ban to banlist");
+		}
+	}
+
+	/**
+	 * Deletes an IP address from the banlist
+	 * @param ip String - the IP address to remove
+	 */
+	public static void delBan(String ip) {
+		String query = "DELETE FROM `" + mysql_db + "`.`banlist` WHERE `ip` = ?";
+		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
+			pst.setString(1, ip);
+			if (pst.executeUpdate() <= 0)
+				bot.sendMessage(bot.cfg_data.irc_channel, "IP does not exist.");
+			else
+				bot.sendMessage(bot.cfg_data.irc_channel, "Removed " + ip + " from banlist.");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logMessage(LOGLEVEL_IMPORTANT, "Could not delete ip from banlist");
+		}
+	}
+
+	/**
 	 * Gets the maximum number of servers the user is allowed to host
 	 * @param hostname String - the user's hostname
 	 * @return server_limit Int - maximum server limit of the user

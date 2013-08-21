@@ -386,6 +386,10 @@ public class Bot extends PircBot {
 			// Perform function based on input (note: login is handled by the MySQL function/class); also mostly in alphabetical order for convenience
 			int userLevel = MySQL.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
+				case ".addban":
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
+						MySQL.addBan(message.split(" ")[1], Functions.implode(Arrays.copyOfRange(message.split(" "), 2, message.split(" ").length), " "));
+					break;
 				case ".autorestart":
 					toggleAutoRestart(userLevel, keywords);
 					break;
@@ -397,6 +401,10 @@ public class Bot extends PircBot {
 					break;
 				case ".cpu":
 					sendMessage(cfg_data.irc_channel, String.valueOf(ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage()));
+					break;
+				case ".delban":
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
+						MySQL.delBan(message.split(" ")[1]);
 					break;
 				case ".disconnect":
 					if (isAccountTypeOf(userLevel, ADMIN))
@@ -499,11 +507,11 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
 		if (isAccountTypeOf(userLevel, ADMIN))
-			return ".autorestart .broadcast .commands .cpu .file .get .help .host .kill .killall .killmine .killinactive .load .off .on .owner .protect .query .quit .rcon .save .send .servers .slot .uptime";
+			return ".addban .autorestart .broadcast .commands .cpu .delban .file .get .help .host .kill .killall .killmine .killinactive .load .off .on .owner .protect .query .quit .rcon .save .send .servers .slot .uptime .whoami";
 		else if (isAccountTypeOf(userLevel, MODERATOR))
-			return ".autorestart .broadcast .commands .cpu .file .get .help .host .kill .killmine .killinactive .load .owner .protect .query .rcon .save .send .servers .slot .uptime";
+			return ".addban .autorestart .broadcast .commands .cpu .delban .file .get .help .host .kill .killmine .killinactive .load .owner .protect .query .rcon .save .send .servers .slot .uptime .whoami";
 		else if (isAccountTypeOf(userLevel, REGISTERED))
-			return ".commands .cpu .file .get .help .host .kill .killmine .load .owner .query .rcon .save .servers .slot .uptime";
+			return ".commands .cpu .file .get .help .host .kill .killmine .load .owner .query .rcon .save .servers .slot .uptime .whoami";
 		else 
 			return "[Not logged in, guests have limited access] .commands .cpu .file .help .servers .uptime .whoami";
 	}
