@@ -249,7 +249,7 @@ public class Server {
 
 		// While we have a key=value
 		while (m.find()) {
-			switch (m.group(1)) {
+			switch (m.group(1).toLowerCase()) {
 				case "autorestart":
 					server.auto_restart = handleTrue(m.group(2));
 					break;
@@ -387,8 +387,7 @@ public class Server {
 
 	/**
 	 * Servers stored in the database should be loaded upon invoking this
-	 * function on bot startup, the bot should call the MySQL's
-	 * {@link org.bestever.bebot.MySQL#pullServerData pullServerData() method}.
+	 * function on bot startup
 	 * This will automatically (assuming there isn't a MySQL error) begin to get
 	 * the servers up and running and fill the objects with the appropriate
 	 * information.
