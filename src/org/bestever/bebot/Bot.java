@@ -487,7 +487,7 @@ public class Bot extends PircBot {
 		else if (isAccountTypeOf(userLevel, MODERATOR))
 			return ".autorestart .broadcast .commands .cpu .file .get .help .host .kill .killmine .killinactive .load .owner .protect .query .rcon .save .send .servers .slot .uptime";
 		else if (isAccountTypeOf(userLevel, REGISTERED))
-			return ".commands .cpu .file .get .help .host .kill .killmine .load .owner .query .rcon .save .send .servers .slot .uptime";
+			return ".commands .cpu .file .get .help .host .kill .killmine .load .owner .query .rcon .save .servers .slot .uptime";
 		else 
 			return "[Not logged in, guests have limited access] .commands .cpu .file .help .servers .uptime";
 	}
