@@ -470,10 +470,26 @@ public class Bot extends PircBot {
 				case ".uptime":
 					sendMessage(cfg_data.irc_channel, Functions.calculateTime(System.currentTimeMillis() - time_started));
 					break;
+				case ".whoami":
+					sendMessage(cfg_data.irc_channel, getLoggedIn(hostname, userLevel));
+					break;
 				default:
 					break;
 			}
 		}
+	}
+
+	/**
+	 * Returns the login of the invoking user
+	 * @param hostname String - the user's hostname
+	 * @param level int - bitmask level of the user
+	 * @return whether the user is logged in or not
+	 */
+	private String getLoggedIn(String hostname, int level) {
+		if (isAccountTypeOf(level, REGISTERED))
+			return "You are logged in as " + Functions.getUserName(hostname);
+		else
+			return "You are not logged in.";
 	}
 
 	/**
@@ -489,7 +505,7 @@ public class Bot extends PircBot {
 		else if (isAccountTypeOf(userLevel, REGISTERED))
 			return ".commands .cpu .file .get .help .host .kill .killmine .load .owner .query .rcon .save .servers .slot .uptime";
 		else 
-			return "[Not logged in, guests have limited access] .commands .cpu .file .help .servers .uptime";
+			return "[Not logged in, guests have limited access] .commands .cpu .file .help .servers .uptime .whoami";
 	}
 
 	/**
@@ -869,6 +885,12 @@ public class Bot extends PircBot {
 	 * @param message The message transmitted
 	 */
 	public void onPrivateMessage(String sender, String login, String hostname, String message) {
+
+		// Check for custom hostmasks
+		if (!Functions.checkLoggedIn(hostname))
+			if (!MySQL.getUsername(hostname).equals("None"))
+				hostname = MySQL.getUsername(hostname);
+
 		// As of now, you can only perform commands if you are logged in, so we don't need an else here
 		if (Functions.checkLoggedIn(hostname)) {
 			// Generate an array of keywords from the message (similar to onMessage)
