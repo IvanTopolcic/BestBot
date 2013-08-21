@@ -118,7 +118,7 @@ public class MySQL {
 	/**
 	 * Queries the database and returns the level of the user
 	 * @param hostname of the user
-	 * @return level for success, 0 for fail, -1 for non-existant username
+	 * @return level for success, 0 for fail, -1 for non-existent username
 	 */
 	public static int getLevel(String hostname){
 		if (Functions.checkLoggedIn(hostname)) {

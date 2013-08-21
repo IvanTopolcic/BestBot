@@ -749,7 +749,6 @@ public class Bot extends PircBot {
 	 */
 	private void processOwner(int userLevel, String[] keywords) {
 		logMessage(LOGLEVEL_DEBUG, "Processing an owner.");
-		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 			if (keywords.length == 2) {
 				if (Functions.isNumeric(keywords[1])) {
 					Server s = getServer(Integer.parseInt(keywords[1]));
@@ -761,7 +760,6 @@ public class Bot extends PircBot {
 					sendMessage(cfg_data.irc_channel, "Invalid port number.");
 			} else
 				sendMessage(cfg_data.irc_channel, "Improper syntax, use: .owner <port>");
-		}
 	}
 	
 	/**
