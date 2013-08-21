@@ -21,6 +21,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.bestever.bebot.Logger.*;
 
@@ -122,8 +124,14 @@ public class MySQL {
 			pst.setString(1, ip);
 			if (pst.executeUpdate() <= 0)
 				bot.sendMessage(bot.cfg_data.irc_channel, "IP does not exist.");
-			else
+			else {
+				// Temporary list to avoid concurrent modification exception
+				List<Server> tempList = new LinkedList<>(bot.servers);
+				for (Server server : tempList) {
+					server.in.println("delban " + ip);
+				}
 				bot.sendMessage(bot.cfg_data.irc_channel, "Removed " + ip + " from banlist.");
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 			logMessage(LOGLEVEL_IMPORTANT, "Could not delete ip from banlist");
