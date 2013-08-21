@@ -440,6 +440,10 @@ public class Bot extends PircBot {
 				case ".load":
 					MySQL.loadSlot(hostname, keywords, userLevel, channel, sender);
 					break;
+				case ".notice":
+					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
+						cfg_data.bot_notice = Functions.implode(Arrays.copyOfRange(keywords, 1, keywords.length), " ");
+					break;
 				case ".off":
 					processOff(userLevel);
 					break;
