@@ -992,7 +992,7 @@ public class Bot extends PircBot {
 				reconnect();
 			} catch (Exception e) {
 				System.out.println("Couldn't reconnect... trying again in 30 seconds.");
-				Logger.logMessage(LOGLEVEL_IMPORTANT, "Could not reconnect. Attemption to reconnect in 30 seconds.");
+				Logger.logMessage(LOGLEVEL_IMPORTANT, "Could not reconnect. Attempting to reconnect in 30 seconds.");
 			}
 		}
 	}

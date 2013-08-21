@@ -255,6 +255,14 @@ public class ServerProcess extends Thread {
 					server.bot.sendMessage(server.sender, "To kill your server, in the channel " + server.bot.cfg_data.irc_channel + ", type .killmine to kill all of your servers, or .kill " + server.port + " to kill just this one.");
 				}
 
+				// Check for banned players
+				if (keywords[0].equals("CONNECTION")) {
+					String ip = keywords[2].split(":")[0];
+					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "IP address is " + ip);
+					if (MySQL.checkBanned(ip))
+						server.in.println("addban " + ip + " perm \"You have been banned from Best Ever. If you feel that this is an error, please visit irc.zandronum.com #bestever.\"");
+				}
+
 				// Check for RCON password changes
 				if (keywords.length > 3) {
 					if (keywords[0].equals("->") && keywords[1].equalsIgnoreCase("sv_rconpassword"))

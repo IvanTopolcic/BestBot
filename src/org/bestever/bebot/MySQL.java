@@ -95,6 +95,45 @@ public class MySQL {
 	}
 
 	/**
+	 * Gets a ban reason for the specified IP
+	 * @param ip String - IP address
+	 * @return String - the ban reason
+	 */
+	public static String getBanReason(String ip) {
+		String query = "SELECT `reason` FROM `" + mysql_db + "`.`banlist` WHERE `ip` = ?";
+		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
+			pst.setString(1, ip);
+			ResultSet r = pst.executeQuery();
+			return r.getString("reason");
+		}  catch (SQLException e) {
+			e.printStackTrace();
+			logMessage(LOGLEVEL_IMPORTANT, "Could not check ban.");
+			return "null reason";
+		}
+	}
+
+	/**
+	 * Checks if an IP address is banned
+	 * @param ip String - ip address
+	 * @return true/false
+	 */
+	public static boolean checkBanned(String ip) {
+		String query = "SELECT * FROM `" + mysql_db +"`.`banlist` WHERE `ip` = ?";
+		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
+			pst.setString(1, ip);
+			ResultSet r = pst.executeQuery();
+			if (r.next())
+				return true;
+			else
+				return false;
+		}  catch (SQLException e) {
+			e.printStackTrace();
+			logMessage(LOGLEVEL_IMPORTANT, "Could not check ban.");
+			return false;
+		}
+	}
+
+	/**
 	 * Adds a ban to the banlist
 	 * @param ip String - ip of the person to ban
 	 * @param reason String - the reason to show they are banned for
