@@ -327,6 +327,9 @@ public class Server {
 				case "wad":
 					server.wads = addWads(m.group(2));
 					break;
+				default:
+					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Unknown option '" + m.group(2) + "'");
+					break;
 			}
 		}
 
