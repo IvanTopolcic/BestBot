@@ -517,7 +517,7 @@ public class Bot extends PircBot {
 		if (isAccountTypeOf(level, REGISTERED))
 			return "You are logged in as " + Functions.getUserName(hostname);
 		else
-			return "You are not logged in.";
+			return "You are not logged in or do not have an account with BE. Please visit http://www.best-ever.org/ for instructions on how to register";
 	}
 
 	/**
