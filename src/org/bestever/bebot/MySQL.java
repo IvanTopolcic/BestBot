@@ -15,6 +15,9 @@
 
 package org.bestever.bebot;
 
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -117,15 +120,21 @@ public class MySQL {
 	 * @param ip String - ip address
 	 * @return true/false
 	 */
-	public static boolean checkBanned(String ip) {
-		String query = "SELECT * FROM `" + mysql_db +"`.`banlist` WHERE `ip` = ?";
+	public static boolean checkBanned(String ip) throws UnknownHostException {
+		String query = "SELECT * FROM `" + mysql_db +"`.`banlist`";
 		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
-			pst.setString(1, ip);
 			ResultSet r = pst.executeQuery();
-			if (r.next())
-				return true;
-			else
-				return false;
+			while (r.next()) {
+				String decIP = r.getString("ip");
+				bot.sendMessage(bot.cfg_data.irc_channel, decIP);
+				if (decIP.contains("*")) {
+					if (Functions.inRange(ip, decIP))
+						return true;
+				}
+				else if (decIP.equals(ip))
+					return true;
+			}
+			return false;
 		}  catch (SQLException e) {
 			e.printStackTrace();
 			logMessage(LOGLEVEL_IMPORTANT, "Could not check ban.");

@@ -456,6 +456,10 @@ public class Bot extends PircBot {
 				case ".protect":
 					protectServer(userLevel, keywords);
 					break;
+				case ".purgebans":
+					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
+						purgeBans(keywords[1]);
+					break;
 				case ".query":
 					handleQuery(userLevel, keywords);
 					break;
@@ -492,6 +496,18 @@ public class Bot extends PircBot {
 	}
 
 	/**
+	 * Purges an IP address from all banlists
+	 * @param ip String - the target's IP address
+	 */
+	private void purgeBans(String ip) {
+		List<Server> tempList = new LinkedList<>(servers);
+		for (Server s : tempList) {
+			s.in.println("delban " + ip);
+		}
+		sendMessage(cfg_data.irc_channel, "Purged " + ip + " from all banlists.");
+	}
+
+	/**
 	 * Returns the login of the invoking user
 	 * @param hostname String - the user's hostname
 	 * @param level int - bitmask level of the user
@@ -511,9 +527,9 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
 		if (isAccountTypeOf(userLevel, ADMIN))
-			return ".addban .autorestart .broadcast .commands .cpu .delban .file .get .help .host .kill .killall .killmine .killinactive .load .off .on .owner .protect .query .quit .rcon .save .send .servers .slot .uptime .whoami";
+			return ".addban .autorestart .broadcast .commands .cpu .delban .file .get .help .host .kill .killall .killmine .killinactive .load .off .on .owner .protect .purgebans .query .quit .rcon .save .send .servers .slot .uptime .whoami";
 		else if (isAccountTypeOf(userLevel, MODERATOR))
-			return ".addban .autorestart .broadcast .commands .cpu .delban .file .get .help .host .kill .killmine .killinactive .load .owner .protect .query .rcon .save .send .servers .slot .uptime .whoami";
+			return ".addban .autorestart .broadcast .commands .cpu .delban .file .get .help .host .kill .killmine .killinactive .load .owner .protect .purgebans .query .rcon .save .send .servers .slot .uptime .whoami";
 		else if (isAccountTypeOf(userLevel, REGISTERED))
 			return ".commands .cpu .file .get .help .host .kill .killmine .load .owner .query .rcon .save .servers .slot .uptime .whoami";
 		else 

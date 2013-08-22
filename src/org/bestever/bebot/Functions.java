@@ -16,8 +16,11 @@
 package org.bestever.bebot;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -34,6 +37,20 @@ public class Functions {
 		MessageDigest md = MessageDigest.getInstance("MD5");
 		md.update(seed.getBytes());
 		return byteArrayToHex(md.digest());
+	}
+
+	/**
+	 * Checks if an IP address is in the range of another IP address
+	 * @param ip String - IP address of the user
+	 * @param ipRange String - IP range (asterisks)
+	 * @return true/false
+	 * @throws UnknownHostException
+	 */
+	public static boolean inRange(String ip, String ipRange) throws UnknownHostException {
+		long startIP = new BigInteger(InetAddress.getByName(ipRange.replace("*","0")).getAddress()).intValue();
+		long endIP = new BigInteger(InetAddress.getByName(ipRange.replace("*","255")).getAddress()).intValue();
+		long sourceIP = new BigInteger(InetAddress.getByName(ip).getAddress()).intValue();
+		return sourceIP >= startIP && sourceIP <= endIP;
 	}
 
 	/**
