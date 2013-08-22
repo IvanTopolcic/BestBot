@@ -120,7 +120,7 @@ public class MySQL {
 	 * @param ip String - ip address
 	 * @return true/false
 	 */
-	public static boolean checkBanned(String ip) throws UnknownHostException {
+	public static String checkBanned(String ip) throws UnknownHostException {
 		String query = "SELECT * FROM `" + mysql_db +"`.`banlist`";
 		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
 			ResultSet r = pst.executeQuery();
@@ -128,16 +128,16 @@ public class MySQL {
 				String decIP = r.getString("ip");
 				if (decIP.contains("*")) {
 					if (Functions.inRange(ip, decIP))
-						return true;
+						return decIP;
 				}
 				else if (decIP.equals(ip))
-					return true;
+					return decIP;
 			}
-			return false;
+			return null;
 		}  catch (SQLException e) {
 			e.printStackTrace();
 			logMessage(LOGLEVEL_IMPORTANT, "Could not check ban.");
-			return false;
+			return null;
 		}
 	}
 

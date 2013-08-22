@@ -258,8 +258,9 @@ public class ServerProcess extends Thread {
 				// Check for banned players
 				if (keywords[0].equals("CONNECTION")) {
 					String ip = keywords[2].split(":")[0];
-					if (MySQL.checkBanned(ip))
-						server.in.println("addban " + ip + " perm \"You have been banned from Best Ever. If you feel that this is an error, please visit irc.zandronum.com #bestever.\"");
+					String pIP;
+					if ((pIP = MySQL.checkBanned(ip)) != null)
+						server.in.println("addban " + pIP + " perm \"You have been banned from Best Ever. If you feel that this is an error, please visit irc.zandronum.com #bestever.\"");
 				}
 
 				// Check for RCON password changes
