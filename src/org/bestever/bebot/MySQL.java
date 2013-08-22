@@ -110,7 +110,7 @@ public class MySQL {
 			return r.getString("reason");
 		}  catch (SQLException e) {
 			e.printStackTrace();
-			logMessage(LOGLEVEL_IMPORTANT, "Could not check ban.");
+			logMessage(LOGLEVEL_IMPORTANT, "Could not get ban reason.");
 			return "null reason";
 		}
 	}
@@ -152,7 +152,7 @@ public class MySQL {
 			pst.setString(1, ip);
 			pst.setString(2, reason);
 			if (pst.executeUpdate() == 1)
-				bot.sendMessage(bot.cfg_data.irc_channel, "Added ban to banlist.");
+				bot.sendMessage(bot.cfg_data.irc_channel, "Added " + ip + " to banlist.");
 			else
 				bot.sendMessage(bot.cfg_data.irc_channel, "Could not add ban to banlist.");
 		} catch (SQLException e) {
