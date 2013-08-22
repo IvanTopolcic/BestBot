@@ -258,7 +258,6 @@ public class ServerProcess extends Thread {
 				// Check for banned players
 				if (keywords[0].equals("CONNECTION")) {
 					String ip = keywords[2].split(":")[0];
-					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "IP address is " + ip);
 					if (MySQL.checkBanned(ip))
 						server.in.println("addban " + ip + " perm \"You have been banned from Best Ever. If you feel that this is an error, please visit irc.zandronum.com #bestever.\"");
 				}

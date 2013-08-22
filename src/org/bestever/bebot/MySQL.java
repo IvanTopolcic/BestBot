@@ -126,7 +126,6 @@ public class MySQL {
 			ResultSet r = pst.executeQuery();
 			while (r.next()) {
 				String decIP = r.getString("ip");
-				bot.sendMessage(bot.cfg_data.irc_channel, decIP);
 				if (decIP.contains("*")) {
 					if (Functions.inRange(ip, decIP))
 						return true;
