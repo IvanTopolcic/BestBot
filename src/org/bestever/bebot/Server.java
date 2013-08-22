@@ -329,7 +329,7 @@ public class Server {
 					break;
 				default:
 					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Unknown option '" + m.group(2) + "'");
-					break;
+					return;
 			}
 		}
 
