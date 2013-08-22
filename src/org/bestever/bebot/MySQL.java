@@ -147,14 +147,15 @@ public class MySQL {
 	 * @param reason String - the reason to show they are banned for
 	 */
 	public static void addBan(String ip, String reason) {
-		String query = "INSERT INTO `" + mysql_db + "`.`banlist` VALUES (?, ?)";
+		String query = "INSERT INTO `" + mysql_db + "`.`banlist` VALUES (?, ?) ON DUPLICATE KEY UPDATE `reason` = ?";
 		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
 			pst.setString(1, ip);
 			pst.setString(2, reason);
+			pst.setString(3, reason);
 			if (pst.executeUpdate() == 1)
 				bot.sendMessage(bot.cfg_data.irc_channel, "Added " + ip + " to banlist.");
 			else
-				bot.sendMessage(bot.cfg_data.irc_channel, "Could not add ban to banlist.");
+				bot.sendMessage(bot.cfg_data.irc_channel, "That IP address is already banned!");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			logMessage(LOGLEVEL_IMPORTANT, "Could not add ban to banlist");
