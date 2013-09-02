@@ -515,6 +515,11 @@ public class Server {
 			case "doom1":
 			case "doom1.wad":
 				return "doom1.wad";
+			case "harmony":
+			case "harm1":
+			case "harmony.wad":
+			case "harm1.wad":
+				return "harm1.wad";
 			case "hacx":
 			case "hacx.wad":
 				return "hacx.wad";
