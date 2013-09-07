@@ -29,7 +29,7 @@ public class ServerProcess extends Thread {
 	/**
 	 * This contains the strings that will run in the process builder
 	 */
-	private String serverRunCommands;
+	private ArrayList<String> serverRunCommands;
 	
 	/**
 	 * A reference to the server
@@ -52,7 +52,7 @@ public class ServerProcess extends Thread {
 	 */
 	public ServerProcess(Server serverReference) {
 		this.server = serverReference;
-		this.serverRunCommands = processServerRunCommand();
+		processServerRunCommand();
 	}
 	
 	/** 
@@ -76,102 +76,106 @@ public class ServerProcess extends Thread {
 	 * The Server object is taken and
 	 * @return The hostbuilder string based on the data in the Server object
 	 */
-	private String processServerRunCommand() {
-		// This shouldn't happen but you never know
-		if (server == null)
-			return null;
+	private void processServerRunCommand() {
 
 		// Create an arraylist with all our strings
-		ArrayList<String> runCommand = new ArrayList<>();
+		serverRunCommands = new ArrayList<String>();
 		
-		runCommand.add(server.bot.cfg_data.bot_executable); // This must always be first
+		serverRunCommands.add(server.bot.cfg_data.bot_executable); // This must always be first
 
 		// Check if we have a temporary port (used for auto-restarting)
 		// This will try to host the server on the same port as before
 		if (server.temp_port != 0)
-			runCommand.add("-port " + server.temp_port);
+			addParameter("-port", String.valueOf(server.temp_port));
 		else
-			runCommand.add("-port " + Integer.toString(server.bot.getMinPort()));
+			addParameter("-port", Integer.toString(server.bot.getMinPort()));
 
-		runCommand.add("+exec " + server.bot.cfg_data.bot_cfg_directory_path + "global.cfg"); // Load the global configuration file
+		addParameter("+exec", server.bot.cfg_data.bot_cfg_directory_path + "global.cfg"); // Load the global configuration file
 		
 		if (server.iwad != null)
-			runCommand.add("-iwad " + server.bot.cfg_data.bot_iwad_directory_path + server.iwad);
+			addParameter("-iwad", server.bot.cfg_data.bot_iwad_directory_path + server.iwad);
 		
-		if (server.enable_skulltag_data)
-			runCommand.add("-file " + server.bot.cfg_data.bot_wad_directory_path + "skulltag_actors_1-1-1.pk3 -file " + server.bot.cfg_data.bot_wad_directory_path + "skulltag_data.pk3");
+		if (server.enable_skulltag_data) {
+			addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + "skulltag_actors_1-1-1.pk3 ");
+			addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + "skulltag_data.pk3");
+		}
 
 		if (server.wads != null) {
 			for (String wad : server.wads) {
-				runCommand.add("-file " + server.bot.cfg_data.bot_wad_directory_path + wad);
+				addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + wad);
 			}
 		}
 
 		if (server.mapwads != null) {
 			for (String wad : server.mapwads) {
-				runCommand.add("-file " + server.bot.cfg_data.bot_wad_directory_path + wad);
+				addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + wad);
 				try {
 					DoomFile f = new DoomFile(server.bot.cfg_data.bot_wad_directory_path + wad);
-					runCommand.add(f.getLevelNames(true));
+					for (String map : f.getLevelNames(true).split(" "))
+						serverRunCommands.add(map);
 				} catch (IOException e) {
 					Logger.logMessage(Logger.LOGLEVEL_CRITICAL, "Could not instantiate DoomFile class!");
 				}
 			}
 		}
 
-		if (server.skill > -1)
-			runCommand.add("+skill " + server.skill);
+		if (server.skill > -1) {
+			addParameter("+skill", String.valueOf(server.skill));
+		}
 		else {
 			server.skill = 4;
-			runCommand.add("+skill " + 4);
+			addParameter("+skill", String.valueOf(4));
 		}
 		
 		if (server.gamemode != null)
-			runCommand.add("+" + server.gamemode + " 1");
+			addParameter("+" + server.gamemode, " 1");
 		
 		if (server.dmflags > 0)
-			runCommand.add("+dmflags " + Integer.toString(server.dmflags));
+			addParameter("+dmflags", Integer.toString(server.dmflags));
 		
 		if (server.dmflags2 > 0)
-			runCommand.add("+dmflags2 " + Integer.toString(server.dmflags2));
+			addParameter("+dmflags2", Integer.toString(server.dmflags2));
 		
 		if (server.dmflags3 > 0)
-			runCommand.add("+dmflags3 " + Integer.toString(server.dmflags3));
+			addParameter("+dmflags3", Integer.toString(server.dmflags3));
 		
 		if (server.compatflags > 0)
-			runCommand.add("+compatflags " + Integer.toString(server.compatflags));
+			addParameter("+compatflags", Integer.toString(server.compatflags));
 		
 		if (server.compatflags2 > 0)
-			runCommand.add("+compatflags2 " + Integer.toString(server.compatflags2));
+			addParameter("+compatflags2", Integer.toString(server.compatflags2));
 		
 		if (server.instagib)
-			runCommand.add("+instagib 1");
+			addParameter("+instagib", "1");
 		
 		if (server.buckshot)
-			runCommand.add("+buckshot 1");
+			addParameter("+buckshot", "1");
 		
 		if (server.servername != null)
-			runCommand.add("+sv_hostname \"" + server.bot.cfg_data.bot_hostname_base + " " + server.servername + "\"");
+			addParameter("+sv_hostname", server.bot.cfg_data.bot_hostname_base + " " + server.servername);
 
 		if (server.config != null)
-			runCommand.add("+exec " + server.bot.cfg_data.bot_cfg_directory_path + server.config);
+			addParameter("+exec", server.bot.cfg_data.bot_cfg_directory_path + server.config);
 		
 		// Add rcon/file based stuff
-		runCommand.add("+sv_rconpassword " + server.server_id);
-		runCommand.add("+sv_banfile " + server.bot.cfg_data.bot_banlistdir + server.server_id + ".txt");
-		runCommand.add("+sv_adminlistfile " + server.bot.cfg_data.bot_adminlistdir + server.server_id + ".txt");
-		runCommand.add("+sv_banexemptionfile " + server.bot.cfg_data.bot_whitelistdir + server.server_id + ".txt");
+		addParameter("+sv_rconpassword", server.server_id);
+		addParameter("+sv_banfile", server.bot.cfg_data.bot_banlistdir + server.server_id + ".txt");
+		addParameter("+sv_adminlistfile", server.bot.cfg_data.bot_adminlistdir + server.server_id + ".txt");
+		addParameter("+sv_banexemptionfile", server.bot.cfg_data.bot_whitelistdir + server.server_id + ".txt");
 
 		// Add the RCON
 		server.rcon_password = server.server_id;
 
-		String execCommand = "";
+	}
 
-		for (String command : runCommand) {
-			execCommand += command + " ";
-		}
-		
-		return execCommand;
+	/**
+	 * Adds a parameter to the server run command araylist
+	 * @param parameter String - parameter
+	 * @param argument String - argument
+	 */
+	public void addParameter(String parameter, String argument) {
+		serverRunCommands.add(parameter);
+		serverRunCommands.add(argument);
 	}
 	
 	/**
@@ -204,7 +208,7 @@ public class ServerProcess extends Thread {
 				adminlist.createNewFile();
 					
 			// Set up the server
-			proc = Runtime.getRuntime().exec(serverRunCommands);
+			proc = new ProcessBuilder(serverRunCommands.toArray(new String[serverRunCommands.size()])).start();
 			br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
 			// Set up the input (with autoflush)
