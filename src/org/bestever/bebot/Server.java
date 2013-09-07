@@ -142,7 +142,7 @@ public class Server {
 	/**
 	 *  Holds the skill of the game
 	 */
-	public int skill;
+	public int skill = 5;
 
 	/**
 	 * If this is true, that means skulltag data will be enabled

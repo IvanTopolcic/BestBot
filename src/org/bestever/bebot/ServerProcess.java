@@ -119,13 +119,8 @@ public class ServerProcess extends Thread {
 			}
 		}
 
-		if (server.skill > -1) {
-			addParameter("+skill", String.valueOf(server.skill));
-		}
-		else {
-			server.skill = 4;
-			addParameter("+skill", String.valueOf(4));
-		}
+		if (server.skill != -1)
+			addParameter("-skill", String.valueOf(server.skill + 1));
 		
 		if (server.gamemode != null)
 			addParameter("+" + server.gamemode, " 1");
