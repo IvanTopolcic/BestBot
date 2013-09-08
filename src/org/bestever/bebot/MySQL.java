@@ -146,16 +146,16 @@ public class MySQL {
 	 * @param ip String - ip of the person to ban
 	 * @param reason String - the reason to show they are banned for
 	 */
-	public static void addBan(String ip, String reason) {
+	public static void addBan(String ip, String reason, String sender) {
 		String query = "INSERT INTO `" + mysql_db + "`.`banlist` VALUES (?, ?) ON DUPLICATE KEY UPDATE `reason` = ?";
 		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
 			pst.setString(1, ip);
 			pst.setString(2, reason);
 			pst.setString(3, reason);
 			if (pst.executeUpdate() == 1)
-				bot.sendMessage(bot.cfg_data.irc_channel, "Added " + ip + " to banlist.");
+				bot.sendMessage(sender, "Added " + ip + " to banlist.");
 			else
-				bot.sendMessage(bot.cfg_data.irc_channel, "That IP address is already banned!");
+				bot.sendMessage(sender, "That IP address is already banned!");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			logMessage(LOGLEVEL_IMPORTANT, "Could not add ban to banlist");
@@ -166,19 +166,19 @@ public class MySQL {
 	 * Deletes an IP address from the banlist
 	 * @param ip String - the IP address to remove
 	 */
-	public static void delBan(String ip) {
+	public static void delBan(String ip, String sender) {
 		String query = "DELETE FROM `" + mysql_db + "`.`banlist` WHERE `ip` = ?";
 		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
 			pst.setString(1, ip);
 			if (pst.executeUpdate() <= 0)
-				bot.sendMessage(bot.cfg_data.irc_channel, "IP does not exist.");
+				bot.sendMessage(sender, "IP does not exist.");
 			else {
 				// Temporary list to avoid concurrent modification exception
 				List<Server> tempList = new LinkedList<>(bot.servers);
 				for (Server server : tempList) {
 					server.in.println("delban " + ip);
 				}
-				bot.sendMessage(bot.cfg_data.irc_channel, "Removed " + ip + " from banlist.");
+				bot.sendMessage(sender, "Removed " + ip + " from banlist.");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

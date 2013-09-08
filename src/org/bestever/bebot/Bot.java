@@ -386,10 +386,6 @@ public class Bot extends PircBot {
 			// Perform function based on input (note: login is handled by the MySQL function/class); also mostly in alphabetical order for convenience
 			int userLevel = MySQL.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
-				case ".addban":
-					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
-						MySQL.addBan(message.split(" ")[1], Functions.implode(Arrays.copyOfRange(message.split(" "), 2, message.split(" ").length), " "));
-					break;
 				case ".autorestart":
 					toggleAutoRestart(userLevel, keywords);
 					break;
@@ -401,10 +397,6 @@ public class Bot extends PircBot {
 					break;
 				case ".cpu":
 					sendMessage(cfg_data.irc_channel, String.valueOf(ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage()));
-					break;
-				case ".delban":
-					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
-						MySQL.delBan(message.split(" ")[1]);
 					break;
 				case ".disconnect":
 					if (isAccountTypeOf(userLevel, ADMIN))
@@ -441,8 +433,7 @@ public class Bot extends PircBot {
 					MySQL.loadSlot(hostname, keywords, userLevel, channel, sender);
 					break;
 				case ".notice":
-					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
-						cfg_data.bot_notice = Functions.implode(Arrays.copyOfRange(keywords, 1, keywords.length), " ");
+					setNotice(keywords, userLevel);
 					break;
 				case ".off":
 					processOff(userLevel);
@@ -455,10 +446,6 @@ public class Bot extends PircBot {
 					break;
 				case ".protect":
 					protectServer(userLevel, keywords);
-					break;
-				case ".purgebans":
-					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
-						purgeBans(keywords[1]);
 					break;
 				case ".query":
 					handleQuery(userLevel, keywords);
@@ -496,6 +483,20 @@ public class Bot extends PircBot {
 	}
 
 	/**
+	 * Sets the notice (global announcement to all servers)
+	 * @param keywords String[] - array of words (message)
+	 * @param userLevel int - bitmask level
+	 */
+	public void setNotice (String[] keywords, int userLevel) {
+		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR)) {
+			cfg_data.bot_notice = Functions.implode(Arrays.copyOfRange(keywords, 1, keywords.length), " ");
+			sendMessage(cfg_data.irc_channel, "New notice has been set.");
+		}
+		else
+			sendMessage(cfg_data.irc_channel, "You do not have permission to set the notice.");
+	}
+
+	/**
 	 * Purges an IP address from all banlists
 	 * @param ip String - the target's IP address
 	 */
@@ -527,9 +528,9 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
 		if (isAccountTypeOf(userLevel, ADMIN))
-			return ".addban .autorestart .broadcast .commands .cpu .delban .file .get .help .host .kill .killall .killmine .killinactive .load .off .on .owner .protect .purgebans .query .quit .rcon .save .send .servers .slot .uptime .whoami";
+			return ".addban .autorestart .broadcast .commands .cpu .delban .file .get .help .host .kill .killall .killmine .killinactive .load .notice .off .on .owner .protect .purgebans .query .quit .rcon .save .send .servers .slot .uptime .whoami";
 		else if (isAccountTypeOf(userLevel, MODERATOR))
-			return ".addban .autorestart .broadcast .commands .cpu .delban .file .get .help .host .kill .killmine .killinactive .load .owner .protect .purgebans .query .rcon .save .send .servers .slot .uptime .whoami";
+			return ".addban .autorestart .broadcast .commands .cpu .delban .file .get .help .host .kill .killmine .killinactive .load .notice .owner .protect .purgebans .query .rcon .save .send .servers .slot .uptime .whoami";
 		else if (isAccountTypeOf(userLevel, REGISTERED))
 			return ".commands .cpu .file .get .help .host .kill .killmine .load .owner .query .rcon .save .servers .slot .uptime .whoami";
 		else 
@@ -925,6 +926,10 @@ public class Bot extends PircBot {
 			String[] keywords = message.split(" ");
 			int userLevel = MySQL.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
+				case ".addban":
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
+						MySQL.addBan(message.split(" ")[1], Functions.implode(Arrays.copyOfRange(message.split(" "), 2, message.split(" ").length), " "), sender);
+					break;
 				case ".rcon":
 					processRcon(userLevel, keywords, sender, hostname);
 					break;
@@ -936,9 +941,17 @@ public class Bot extends PircBot {
 					else
 						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " changepw <new_password>");
 					break;
+				case ".delban":
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
+						MySQL.delBan(message.split(" ")[1], sender);
+					break;
 				case ".msg":
 					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
 						messageChannel(keywords, sender);
+					break;
+				case ".purgebans":
+					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
+						purgeBans(keywords[1]);
 					break;
 				case ".rejoin":
 					if (isAccountTypeOf(userLevel, ADMIN))
