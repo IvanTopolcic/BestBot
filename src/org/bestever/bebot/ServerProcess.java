@@ -96,7 +96,7 @@ public class ServerProcess extends Thread {
 			addParameter("-iwad", server.bot.cfg_data.bot_iwad_directory_path + server.iwad);
 		
 		if (server.enable_skulltag_data) {
-			addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + "skulltag_actors_1-1-1.pk3 ");
+			addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + "skulltag_actors_1-1-1.pk3");
 			addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + "skulltag_data.pk3");
 		}
 
