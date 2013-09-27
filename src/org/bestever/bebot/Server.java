@@ -326,6 +326,8 @@ public class Server {
 					break;
 				case "wad":
 					server.wads = addWads(m.group(2));
+					if (!MySQL.checkHashes(server.wads))
+						return;
 					break;
 			}
 		}

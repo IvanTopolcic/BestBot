@@ -18,11 +18,8 @@ package org.bestever.bebot;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.sql.DriverManager;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -93,8 +90,56 @@ public class MySQL {
 		}
 	}
 
+	/**
+	 * Returns the connection
+	 */
 	private static Connection getConnection() throws SQLException {
 		return DriverManager.getConnection("jdbc:mysql://" + mysql_host + ":"+mysql_port+"/", mysql_user, mysql_pass);
+	}
+
+	/**
+	 * Returns an array of MD5 hashes of files
+	 * @param fileName String... - name of the file(s)
+	 */
+	public static boolean checkHashes(String... fileName) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("SELECT `wadname`,`md5` FROM `" + mysql_db + "`.`wads` WHERE `wadname` IN (");
+		int i = 0;
+		for (; i < fileName.length; i++) {
+			if (i == fileName.length - 1)
+				sb.append("?");
+			else
+				sb.append("?, ");
+		}
+		sb.append(")");
+		String query = sb.toString();
+		try {
+			Connection con = getConnection();
+			PreparedStatement pst = con.prepareStatement(query);
+			for (int j = 1; j <= i; j++) {
+				pst.setString(j, fileName[j-1]);
+			}
+			ResultSet checkHashes = pst.executeQuery();
+			Statement stm = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			ResultSet blacklistedHashes = stm.executeQuery("SELECT `name`,`md5` FROM `" + mysql_db + "`.`blacklist`;");
+			while (checkHashes.next()) {
+				blacklistedHashes.beforeFirst();
+				while (blacklistedHashes.next())
+					if (blacklistedHashes.getString("md5").equalsIgnoreCase(checkHashes.getString("md5"))) {
+						bot.sendMessage(bot.cfg_data.irc_channel, "Your wad " + checkHashes.getString("wadname") +
+								" matches blacklist " + blacklistedHashes.getString("name") + " (hash: " + blacklistedHashes.getString("md5") + ")");
+						return false;
+					}
+			}
+			pst.close();
+			stm.close();
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logMessage(LOGLEVEL_IMPORTANT, "Could not get hashes of file (SQL Error)");
+			return false;
+		}
+		return true;
 	}
 
 	/**
