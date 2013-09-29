@@ -203,7 +203,10 @@ public class ServerProcess extends Thread {
 				adminlist.createNewFile();
 					
 			// Set up the server
-			proc = new ProcessBuilder(serverRunCommands.toArray(new String[serverRunCommands.size()])).start();
+			ProcessBuilder pb = new ProcessBuilder(serverRunCommands.toArray(new String[serverRunCommands.size()]));
+			// Redirect stderr to stdout
+			pb.redirectErrorStream(true);
+			proc = pb.start();
 			br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
 			// Set up the input (with autoflush)
