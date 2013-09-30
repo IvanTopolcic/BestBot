@@ -11,10 +11,10 @@ with managing and setting up servers.
 
 * Full registration/account system based on the IRC network's hostmasks
 * Very easy to start/stop your own servers
-* Players are able to save configured servers and load them at any times
+* Players are able to save configured servers and load them at any time
 * Administrator as well as moderator types, allowing you to give trusted users the ability to moderate servers
 * Can grant hosters RCON (admin) of their own server automatically, if set in the options
-* Impose a custom server limit on each other (Default: 1)
+* Impose a custom server limit on each user (Default: 4)
 * Players can upload their own WAD/PK3 files to use for hosting
 * Players can upload their own configuration files, allowing the hoster to keep an easy persistent server configuration
 * Ability to auto-restart servers on crash

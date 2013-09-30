@@ -1,8 +1,0 @@
-MISC NOTES
-==========
-
-- Check for one flag ctf as a game mode, it might not be implemented fully
-	> Above is linked to query stuff (QueryServerFlags object) and server
-	  gamemode stuff
-	  
-- Add support for Skill (skill=0..4)

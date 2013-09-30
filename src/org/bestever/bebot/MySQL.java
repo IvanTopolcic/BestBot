@@ -15,11 +15,8 @@
 
 package org.bestever.bebot;
 
-import java.math.BigInteger;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -97,9 +94,14 @@ public class MySQL {
 		return DriverManager.getConnection("jdbc:mysql://" + mysql_host + ":"+mysql_port+"/", mysql_user, mysql_pass);
 	}
 
+	public static void blacklistWad() {
+
+	}
+
 	/**
-	 * Returns an array of MD5 hashes of files
+	 * Checks any number of wads against the wad blacklist
 	 * @param fileName String... - name of the file(s)
+	 * @return true if is blacklisted, false if not
 	 */
 	public static boolean checkHashes(String... fileName) {
 		StringBuilder sb = new StringBuilder();
