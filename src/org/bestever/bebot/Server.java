@@ -20,6 +20,8 @@ import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -132,7 +134,7 @@ public class Server {
 	/**
 	 * Contains a list of all the wads used by the server separated by a space
 	 */
-	public String[] wads;
+	public ArrayList<String> wads;
 
 	/**
 	 * Contains a list of all the wads separated by a space which will be searched for maps
@@ -230,6 +232,9 @@ public class Server {
 		// Reference server to bot
 		server.bot = botReference;
 
+		// Initialize the wad arraylist
+		server.wads = new ArrayList<String>();
+
 		// Check if autoRestart was enabled
 		if (autoRestart)
 			server.auto_restart = true;
@@ -325,8 +330,12 @@ public class Server {
 					}
 					break;
 				case "wad":
-					server.wads = addWads(m.group(2));
-					if (!MySQL.checkHashes(server.wads))
+					String[] wadArray = addWads(m.group(2));
+					if (wadArray.length > 0) {
+						for (String wad : wadArray)
+							server.wads.add(wad);
+					}
+					if (!MySQL.checkHashes(server.wads.toArray(new String[wadArray.length])))
 						return;
 					break;
 			}
@@ -435,7 +444,7 @@ public class Server {
 					server.servername = rs.getString("servername");
 					server.time_started = rs.getLong("time_started");
 					server.user_level = 0; // ??? Get from Mysql
-					server.wads = rs.getString("wads").replace(" ","").split(","); // Check this!
+					//server.wads = rs.getString("wads").replace(" ","").split(","); // Check this!
 					
 					// Handle the server (pass it to the appropriate places before referencing a new object) (server.port and server.serverprocess)
 					logMessage(LOGLEVEL_NORMAL, "Successfully processed server id " + database_id + "'s data.");
@@ -679,7 +688,7 @@ public class Server {
 				return "iwad: " + this.iwad;
 			case "mapwad":
 			case "mapwads":
-				return "mapwads: " + checkWads(this.mapwads);
+				return "mapwads: " + Functions.implode(this.mapwads, ", ");
 			case "name":
 			case "server_name":
 			case "hostname":
@@ -689,31 +698,11 @@ public class Server {
 				return "skill: " + this.skill;
 			case "wad":
 			case "wads":
-				return "wads: " + checkWads(this.wads);
+				return "wads: " + Functions.implode(this.wads, ", ");
 			default:
 				break;
 		}
 		return "Error: Not a supported keyword";
-	}
-
-	/**
-	 * Checks for null values and returns and more user friendly message
-	 * @param input String[] input
-	 * @return String[] result
-	 */
-	public String checkWads(String[] input) {
-		String wads = "";
-		if (input == null && !this.enable_skulltag_data)
-			return "None";
-		else if (input == null)
-			return "skulltag_actors_1-1-1.pk3 and skulltag_data.pk3";
-		if (Functions.implode(this.wads, ", ") == null)
-			wads += this.wads[0];
-		else
-			wads += Functions.implode(input, ", ");
-		if (this.enable_skulltag_data)
-			wads += " with skulltag_actors_1-1-1.pk3 and skulltag_data.pk3";
-		return wads;
 	}
 
 	/**

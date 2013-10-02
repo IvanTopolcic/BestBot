@@ -211,4 +211,24 @@ public class Functions {
 		}
 		return output;
 	}
+
+	/**
+	 * Implodes a character between a string array
+	 * @param inputArray String[] - array to combine
+	 * @param glueString String - delimiter
+	 * @return String containing all array elements seperated by glue string
+	 */
+	public static String implode(ArrayList<String> inputArray, String glueString) {
+		String output = "";
+		if (inputArray.size() > 0) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(inputArray.get(0));
+			for (int i = 1; i < inputArray.size(); i++) {
+				sb.append(glueString);
+				sb.append(inputArray.get(i).trim());
+			}
+			output = sb.toString();
+		}
+		return output;
+	}
 }

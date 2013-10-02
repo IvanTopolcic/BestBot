@@ -97,10 +97,12 @@ public class ServerProcess extends Thread {
 		
 		if (server.enable_skulltag_data) {
 			addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + "skulltag_actors_1-1-1.pk3");
-			addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + "skulltag_data.pk3");
+			addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + "skulltag_data_126.pk3");
+			server.wads.add("skulltag_actors_1-1-1.pk3");
+			server.wads.add("skulltag_data_126.pk3");
 		}
 
-		if (server.wads != null) {
+		if (server.wads.size() > 0) {
 			for (String wad : server.wads) {
 				addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + wad);
 			}
@@ -163,6 +165,7 @@ public class ServerProcess extends Thread {
 
 		// Add custom color wad
 		addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + "newtextcolours1_102.pk3");
+		server.wads.add("newtextcolours1_102.pk3");
 	}
 
 	/**
