@@ -488,6 +488,10 @@ public class Bot extends PircBot {
 	 * @param userLevel int - bitmask level
 	 */
 	public void setNotice (String[] keywords, int userLevel) {
+		if (keywords.length == 1) {
+			sendMessage(cfg_data.irc_channel, "Notice is: " + cfg_data.bot_notice);
+			return;
+		}
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR)) {
 			cfg_data.bot_notice = Functions.implode(Arrays.copyOfRange(keywords, 1, keywords.length), " ");
 			sendMessage(cfg_data.irc_channel, "New notice has been set.");
