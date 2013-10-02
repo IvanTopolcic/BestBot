@@ -94,8 +94,69 @@ public class MySQL {
 		return DriverManager.getConnection("jdbc:mysql://" + mysql_host + ":"+mysql_port+"/", mysql_user, mysql_pass);
 	}
 
-	public static void blacklistWad() {
+	/**
+	 * Removes a wad from the wad blacklist
+	 * @param filename String - name of the file
+	 * @param sender String - name of the sender
+	 */
+	public static void removeWadFromBlacklist(String filename, String sender) {
+		String query = "DELETE FROM `" + mysql_db + "`.`blacklist` WHERE `name` = ?";
+		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
+			pst.setString(1, filename);
+			if (pst.executeUpdate() <= 0)
+				bot.sendMessage(sender, "Wad '" + filename + "' is not in the blacklist.");
+			else {
+				bot.sendMessage(sender, "Removed '" + filename + "' from the blacklist.");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logMessage(LOGLEVEL_IMPORTANT, "Could not delete file from the blacklist. (SQL Error)");
+		}
+	}
 
+	/**
+	 * Adds a wad (filename and md5 hash) to the wad blacklist
+	 * @param filename String - name of the file to add
+	 * @param sender String - name of the sender
+	 */
+	public static void addWadToBlacklist(String filename, String sender) {
+		String query = "SELECT `md5`,`name` FROM `" + mysql_db + "`.`blacklist` WHERE `name` = ?";
+		try {
+			Connection con = getConnection();
+			PreparedStatement pst = con.prepareStatement(query);
+			pst.setString(1, filename);
+			ResultSet r = pst.executeQuery();
+			if (r.next()) {
+				bot.sendMessage(sender, "Wad '" + filename + "' already exists in blacklist.");
+			}
+			else {
+				query = "SELECT `md5`,`wadname` FROM `" + mysql_db + "`.`wads` WHERE `wadname` = ?";
+				pst = con.prepareStatement(query);
+				pst.setString(1, filename);
+				r = pst.executeQuery();
+				String name = "", md5 = "";
+				if (r.next()) {
+					name = r.getString("wadname");
+					md5 = r.getString("md5");
+				}
+				else {
+					bot.sendMessage(sender, "Wad '" + filename + "' was not found in our repository.");
+					return;
+				}
+				query = "INSERT INTO `" + mysql_db + "`.`blacklist` (`name`,`md5`) VALUES (?, ?)";
+				pst = con.prepareStatement(query);
+				pst.setString(1, name);
+				pst.setString(2, md5);
+				int result = pst.executeUpdate();
+				if (result == 1)
+					bot.sendMessage(sender, "Added '" + name + "' to the blacklist with hash " + md5);
+				else
+					bot.sendMessage(sender, "There was an error adding the wad to the blacklist. Please contact an administrator.");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logMessage(LOGLEVEL_IMPORTANT, "Could not blacklist wad (SQL Error)");
+		}
 	}
 
 	/**
@@ -128,7 +189,7 @@ public class MySQL {
 				blacklistedHashes.beforeFirst();
 				while (blacklistedHashes.next())
 					if (blacklistedHashes.getString("md5").equalsIgnoreCase(checkHashes.getString("md5"))) {
-						bot.sendMessage(bot.cfg_data.irc_channel, "Your wad " + checkHashes.getString("wadname") +
+						bot.sendMessage(bot.cfg_data.irc_channel, "Wad " + checkHashes.getString("wadname") +
 								" matches blacklist " + blacklistedHashes.getString("name") + " (hash: " + blacklistedHashes.getString("md5") + ")");
 						return false;
 					}

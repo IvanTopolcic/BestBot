@@ -528,9 +528,9 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
 		if (isAccountTypeOf(userLevel, ADMIN))
-			return ".addban .autorestart .broadcast .commands .cpu .delban .file .get .help .host .kill .killall .killmine .killinactive .load .notice .off .on .owner .protect .purgebans .query .quit .rcon .save .send .servers .slot .uptime .whoami";
+			return ".addban .autorestart .banwad .broadcast .commands .cpu .delban .file .get .help .host .kill .killall .killmine .killinactive .load .notice .off .on .owner .protect .purgebans .query .quit .rcon .save .send .servers .slot .unbanwad .uptime .whoami";
 		else if (isAccountTypeOf(userLevel, MODERATOR))
-			return ".addban .autorestart .broadcast .commands .cpu .delban .file .get .help .host .kill .killmine .killinactive .load .notice .owner .protect .purgebans .query .rcon .save .send .servers .slot .uptime .whoami";
+			return ".addban .autorestart .banwad .broadcast .commands .cpu .delban .file .get .help .host .kill .killmine .killinactive .load .notice .owner .protect .purgebans .query .rcon .save .send .servers .slot .unbanwad .uptime .whoami";
 		else if (isAccountTypeOf(userLevel, REGISTERED))
 			return ".commands .cpu .file .get .help .host .kill .killmine .load .owner .query .rcon .save .servers .slot .uptime .whoami";
 		else 
@@ -940,6 +940,16 @@ public class Bot extends PircBot {
 						MySQL.changePassword(hostname, keywords[1], sender);
 					else
 						sendMessage(sender, "Incorrect syntax! Usage is: /msg " + cfg_data.irc_name + " changepw <new_password>");
+					break;
+				case ".banwad":
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
+						MySQL.addWadToBlacklist(keywords[1], sender);
+					}
+					break;
+				case ".unbanwad":
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
+						MySQL.removeWadFromBlacklist(keywords[1], sender);
+					}
 					break;
 				case ".delban":
 					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
