@@ -895,7 +895,7 @@ public class Bot extends PircBot {
 			if (servers != null && servers.size() > 0) {
 				for (Server server : servers) {
 					sendMessage(cfg_data.irc_channel,  server.port + ": " + server.servername + ((server.wads != null) ?
-					" with wads " + Functions.implode(server.wads, ", ") : "") + ((server.mapwads != null)));
+					" with wads " + Functions.implode(server.wads, ", ") : ""));
 				}
 			}
 			else
