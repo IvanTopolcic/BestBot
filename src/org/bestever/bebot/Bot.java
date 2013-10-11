@@ -738,6 +738,7 @@ public class Bot extends PircBot {
 				return;
 			}
 			if (Functions.isNumeric(keywords[1])) {
+				ArrayList<String> ports = new ArrayList<>();
 				int numOfDays = Integer.parseInt(keywords[1]);
 				if (numOfDays > 0) {
 					if (servers == null || servers.isEmpty()) {
@@ -750,9 +751,17 @@ public class Bot extends PircBot {
 					for (Server s : tempList) {
 						if (System.currentTimeMillis() - s.serverprocess.last_activity > (Server.DAY_MILLISECONDS * numOfDays))
 							if (!s.protected_server) {
+								s.hide_stop_message = true;
 								s.auto_restart = false;
+								ports.add(String.valueOf(s.port));
 								s.serverprocess.terminateServer();
 							}
+					}
+					if (ports.size() == 0) {
+						sendMessage(cfg_data.irc_channel, "No servers were killed.");
+					}
+					else {
+						sendMessage(cfg_data.irc_channel, "Killed " + ports.size() + " servers (" + Functions.implode(ports, ",") + ")");
 					}
 				} else {
 					sendMessage(cfg_data.irc_channel, "Using zero or less for .killinactive is not allowed.");
