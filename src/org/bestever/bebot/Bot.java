@@ -21,6 +21,8 @@ import static org.bestever.bebot.AccountType.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 import org.bestever.serverquery.QueryManager;
@@ -761,7 +763,7 @@ public class Bot extends PircBot {
 						sendMessage(cfg_data.irc_channel, "No servers were killed.");
 					}
 					else {
-						sendMessage(cfg_data.irc_channel, "Killed " + ports.size() + " servers (" + Functions.implode(ports, ",") + ")");
+						sendMessage(cfg_data.irc_channel, "Killed " + ports.size() + " servers (" + Functions.implode(ports, ", ") + ")");
 					}
 				} else {
 					sendMessage(cfg_data.irc_channel, "Using zero or less for .killinactive is not allowed.");

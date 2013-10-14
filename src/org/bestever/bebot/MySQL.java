@@ -17,9 +17,7 @@ package org.bestever.bebot;
 
 import java.net.UnknownHostException;
 import java.sql.*;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.bestever.bebot.Logger.*;
 
@@ -56,7 +54,7 @@ public class MySQL {
 	/**
 	 * Holds the MySQL database
 	 */
-	private static String mysql_db;
+	public static String mysql_db;
 	
 	/**
 	 * A constant in the database to indicate a server is considered online
@@ -88,10 +86,55 @@ public class MySQL {
 	}
 
 	/**
+	 * Experimental function that allows for dynamic mysql query execution. Instead of writing
+	 * a new method for each query, we will be able to call this method with the statement and
+	 * parameters. As per normal preparedStatement procedures, the query will need to include ?
+	 * in place of variables. The ? are processed in sequential order.
+	 * This method does not support insertions/deletions/alterations, use executeUpdate() for that.
+	 * @param query String - the query, with variables replaces with ?
+	 * @param arguments Object... - an array of objects, one for each variable (?)
+	 * @return ArrayList with a hasmap key => value pair for each row.
+	 */
+	public static ArrayList executeQuery(String query, Object... arguments) {
+		ArrayList<HashMap<String, Object>> rows = new ArrayList<>();
+		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
+			// Go through each argument and check what type they are
+			// We will then bind the value to the prepared statement
+			for (int i = 0; i < arguments.length; i++) {
+				if (arguments[i] instanceof String) {
+					pst.setString(i+1, String.valueOf(arguments[i]));
+				}
+				else if (arguments[i] instanceof Integer || arguments[i] instanceof Short || arguments[i] instanceof Byte) {
+					pst.setInt(i+1, (int) arguments[i]);
+				}
+			}
+			ResultSet r = pst.executeQuery();
+			ResultSetMetaData md = r.getMetaData();
+			int columns = md.getColumnCount();
+			while (r.next()) {
+				HashMap row = new HashMap(columns);
+				for (int j = 1; j <= columns; j++) {
+					// Add each column as the key, and field as the value, to the hashmap
+					row.put(md.getColumnName(j), r.getObject(j));
+				}
+				// Add the hashmap to the arraylist
+				rows.add(row);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logMessage(LOGLEVEL_IMPORTANT, "There was a MySQL error in executeQuery. Statement: " + query + " Arguments:");
+			for (Object argument : arguments) {
+				logMessage(LOGLEVEL_IMPORTANT, String.valueOf(argument));
+			}
+		}
+		return rows;
+	}
+
+	/**
 	 * Returns the connection
 	 */
 	private static Connection getConnection() throws SQLException {
-		return DriverManager.getConnection("jdbc:mysql://" + mysql_host + ":"+mysql_port+"/", mysql_user, mysql_pass);
+		return DriverManager.getConnection("jdbc:mysql://" + mysql_host + ":"+mysql_port+"/" + mysql_db, mysql_user, mysql_pass);
 	}
 
 	/**
