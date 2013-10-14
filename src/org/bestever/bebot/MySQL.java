@@ -100,12 +100,14 @@ public class MySQL {
 		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
 			// Go through each argument and check what type they are
 			// We will then bind the value to the prepared statement
-			for (int i = 0; i < arguments.length; i++) {
-				if (arguments[i] instanceof String) {
-					pst.setString(i+1, String.valueOf(arguments[i]));
-				}
-				else if (arguments[i] instanceof Integer || arguments[i] instanceof Short || arguments[i] instanceof Byte) {
-					pst.setInt(i+1, (int) arguments[i]);
+			if (arguments.length > 0) {
+				for (int i = 0; i < arguments.length; i++) {
+					if (arguments[i] instanceof String) {
+						pst.setString(i+1, String.valueOf(arguments[i]));
+					}
+					else if (arguments[i] instanceof Integer || arguments[i] instanceof Short || arguments[i] instanceof Byte) {
+						pst.setInt(i+1, (int) arguments[i]);
+					}
 				}
 			}
 			ResultSet r = pst.executeQuery();
