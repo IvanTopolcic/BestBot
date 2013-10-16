@@ -81,7 +81,8 @@ public class ServerProcess extends Thread {
 		// Create an arraylist with all our strings
 		serverRunCommands = new ArrayList<String>();
 		
-		serverRunCommands.add(server.bot.cfg_data.bot_executable); // This must always be first
+		// This must always be first (we may also want a custom binary, so do that here as well)
+		serverRunCommands.add(server.executableType); 
 
 		// Check if we have a temporary port (used for auto-restarting)
 		// This will try to host the server on the same port as before

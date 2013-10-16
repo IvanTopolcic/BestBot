@@ -21,8 +21,6 @@ import static org.bestever.bebot.AccountType.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 import org.bestever.serverquery.QueryManager;

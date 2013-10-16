@@ -154,6 +154,16 @@ public class ConfigData {
 	 * Contains the file name of the executable, in linux this would be "./zandronum-server" for example, or in windows "zandronum.exe"
 	 */
 	public String bot_executable;
+	
+	/**
+	 * Contains the file name of the kpatch executable (ex: zandronum-server_kpatch)
+	 */
+	public String bot_executable_kpatch;
+	
+	/**
+	 * Contains the hg build of the latest repository (may not be stable)
+	 */
+	public String bot_executable_developerrepository;
 
 	/**
 	 * Contains whether or not server RCON is accessible to everyone
@@ -255,6 +265,8 @@ public class ConfigData {
 		this.bot_adminlistdir = bot.get("adminlistdir");
 		this.bot_logfiledir = bot.get("logfiledir");
 		this.bot_executable = bot.get("executable");
+		this.bot_executable_kpatch = bot.get("executable_kpatch");
+		this.bot_executable_developerrepository = bot.get("executable_developerrepository");
 		this.bot_public_rcon = Boolean.parseBoolean(bot.get("public_rcon"));
 		this.bot_hostname_base = bot.get("hostname_base");
 		this.bot_help = bot.get("help");

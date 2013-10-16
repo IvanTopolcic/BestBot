@@ -95,6 +95,7 @@ public class MySQL {
 	 * @param arguments Object... - an array of objects, one for each variable (?)
 	 * @return ArrayList with a hasmap key => value pair for each row.
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static ArrayList executeQuery(String query, Object... arguments) {
 		ArrayList<HashMap<String, Object>> rows = new ArrayList<>();
 		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {

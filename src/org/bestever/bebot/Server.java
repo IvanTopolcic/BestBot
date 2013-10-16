@@ -21,7 +21,6 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -110,6 +109,11 @@ public class Server {
 	 * Contains the level of the user
 	 */
 	public int user_level;
+	
+	/**
+	 * The type of executable (do we run normal zandronum, or kpatch, or devrepo...etc)
+	 */
+	public String executableType;
 	
 	/**
 	 * Contains the hostname used, this will NOT contain " :: [BE] New York "
@@ -247,6 +251,11 @@ public class Server {
 		server.host_command = message;
 		server.user_level = userLevel;
 		server.sender = sender;
+		
+		// The bot structure of using the executable has changed, we will set
+		// it to default here at the very beginning to the normal exe, but it
+		// can be changed later on in the code with a binary=... flag
+		server.executableType = botReference.cfg_data.bot_executable;
 
 		// Regex that will match key=value, as well as quotes key="value"
 		Pattern regex = Pattern.compile("(\\w+)=\"*((?<=\")[^\"]+(?=\")|([^\\s]+))\"*");
@@ -257,6 +266,24 @@ public class Server {
 			switch (m.group(1).toLowerCase()) {
 				case "autorestart":
 					server.auto_restart = handleTrue(m.group(2));
+					break;
+				case "binary":
+					switch (m.group(2).toLowerCase())
+					{
+						case "zandronum":
+							// If they specify the default, continue on like normal
+							break;
+						case "kpatch":
+							server.executableType = botReference.cfg_data.bot_executable_kpatch;
+							break;
+						case "developer":
+							server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Important: Developer repositories may be completely broken, will not run, or have many bugs. Use at your own risk! If it keeps crashing, it's probably the repository and there is nothing we can do to solve that.");
+							server.executableType = botReference.cfg_data.bot_executable_developerrepository;
+							break;
+						default:
+							server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Invalid binary (" + m.group(2) + "); please use 'kpatch' or 'developer' to use custom binaries (ex: binary=kpatch), or remove it to use default Zandronum.");
+							return;
+					}
 					break;
 				case "buckshot":
 					server.buckshot = handleTrue(m.group(2));
