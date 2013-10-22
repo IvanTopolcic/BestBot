@@ -471,7 +471,10 @@ public class Bot extends PircBot {
 					MySQL.showSlot(hostname, keywords);
 					break;
 				case ".uptime":
-					sendMessage(cfg_data.irc_channel, Functions.calculateTime(System.currentTimeMillis() - time_started));
+					if (keywords.length == 1)
+						sendMessage(cfg_data.irc_channel, "I have been running for " + Functions.calculateTime(System.currentTimeMillis() - time_started));
+					else
+						calculateUptime(keywords[1]);
 					break;
 				case ".whoami":
 					sendMessage(cfg_data.irc_channel, getLoggedIn(hostname, userLevel));
@@ -479,6 +482,26 @@ public class Bot extends PircBot {
 				default:
 					break;
 			}
+		}
+	}
+
+	/**
+	 * Broadcasts the uptime of a specified server
+	 * @param port String - port numero
+	 */
+	public void calculateUptime(String port) {
+		if (Functions.isNumeric(port)) {
+			int portValue = Integer.valueOf(port);
+			Server s = getServer(portValue);
+			if (portValue > this.min_port && portValue < this.max_port) {
+				sendMessage(cfg_data.irc_channel, s.port + " has been running for " + Functions.calculateTime(System.currentTimeMillis() - s.time_started));
+			}
+			else {
+				sendMessage(cfg_data.irc_channel, "Port must be between " + this.min_port + " and " + this.max_port);
+			}
+		}
+		else {
+			sendMessage(cfg_data.irc_channel, "Port must be a number (ex: .uptime 15000)");
 		}
 	}
 
@@ -686,14 +709,14 @@ public class Bot extends PircBot {
 			// This will throw a concurrent modification exception
 			// As a temporary solution, we can create a temporary list that will hold the values of the real list at the time it was called
 			List<Server> tempList = new LinkedList<>(servers);
+			byte serverCount = (byte)servers.size();
 			if (tempList.size() > 0) {
-				sendMessage(cfg_data.irc_channel, "Terminating all servers...");
 				for (Server s : tempList) {
 					s.hide_stop_message = true;
 					s.auto_restart = false;
 					s.killServer();
 				}
-				sendMessage(cfg_data.irc_channel, "All servers killed.");
+				sendMessage(cfg_data.irc_channel, "Killed a total of " + serverCount + " server(s).");
 			} else
 				sendMessage(cfg_data.irc_channel, "There are no servers running.");
 		}
@@ -711,14 +734,19 @@ public class Bot extends PircBot {
 		if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED)) {
 			List<Server> servers = getUserServers(Functions.getUserName(hostname));
 			if (servers != null) {
-				boolean hasServer = false;
+				ArrayList<String> ports = new ArrayList<>();
 				for (Server s : servers) {
 					s.auto_restart = false;
+					s.hide_stop_message = true;
 					s.killServer();
-					hasServer = true;
+					ports.add(String.valueOf(s.port));
 				}
-				if (!hasServer)
+				if (ports.size() > 0) {
+					sendMessage(cfg_data.irc_channel, "Killed " + ports.size() + " server(s) (" + Functions.implode(ports, ", ") +")");
+				}
+				else {
 					sendMessage(cfg_data.irc_channel, "You do not have any servers running.");
+				}
 			} else {
 				sendMessage(cfg_data.irc_channel, "There are no servers running.");
 			}
@@ -761,7 +789,7 @@ public class Bot extends PircBot {
 						sendMessage(cfg_data.irc_channel, "No servers were killed.");
 					}
 					else {
-						sendMessage(cfg_data.irc_channel, "Killed " + ports.size() + " servers (" + Functions.implode(ports, ", ") + ")");
+						sendMessage(cfg_data.irc_channel, "Killed " + ports.size() + " server(s) (" + Functions.implode(ports, ", ") + ")");
 					}
 				} else {
 					sendMessage(cfg_data.irc_channel, "Using zero or less for .killinactive is not allowed.");
@@ -911,7 +939,7 @@ public class Bot extends PircBot {
 				sendMessage(cfg_data.irc_channel, "User " + Functions.getUserName(keywords[1]) + " has no servers running.");
 		}
 		else if (keywords.length == 1) {
-			sendMessage(cfg_data.irc_channel, "There are " + servers.size() + " servers running on Best Ever right now.");
+			sendMessage(cfg_data.irc_channel, "There are " + servers.size() + " server(s).");
 		}
 		else
 			sendMessage(cfg_data.irc_channel, "Incorrect syntax! Correct usage is .servers or .servers <username>");

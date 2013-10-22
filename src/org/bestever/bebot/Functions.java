@@ -170,7 +170,7 @@ public class Functions {
 		long hours = TimeUnit.SECONDS.toHours(seconds) - (day *24);
 		long minute = TimeUnit.SECONDS.toMinutes(seconds) - (TimeUnit.SECONDS.toHours(seconds)* 60);
 		long second = TimeUnit.SECONDS.toSeconds(seconds) - (TimeUnit.SECONDS.toMinutes(seconds) *60);
-		return day + " days " + hours + " hours " + minute + " minutes and " + second + " seconds.";
+		return day + " days " + hours + " hours " + minute + " minutes and " + second + " second(s).";
 	}
 
 	/**
