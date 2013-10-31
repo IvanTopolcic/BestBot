@@ -1008,11 +1008,11 @@ public class Bot extends PircBot {
 			int userLevel = MySQL.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
 				case ".addban":
-					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN) && keywords.length > 2)
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN) && keywords.length > 1)
 						MySQL.addBan(message.split(" ")[1], Functions.implode(Arrays.copyOfRange(message.split(" "), 2, message.split(" ").length), " "), sender);
 					break;
 				case ".addstartwad":
-					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN) && keywords.length > 2)
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN) && keywords.length > 1)
 						addExtraWad(Functions.implode(Arrays.copyOfRange(message.split(" "), 1, message.split(" ").length), " "), sender);
 					break;
 				case ".delstartwad":

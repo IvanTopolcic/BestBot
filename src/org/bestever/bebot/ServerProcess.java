@@ -166,7 +166,7 @@ public class ServerProcess extends Thread {
 
 		// Add any custom wads we have defined in the configuration file
 		for (String wad : server.bot.cfg_data.bot_extra_wads) {
-			addParameter("-file", wad);
+			addParameter("-file", server.bot.cfg_data.bot_extra_wads + wad);
 			server.wads.add(wad);
 		}
 	}
