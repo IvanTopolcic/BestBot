@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.ini4j.Ini;
 import org.ini4j.InvalidFileFormatException;
@@ -196,6 +198,11 @@ public class ConfigData {
 	public int bot_notice_interval;
 
 	/**
+	 * Extra wads that will be loaded automatically when a server is started
+	 */
+	public ArrayList<String> bot_extra_wads;
+
+	/**
 	 * Contains the base of the hostname that you wish to append to servers at
 	 * the beginning of their sv_hostname
 	 */
@@ -211,6 +218,20 @@ public class ConfigData {
 	public ConfigData(String filepath) throws IOException, NumberFormatException {
 		this.filepath = filepath;
 		parseConfigFile();
+	}
+
+	/**
+	 * Takes a string comma-separated list of wads (or just a wad) and returns an ArrayList
+	 * @param wads String - comma separated list of wads
+	 * @return ArrayList<String> of wads
+	 */
+	private ArrayList<String> getExtraWads(String wads) {
+		ArrayList<String> wadList = new ArrayList<>();
+		if (!wads.contains(","))
+			wadList.add(wads);
+		else
+			wadList.addAll(Arrays.asList(wads.split(",")));
+		return wadList;
 	}
 	
 	/**
@@ -274,5 +295,6 @@ public class ConfigData {
 			this.bot_notice = bot.get("notice");
 		if (bot.get("notice_interval") != null)
 			this.bot_notice_interval = Integer.parseInt(bot.get("notice_interval"));
+		this.bot_extra_wads = new ArrayList<>(getExtraWads(bot.get("extra_wads")));
 	}
 }

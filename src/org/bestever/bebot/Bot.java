@@ -159,6 +159,40 @@ public class Bot extends PircBot {
 	public int getMaxPort() {
 		return max_port;
 	}
+
+	/**
+	 * Adds a wad to the automatic server startup
+	 * @param wad String - the name of the wad
+	 */
+	public void addExtraWad(String wad, String sender) {
+		if (!Functions.fileExists(cfg_data.bot_wad_directory_path + wad)) {
+			sendMessage(sender, "Cannot add " + wad + " as it does not exist.");
+			return;
+		}
+		for (String listWad : cfg_data.bot_extra_wads) {
+			if (listWad.equalsIgnoreCase(wad)) {
+				sendMessage(sender, "Cannot add " + listWad + " as it already exists in the wad startup list.");
+				return;
+			}
+		}
+		cfg_data.bot_extra_wads.add(wad);
+		sendMessage(sender, "Added " + wad + " to the wad startup list.");
+	}
+
+	/**
+	 * Removes a wad from the wad startup list
+	 * @param wad String - name of the wad
+	 */
+	public void deleteExtraWad(String wad, String sender) {
+		for (String listWad : cfg_data.bot_extra_wads) {
+			if (listWad.equalsIgnoreCase(wad)) {
+				cfg_data.bot_extra_wads.remove(wad);
+				sendMessage(sender, "Wad " + wad + " was removed from the wad startup list.");
+				return;
+			}
+		}
+		sendMessage(sender, "Wad " + wad + " was not found in the wad startup list.");
+	}
 	
 	/**
 	 * This function goes through the linkedlist of servers and removes servers
@@ -429,6 +463,9 @@ public class Bot extends PircBot {
 				case ".killinactive":
 					processKillInactive(userLevel, keywords);
 					break;
+				case ".liststartwads":
+					sendMessage(cfg_data.irc_channel, "These wads are automatically loaded when a server is started: " + Functions.implode(cfg_data.bot_extra_wads, ", "));
+					break;
 				case ".load":
 					MySQL.loadSlot(hostname, keywords, userLevel, channel, sender);
 					break;
@@ -555,9 +592,13 @@ public class Bot extends PircBot {
 	private String processCommands(int userLevel) {
 		logMessage(LOGLEVEL_TRIVIAL, "Displaying processComamnds().");
 		if (isAccountTypeOf(userLevel, ADMIN))
-			return ".addban .autorestart .banwad .broadcast .commands .cpu .delban .file .get .help .host .kill .killall .killmine .killinactive .load .notice .off .on .owner .protect .purgebans .query .quit .rcon .save .send .servers .slot .unbanwad .uptime .whoami";
+			return ".addban .addstartwad .autorestart .banwad .broadcast .commands .cpu .delban .delstartwad .file .get .help" +
+					" .host .kill .killall .killmine .killinactive .liststartwads .load " +
+					".notice .off .on .owner .protect .purgebans .query .quit .rcon .save .send .servers .slot .unbanwad .uptime .whoami";
 		else if (isAccountTypeOf(userLevel, MODERATOR))
-			return ".addban .autorestart .banwad .broadcast .commands .cpu .delban .file .get .help .host .kill .killmine .killinactive .load .notice .owner .protect .purgebans .query .rcon .save .send .servers .slot .unbanwad .uptime .whoami";
+			return ".addban .addstartwad .autorestart .banwad .broadcast .commands .cpu .delban .delstartwad .file .get .help .host" +
+					" .kill .killmine .killinactive .liststartwads .load " +
+					".notice .owner .protect .purgebans .query .rcon .save .send .servers .slot .unbanwad .uptime .whoami";
 		else if (isAccountTypeOf(userLevel, REGISTERED))
 			return ".commands .cpu .file .get .help .host .kill .killmine .load .owner .query .rcon .save .servers .slot .uptime .whoami";
 		else 
@@ -968,6 +1009,14 @@ public class Bot extends PircBot {
 				case ".addban":
 					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
 						MySQL.addBan(message.split(" ")[1], Functions.implode(Arrays.copyOfRange(message.split(" "), 2, message.split(" ").length), " "), sender);
+					break;
+				case ".addstartwad":
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
+						addExtraWad(Functions.implode(Arrays.copyOfRange(message.split(" "), 1, message.split(" ").length), " "), sender);
+					break;
+				case ".delstartwad":
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
+						deleteExtraWad(Functions.implode(Arrays.copyOfRange(message.split(" "), 1, message.split(" ").length), " "), sender);
 					break;
 				case ".rcon":
 					processRcon(userLevel, keywords, sender, hostname);

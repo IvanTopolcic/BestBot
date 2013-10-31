@@ -164,9 +164,11 @@ public class ServerProcess extends Thread {
 		// Add the RCON
 		server.rcon_password = server.server_id;
 
-		// Add custom color wad
-		addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + "newtextcolours1_102.pk3");
-		server.wads.add("newtextcolours1_102.pk3");
+		// Add any custom wads we have defined in the configuration file
+		for (String wad : server.bot.cfg_data.bot_extra_wads) {
+			addParameter("-file", wad);
+			server.wads.add(wad);
+		}
 	}
 
 	/**
