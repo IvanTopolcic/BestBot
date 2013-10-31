@@ -295,6 +295,7 @@ public class ConfigData {
 			this.bot_notice = bot.get("notice");
 		if (bot.get("notice_interval") != null)
 			this.bot_notice_interval = Integer.parseInt(bot.get("notice_interval"));
-		this.bot_extra_wads = new ArrayList<>(getExtraWads(bot.get("extra_wads")));
+		if (bot.get("extra_wads") != null)
+			this.bot_extra_wads = new ArrayList<>(getExtraWads(bot.get("extra_wads")));
 	}
 }

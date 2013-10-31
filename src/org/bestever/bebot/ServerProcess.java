@@ -97,11 +97,12 @@ public class ServerProcess extends Thread {
 			addParameter("-iwad", server.bot.cfg_data.bot_iwad_directory_path + server.iwad);
 		
 		if (server.enable_skulltag_data) {
-			addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + "skulltag_actors_1-1-1.pk3");
-			addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + "skulltag_data_126.pk3");
-			server.wads.add("skulltag_actors_1-1-1.pk3");
-			server.wads.add("skulltag_data_126.pk3");
+			// Add the skulltag_* data files first since they need to be accessed by other wads
+			server.wads.add(0, "skulltag_actors_1-1-1.pk3");
+			server.wads.add(1, "skulltag_data_126.pk3");
 		}
+
+		server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Wads loaded (in order):" + Functions.implode(server.wads, ", "));
 
 		if (server.wads.size() > 0) {
 			for (String wad : server.wads) {
