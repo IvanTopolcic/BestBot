@@ -530,7 +530,7 @@ public class Bot extends PircBot {
 		if (Functions.isNumeric(port)) {
 			int portValue = Integer.valueOf(port);
 			Server s = getServer(portValue);
-			if (portValue > this.min_port && portValue < this.max_port) {
+			if (portValue >= this.min_port && portValue < this.max_port) {
 				sendMessage(cfg_data.irc_channel, s.port + " has been running for " + Functions.calculateTime(System.currentTimeMillis() - s.time_started));
 			}
 			else {
