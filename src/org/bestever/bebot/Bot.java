@@ -523,23 +523,24 @@ public class Bot extends PircBot {
 	}
 
 	/**
-	 * Broadcasts the uptime of a specified server
+	 * Broadcasts the uptime of a specific server
 	 * @param port String - port numero
 	 */
 	public void calculateUptime(String port) {
 		if (Functions.isNumeric(port)) {
 			int portValue = Integer.valueOf(port);
 			Server s = getServer(portValue);
-			if (portValue >= this.min_port && portValue < this.max_port) {
-				sendMessage(cfg_data.irc_channel, s.port + " has been running for " + Functions.calculateTime(System.currentTimeMillis() - s.time_started));
+			if (s != null) {
+				if (portValue >= this.min_port && portValue < this.max_port)
+					sendMessage(cfg_data.irc_channel, s.port + " has been running for " + Functions.calculateTime(System.currentTimeMillis() - s.time_started));
+				else
+					sendMessage(cfg_data.irc_channel, "Port must be between " + this.min_port + " and " + this.max_port);
 			}
-			else {
-				sendMessage(cfg_data.irc_channel, "Port must be between " + this.min_port + " and " + this.max_port);
-			}
+			else
+				sendMessage(cfg_data.irc_channel, "There is no server running on this port" + port);
 		}
-		else {
+		else
 			sendMessage(cfg_data.irc_channel, "Port must be a number (ex: .uptime 15000)");
-		}
 	}
 
 	/**
@@ -1007,11 +1008,11 @@ public class Bot extends PircBot {
 			int userLevel = MySQL.getLevel(hostname);
 			switch (keywords[0].toLowerCase()) {
 				case ".addban":
-					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN) && keywords.length > 2)
 						MySQL.addBan(message.split(" ")[1], Functions.implode(Arrays.copyOfRange(message.split(" "), 2, message.split(" ").length), " "), sender);
 					break;
 				case ".addstartwad":
-					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN) && keywords.length > 2)
 						addExtraWad(Functions.implode(Arrays.copyOfRange(message.split(" "), 1, message.split(" ").length), " "), sender);
 					break;
 				case ".delstartwad":
