@@ -1016,7 +1016,7 @@ public class Bot extends PircBot {
 						addExtraWad(Functions.implode(Arrays.copyOfRange(message.split(" "), 1, message.split(" ").length), " "), sender);
 					break;
 				case ".delstartwad":
-					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN) && keywords.length > 1)
 						deleteExtraWad(Functions.implode(Arrays.copyOfRange(message.split(" "), 1, message.split(" ").length), " "), sender);
 					break;
 				case ".rcon":
@@ -1041,7 +1041,7 @@ public class Bot extends PircBot {
 					}
 					break;
 				case ".delban":
-					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN))
+					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN) && keywords.length > 1)
 						MySQL.delBan(message.split(" ")[1], sender);
 					break;
 				case ".msg":
