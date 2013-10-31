@@ -102,8 +102,6 @@ public class ServerProcess extends Thread {
 			server.wads.add(1, "skulltag_data_126.pk3");
 		}
 
-		server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Wads loaded (in order):" + Functions.implode(server.wads, ", "));
-
 		if (server.wads.size() > 0) {
 			for (String wad : server.wads) {
 				addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + wad);
