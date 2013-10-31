@@ -537,7 +537,7 @@ public class Bot extends PircBot {
 					sendMessage(cfg_data.irc_channel, "Port must be between " + this.min_port + " and " + this.max_port);
 			}
 			else
-				sendMessage(cfg_data.irc_channel, "There is no server running on this port" + port);
+				sendMessage(cfg_data.irc_channel, "There is no server running on port " + port);
 		}
 		else
 			sendMessage(cfg_data.irc_channel, "Port must be a number (ex: .uptime 15000)");
