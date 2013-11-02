@@ -95,7 +95,6 @@ public class MySQL {
 	 * @param arguments Object... - an array of objects, one for each variable (?)
 	 * @return ArrayList with a hasmap key => value pair for each row.
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static ArrayList executeQuery(String query, Object... arguments) {
 		ArrayList<HashMap<String, Object>> rows = new ArrayList<>();
 		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
@@ -212,7 +211,7 @@ public class MySQL {
 	 */
 	public static boolean checkHashes(String... fileName) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT `wadname`,`md5` FROM `" + mysql_db + "`.`wads` WHERE `wadname` IN (");
+		sb.append("SELECT `wadname`,`md5` FROM `").append(mysql_db).append("`.`wads` WHERE `wadname` IN (");
 		int i = 0;
 		for (; i < fileName.length; i++) {
 			if (i == fileName.length - 1)
@@ -222,9 +221,7 @@ public class MySQL {
 		}
 		sb.append(")");
 		String query = sb.toString();
-		try {
-			Connection con = getConnection();
-			PreparedStatement pst = con.prepareStatement(query);
+		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)){
 			for (int j = 1; j <= i; j++) {
 				pst.setString(j, fileName[j-1]);
 			}
@@ -240,9 +237,7 @@ public class MySQL {
 						return false;
 					}
 			}
-			pst.close();
 			stm.close();
-			con.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			logMessage(LOGLEVEL_IMPORTANT, "Could not get hashes of file (SQL Error)");
