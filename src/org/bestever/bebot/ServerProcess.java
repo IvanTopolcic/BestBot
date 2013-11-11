@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
- * This class is specifically for running the server only and notifying the 
+ * This class is specifically for running the server only and notifying the
  * bot when the server is closed, or when to be terminated; nothing more
  */
 public class ServerProcess extends Thread {
@@ -30,22 +30,22 @@ public class ServerProcess extends Thread {
 	 * This contains the strings that will run in the process builder
 	 */
 	private ArrayList<String> serverRunCommands;
-	
+
 	/**
 	 * A reference to the server
 	 */
 	private Server server;
-	
+
 	/**
 	 * The process of the server
 	 */
 	private Process proc;
-	
+
 	/**
 	 * Used in determining when the last activity of the server was in ms
 	 */
 	public long last_activity;
-	
+
 	/**
 	 * This should be called before starting run
 	 * @param serverReference A reference to the server it is connected to (establishing a back/forth relationship to access its data)
@@ -54,24 +54,24 @@ public class ServerProcess extends Thread {
 		this.server = serverReference;
 		processServerRunCommand();
 	}
-	
-	/** 
+
+	/**
 	 * Is used to indicate if the ServerProcess was initialized properly
 	 * @return True if it was initialized properly, false if something went wrong
 	 */
 	public boolean isInitialized() {
 		return this.server != null && this.serverRunCommands != null && proc != null;
 	}
-	
-	/** 
-	 * This method can be invoked to signal the thread to kill itself and the 
+
+	/**
+	 * This method can be invoked to signal the thread to kill itself and the
 	 * process. It will also handle removing it from the linked list.
 	 */
 	public void terminateServer() {
 		server.bot.removeServerFromLinkedList(this.server);
 		proc.destroy();
 	}
-	
+
 	/**
 	 * The Server object is taken and
 	 * @return The hostbuilder string based on the data in the Server object
@@ -80,9 +80,9 @@ public class ServerProcess extends Thread {
 
 		// Create an arraylist with all our strings
 		serverRunCommands = new ArrayList<String>();
-		
+
 		// This must always be first (we may also want a custom binary, so do that here as well)
-		serverRunCommands.add(server.executableType); 
+		serverRunCommands.add(server.executableType);
 
 		// Check if we have a temporary port (used for auto-restarting)
 		// This will try to host the server on the same port as before
@@ -92,10 +92,10 @@ public class ServerProcess extends Thread {
 			addParameter("-port", Integer.toString(server.bot.getMinPort()));
 
 		addParameter("+exec", server.bot.cfg_data.bot_cfg_directory_path + "global.cfg"); // Load the global configuration file
-		
+
 		if (server.iwad != null)
 			addParameter("-iwad", server.bot.cfg_data.bot_iwad_directory_path + server.iwad);
-		
+
 		if (server.enable_skulltag_data) {
 			// Add the skulltag_* data files first since they need to be accessed by other wads
 			server.wads.add(0, "skulltag_actors_1-1-1.pk3");
@@ -104,56 +104,46 @@ public class ServerProcess extends Thread {
 
 		if (server.wads.size() > 0) {
 			for (String wad : server.wads) {
-				addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + wad);
-			}
-		}
-
-		if (server.mapwads != null) {
-			for (String wad : server.mapwads) {
-				addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + wad);
-				try {
-					DoomFile f = new DoomFile(server.bot.cfg_data.bot_wad_directory_path + wad);
-					for (String map : f.getLevelNames(true).split(" "))
-						serverRunCommands.add(map);
-				} catch (IOException e) {
-					Logger.logMessage(Logger.LOGLEVEL_CRITICAL, "Could not instantiate DoomFile class!");
-				}
+				if (wad.startsWith("iwad:"))
+					addParameter("-file", server.bot.cfg_data.bot_iwad_directory_path + wad.replace("iwad:",""));
+				else
+					addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + wad);
 			}
 		}
 
 		if (server.skill != -1)
 			addParameter("+skill", String.valueOf(server.skill));
-		
+
 		if (server.gamemode != null)
 			addParameter("+" + server.gamemode, " 1");
-		
+
 		if (server.dmflags > 0)
 			addParameter("+dmflags", Integer.toString(server.dmflags));
-		
+
 		if (server.dmflags2 > 0)
 			addParameter("+dmflags2", Integer.toString(server.dmflags2));
-		
+
 		if (server.dmflags3 > 0)
 			addParameter("+dmflags3", Integer.toString(server.dmflags3));
-		
+
 		if (server.compatflags > 0)
 			addParameter("+compatflags", Integer.toString(server.compatflags));
-		
+
 		if (server.compatflags2 > 0)
 			addParameter("+compatflags2", Integer.toString(server.compatflags2));
-		
+
 		if (server.instagib)
 			addParameter("+instagib", "1");
-		
+
 		if (server.buckshot)
 			addParameter("+buckshot", "1");
-		
+
 		if (server.servername != null)
 			addParameter("+sv_hostname", server.bot.cfg_data.bot_hostname_base + " " + server.servername);
 
 		if (server.config != null)
 			addParameter("+exec", server.bot.cfg_data.bot_cfg_directory_path + server.config);
-		
+
 		// Add rcon/file based stuff
 		addParameter("+sv_rconpassword", server.server_id);
 		addParameter("+sv_banfile", server.bot.cfg_data.bot_banlistdir + server.server_id + ".txt");
@@ -179,10 +169,10 @@ public class ServerProcess extends Thread {
 		serverRunCommands.add(parameter);
 		serverRunCommands.add(argument);
 	}
-	
+
 	/**
 	 * This method should be executed when the data is set up to initialize the
-	 * server. It will be bound to this thread. Upon server termination this 
+	 * server. It will be bound to this thread. Upon server termination this
 	 * thread will also end. <br>
 	 * Note that this method takes care of adding it to the linked list, so you
 	 * don't have to.
@@ -208,7 +198,7 @@ public class ServerProcess extends Thread {
 			adminlist = new File(server.bot.cfg_data.bot_adminlistdir + server.server_id + ".txt");
 			if (!adminlist.exists())
 				adminlist.createNewFile();
-					
+
 			// Set up the server
 			ProcessBuilder pb = new ProcessBuilder(serverRunCommands.toArray(new String[serverRunCommands.size()]));
 			// Redirect stderr to stdout
@@ -218,11 +208,11 @@ public class ServerProcess extends Thread {
 
 			// Set up the input (with autoflush)
 			server.in = new PrintWriter(proc.getOutputStream(), true);
-			
+
 			// Set up file/IO
 			logFile = new File(server.bot.cfg_data.bot_logfiledir + server.server_id + ".txt");
 			bw = new BufferedWriter(new FileWriter(server.bot.cfg_data.bot_logfiledir + server.server_id + ".txt"));
-			
+
 			// Create the logfile
 			if (!logFile.exists())
 				logFile.createNewFile();
@@ -245,7 +235,7 @@ public class ServerProcess extends Thread {
 						server.port = Integer.parseInt(portNumber);
 					} else
 						server.bot.sendMessage(server.irc_channel, "Warning: port parsing error when setting up server [1]; contact an administrator.");
-					
+
 				// If the port is used [NETWORK_Construct: Couldn't bind to 10666. Binding to 10667 instead...]
 				} else if (strLine.startsWith("NETWORK_Construct: Couldn't bind to ")) {
 					System.out.println(strLine);
@@ -255,7 +245,7 @@ public class ServerProcess extends Thread {
 					} else
 						server.bot.sendMessage(server.irc_channel, "Warning: port parsing error when setting up server [2]; contact an administrator.");
 				}
-				
+
 				// If we see this, the server started
 				if (strLine.equalsIgnoreCase("UDP Initialized.")) {
 					System.out.println(strLine);
@@ -279,23 +269,23 @@ public class ServerProcess extends Thread {
 					else if (keywords[0].equalsIgnoreCase("\"sv_rconpassword\""))
 						server.rcon_password = keywords[2].replace("\"","");
 				}
-				
+
 				// If we have a player joining or leaving, mark this server as active
 				if (strLine.endsWith("has connected.") || strLine.endsWith("disconnected."))
 					last_activity = System.currentTimeMillis();
-				
+
 				dateNow = formatter.format(Calendar.getInstance().getTime());
 				bw.write(dateNow + " " + strLine + "\n");
 				bw.flush();
 			}
-			
+
 			// Handle cleanup
 			dateNow = formatter.format(Calendar.getInstance().getTime());
 			long end = System.currentTimeMillis();
 			long uptime = end - server.time_started;
 			bw.write(dateNow + " Server stopped! Uptime was " + Functions.calculateTime(uptime));
 			server.in.close();
-			
+
 			// Notify the main channel if enabled
 			if (!server.hide_stop_message) {
 				if (server.port != 0)

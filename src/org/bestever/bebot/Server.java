@@ -59,7 +59,7 @@ public class Server {
 	 * Contains the thread of the server process
 	 */
 	public ServerProcess serverprocess;
-	
+
 	/**
 	 * Contains the reference to the bot
 	 */
@@ -69,37 +69,37 @@ public class Server {
 	 * Contains the port it is run on
 	 */
 	public int port;
-	
+
 	/**
 	 * The time the server was started
 	 */
 	public long time_started;
-	
+
 	/**
 	 * This is the generated password at the very start for server logs and the password
 	 */
 	public String server_id;
-	
+
 	/**
 	 * Username of the person who sent the command to start it
 	 */
 	public String sender;
-	
+
 	/**
 	 * The channel it was hosted from
 	 */
 	public String irc_channel;
-	
+
 	/**
 	 * This is the host's hostname on irc
 	 */
 	public String irc_hostname;
-	
+
 	/**
 	 * This is the login name used
 	 */
 	public String irc_login;
-	
+
 	/**
 	 * Contains the entire ".host" command
 	 */
@@ -109,12 +109,12 @@ public class Server {
 	 * Contains the level of the user
 	 */
 	public int user_level;
-	
+
 	/**
 	 * The type of executable (do we run normal zandronum, or kpatch, or devrepo...etc)
 	 */
 	public String executableType;
-	
+
 	/**
 	 * Contains the hostname used, this will NOT contain " :: [BE] New York "
 	 */
@@ -134,7 +134,7 @@ public class Server {
 	 * The name of the config file (like rofl.cfg), will contain ".cfg" on the end of the string
 	 */
 	public String config;
-	
+
 	/**
 	 * Contains a list of all the wads used by the server separated by a space
 	 */
@@ -154,12 +154,12 @@ public class Server {
 	 * If this is true, that means skulltag data will be enabled
 	 */
 	public boolean enable_skulltag_data;
-	
+
 	/**
 	 * If this is true, instagib will be enabled on the server
 	 */
 	public boolean instagib;
-	
+
 	/**
 	 * If this is true, buckshot will be enabled on the server
 	 */
@@ -169,54 +169,54 @@ public class Server {
 	 * Contains flags for the server
 	 */
 	public int dmflags;
-	
+
 	/**
 	 * Contains flags for the server
 	 */
 	public int dmflags2;
-	
+
 	/**
 	 * Contains flags for the server
 	 */
 	public int dmflags3;
-	
+
 	/**
 	 * Contains flags for the server
 	 */
 	public int compatflags;
-	
+
 	/**
 	 * Contains flags for the server
 	 */
 	public int compatflags2;
-	
+
 	/**
 	 * Contains the play_time in percentage
 	 */
 	public long play_time = 0;
-	
+
 	/**
 	 * Contains the RCON Password
 	 */
 	public String rcon_password;
-	
+
 	/**
 	 * If there's an error with processing of numbers, return this
 	 */
 	public static final int FLAGS_ERROR = 0xFFFFFFFF;
-	
+
 	/**
 	 * This is the time of a day in milliseconds
 	 */
 	public static final long DAY_MILLISECONDS = 1000 * 60 * 60 * 24;
-	
+
 	/**
 	 * Default constructor for building a server
 	 */
 	public Server() {
 		// Purposely empty
 	}
-	
+
 	/**
 	 * This will take ".host ...", parse it and pass it off safely to anything else
 	 * that needs the information to create/run the servers and the mysql database.
@@ -232,7 +232,7 @@ public class Server {
 	public static void handleHostCommand(Bot botReference, LinkedList<Server> servers, String channel, String sender, String hostname, String message, int userLevel, boolean autoRestart, int port) {
 		// Initialize server without linking it to the ArrayList
 		Server server = new Server();
-		
+
 		// Reference server to bot
 		server.bot = botReference;
 
@@ -244,14 +244,14 @@ public class Server {
 			server.auto_restart = true;
 
 		server.temp_port = port;
-		
+
 		// Input basic values
 		server.irc_channel = channel;
 		server.irc_hostname = hostname;
 		server.host_command = message;
 		server.user_level = userLevel;
 		server.sender = sender;
-		
+
 		// The bot structure of using the executable has changed, we will set
 		// it to default here at the very beginning to the normal exe, but it
 		// can be changed later on in the code with a binary=... flag
@@ -371,17 +371,14 @@ public class Server {
 		// Check if the wads exist
 		if (server.wads != null) {
 			for (String wad : server.wads) {
-				if (!Functions.fileExists(server.bot.cfg_data.bot_wad_directory_path + wad)) {
-					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "File '" + wad + "' does not exist!");
-					return;
+				if (wad.startsWith("iwad:")) {
+					String tempWad = wad.split(":")[1];
+					if (!Functions.fileExists(server.bot.cfg_data.bot_iwad_directory_path + tempWad)) {
+						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "File (iwad) '" + tempWad + "' does not exist!");
+						return;
+					}
 				}
-			}
-		}
-
-		// Check if mapwad exists
-		if (server.mapwads != null) {
-			for (String wad : server.mapwads) {
-				if (!Functions.fileExists(server.bot.cfg_data.bot_wad_directory_path + wad)) {
+				else if (!Functions.fileExists(server.bot.cfg_data.bot_wad_directory_path + wad)) {
 					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "File '" + wad + "' does not exist!");
 					return;
 				}
@@ -423,6 +420,10 @@ public class Server {
 		MySQL.logServer(server.servername, server.server_id, Functions.getUserName(server.irc_hostname));
 	}
 
+	public static boolean checkWadExists() {
+		return false;
+	}
+
 	/**
 	 * Servers stored in the database should be loaded upon invoking this
 	 * function on bot startup
@@ -437,7 +438,7 @@ public class Server {
 			logMessage(LOGLEVEL_CRITICAL, "Unable to load servers from MySQL!");
 			return;
 		}
-		
+
 		// Go through each server and initialize them accordingly
 		int database_id = -1;
 		try {
@@ -472,7 +473,7 @@ public class Server {
 					server.time_started = rs.getLong("time_started");
 					server.user_level = 0; // ??? Get from Mysql
 					//server.wads = rs.getString("wads").replace(" ","").split(","); // Check this!
-					
+
 					// Handle the server (pass it to the appropriate places before referencing a new object) (server.port and server.serverprocess)
 					logMessage(LOGLEVEL_NORMAL, "Successfully processed server id " + database_id + "'s data.");
 					server.serverprocess = new ServerProcess(server);
@@ -580,7 +581,7 @@ public class Server {
 	}
 
 	/**
-	 * Takes input to parse the gamemode 
+	 * Takes input to parse the gamemode
 	 * @param string The keyword to check with the = sign (ex: gamemode=...)
 	 * @return A string of the gamemode, null if there was no such gamemode
 	 */
@@ -631,7 +632,7 @@ public class Server {
 			case "oneflagctf":
 				return "oneflagctf"; // NEEDS SUPPORT (please check)
 		}
-		
+
 		// If the gametype is unknown, return null
 		return null;
 	}
@@ -665,11 +666,11 @@ public class Server {
 			flag = Integer.parseInt(keyword);
 		if (flag >= 0)
 			return flag;
-		
+
 		// If something went wrong, return an error
 		return FLAGS_ERROR;
 	}
-	
+
 	/**
 	 * Will return generic things from a server that a user may want to request, this method
 	 * does not return anything that contains sensitive information (which can be done with reflection)
@@ -713,9 +714,6 @@ public class Server {
 				return "instagib: " + Boolean.toString(this.instagib);
 			case "iwad":
 				return "iwad: " + this.iwad;
-			case "mapwad":
-			case "mapwads":
-				return "mapwads: " + Functions.implode(this.mapwads, ", ");
 			case "name":
 			case "server_name":
 			case "hostname":
@@ -742,7 +740,7 @@ public class Server {
 			return "None";
 		else return input;
 	}
-	
+
 	/**
 	 * This will kill the server
 	 */
