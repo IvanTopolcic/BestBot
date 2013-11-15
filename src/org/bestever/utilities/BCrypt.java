@@ -1,4 +1,4 @@
-package org.bestever.bebot;
+package org.bestever.utilities;
 
 //Copyright (c) 2006 Damien Miller <djm@mindrot.org>
 //

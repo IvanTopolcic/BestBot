@@ -1,3 +1,5 @@
+package org.bestever.utilities;
+
 // --------------------------------------------------------------------------
 // Copyright (C) 2012-2013 Best-Ever
 //
@@ -13,7 +15,6 @@
 //
 // --------------------------------------------------------------------------
 
-package org.bestever.bebot;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

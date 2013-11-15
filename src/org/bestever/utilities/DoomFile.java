@@ -1,3 +1,5 @@
+package org.bestever.utilities;
+
 // --------------------------------------------------------------------------
 // Copyright (C) 2012-2013 Best-Ever
 //
@@ -13,14 +15,13 @@
 //
 // --------------------------------------------------------------------------
 
-package org.bestever.bebot;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+
 
 /**
  * This class encapsulated wads, but also has methods for PK3's

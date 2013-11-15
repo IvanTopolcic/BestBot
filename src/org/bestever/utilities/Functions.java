@@ -1,3 +1,5 @@
+package org.bestever.utilities;
+
 // --------------------------------------------------------------------------
 // Copyright (C) 2012-2013 Best-Ever
 //
@@ -12,8 +14,6 @@
 // GNU General Public License for more details.
 //
 // --------------------------------------------------------------------------
-
-package org.bestever.bebot;
 
 import java.io.*;
 import java.math.BigInteger;

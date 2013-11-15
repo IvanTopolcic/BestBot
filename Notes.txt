@@ -1,0 +1,9 @@
+Outline:
+	         _____BotHoster______
+           /         |           \
+TCPListener-----TCPClients[]	ServerManager
+                                    ____|____//_
+				                   /    |       \
+				                Server Server Server
+				                   |	 |	     |
+				                ServPr ServPr ServPr

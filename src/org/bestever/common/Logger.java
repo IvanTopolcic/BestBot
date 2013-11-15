@@ -1,3 +1,5 @@
+package org.bestever.common;
+
 // --------------------------------------------------------------------------
 // Copyright (C) 2012-2013 Best-Ever
 //
@@ -12,8 +14,6 @@
 // GNU General Public License for more details.
 //
 // --------------------------------------------------------------------------
-
-package org.bestever.bebot;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

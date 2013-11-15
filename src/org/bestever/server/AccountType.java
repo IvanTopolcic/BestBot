@@ -1,3 +1,5 @@
+package org.bestever.server;
+
 // --------------------------------------------------------------------------
 // Copyright (C) 2012-2013 Best-Ever
 //
@@ -13,18 +15,16 @@
 //
 // --------------------------------------------------------------------------
 
-package org.bestever.bebot;
-
 public class AccountType {
 	
 	/**
 	 * Below are the bitmask permissions for userroups
 	 **/
-	public static final int GUEST = 0; // 0
-	public static final int REGISTERED = 1; // 1
-	public static final int MODERATOR = 1 << 1; // 2
-	public static final int ADMIN = 1 << 2; // 4
-	public static final int RCON = 1 << 3; // 8
+	public static final int GUEST 		= 0; 	  // 0
+	public static final int REGISTERED 	= 1 << 0; // 1
+	public static final int MODERATOR 	= 1 << 1; // 2
+	public static final int ADMIN		= 1 << 2; // 4
+	public static final int RCON 		= 1 << 3; // 8
 	
 	/**
 	 * To check for different masks, this method searches to see if you contain one of them.
