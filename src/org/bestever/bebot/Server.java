@@ -370,16 +370,19 @@ public class Server {
 
 		// Check if the wads exist
 		if (server.wads != null) {
-			for (String wad : server.wads) {
-				if (wad.startsWith("iwad:")) {
-					String tempWad = wad.split(":")[1];
+			for (int i = 0; i < server.wads.size(); i++) {
+				if (server.wads.get(i).startsWith("iwad:")) {
+					String tempWad = server.wads.get(i).split(":")[1];
 					if (!Functions.fileExists(server.bot.cfg_data.bot_iwad_directory_path + tempWad)) {
 						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "File (iwad) '" + tempWad + "' does not exist!");
 						return;
 					}
+					// Replace iwad: since we don't need it
+					else
+						server.wads.set(i, tempWad);
 				}
-				else if (!Functions.fileExists(server.bot.cfg_data.bot_wad_directory_path + wad)) {
-					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "File '" + wad + "' does not exist!");
+				else if (!Functions.fileExists(server.bot.cfg_data.bot_wad_directory_path + server.wads.get(i))) {
+					server.bot.sendMessage(server.bot.cfg_data.irc_channel, "File '" + server.wads.get(i) + "' does not exist!");
 					return;
 				}
 			}
