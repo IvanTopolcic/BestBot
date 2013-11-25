@@ -32,7 +32,7 @@ import org.jibble.pircbot.PircBot;
  * This is where the bot methods are run and handling of channel/PM input are processed
  */
 public class Bot extends PircBot {
-	
+
 	/**
 	 * The lowest port (the base port) that the bot uses. This should NEVER be
 	 * changed because the mysql table relies on the minimum port to stay the
@@ -50,17 +50,17 @@ public class Bot extends PircBot {
 	 * When the bot was started
 	 */
 	public long time_started;
-	
+
 	/**
 	 * A toggle variable for allowing hosting
 	 */
 	private boolean botEnabled = true;
-	
+
 	/**
 	 * Contains the config data
 	 */
 	public ConfigData cfg_data;
-	
+
 	/**
 	 * Contained a array list of all the servers
 	 */
@@ -70,27 +70,27 @@ public class Bot extends PircBot {
 	 * Holds the timer (for timed broadcasts)
 	 */
 	public Timer timer;
-	
+
 	/**
 	 * A query manager thread for handling external server requests
 	 */
 	private QueryManager queryManager;
-	
+
 	// Debugging purposes only
 	public static Bot staticBot;
-	
+
 	/**
 	 * Set the bot up with the constructor
 	 */
 	public Bot(ConfigData cfgfile) {
 		staticBot = this; // DEBUG ONLY
-		
+
 		// Point our config data to what we created back in RunMe.java
 		cfg_data = cfgfile;
-		
+
 		// Set up the logger
 		Logger.setLogFile(cfg_data.bot_logfile);
-		
+
 		// Set up the bot and join the channel
 		logMessage(LOGLEVEL_IMPORTANT, "Initializing BestBot v" + cfg_data.irc_version);
 		setVerbose(cfg_data.bot_verbose);
@@ -118,7 +118,7 @@ public class Bot extends PircBot {
 
 		// Set up the server arrays
 		this.servers = new LinkedList<>();
-		
+
 		// Set up MySQL
 		 MySQL.setMySQL(this, cfg_data.mysql_host, cfg_data.mysql_user, cfg_data.mysql_pass, cfg_data.mysql_port, cfg_data.mysql_db);
 
@@ -143,7 +143,7 @@ public class Bot extends PircBot {
 	public void rejoinChannel() {
 		this.joinChannel(cfg_data.irc_channel);
 	}
-	
+
 	/**
 	 * Gets the minimum port to be used by the bot
 	 * @return An integer containing the minimum port used
@@ -193,7 +193,7 @@ public class Bot extends PircBot {
 		}
 		sendMessage(sender, "Wad " + wad + " was not found in the wad startup list.");
 	}
-	
+
 	/**
 	 * This function goes through the linkedlist of servers and removes servers
 	 * @param server Server - the server object
@@ -211,7 +211,7 @@ public class Bot extends PircBot {
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns a Server from the linked list based on the port number provided
 	 * @param port The port to check
@@ -251,7 +251,7 @@ public class Bot extends PircBot {
 		}
 		return serverList;
 	}
-	
+
 	/**
 	 * This searches through the linkedlist to kill the server on that port,
 	 * the method does not actually kill it, but signals a boolean to terminate
@@ -266,16 +266,16 @@ public class Bot extends PircBot {
 			sendMessage(cfg_data.irc_channel, "Invalid port number (" + portString + "), not terminating server.");
 			return;
 		}
-		
+
 		// Since our port is numeric, parse it
 		int port = Integer.parseInt(portString);
-		
-		// Handle users sending in a small value (thus saving time 
+
+		// Handle users sending in a small value (thus saving time
 		if (port < min_port) {
 			sendMessage(cfg_data.irc_channel, "Invalid port number (ports start at " + min_port + "), not terminating server.");
 			return;
 		}
-		
+
 		// See if the port is in our linked list, if so signify for it to die
 		Server targetServer = getServer(port);
 		if (targetServer != null) {
@@ -602,7 +602,7 @@ public class Bot extends PircBot {
 					".notice .owner .protect .purgebans .query .rcon .save .send .servers .slot .unbanwad .uptime .whoami";
 		else if (isAccountTypeOf(userLevel, REGISTERED))
 			return ".commands .cpu .file .get .help .host .kill .killmine .load .owner .query .rcon .save .servers .slot .uptime .whoami";
-		else 
+		else
 			return "[Not logged in, guests have limited access] .commands .cpu .file .help .servers .uptime .whoami";
 	}
 
@@ -619,7 +619,7 @@ public class Bot extends PircBot {
 			sendMessage(cfg_data.irc_channel, message);
 		}
 	}
-	
+
 	/**
 	 * This checks to see if the file exists in the wad directory (it is lower-cased)
 	 * @param keywords The keywords sent (should be a length of two)
@@ -636,7 +636,7 @@ public class Bot extends PircBot {
 		} else
 			sendMessage(channel, "Incorrect syntax, use: .file <filename.wad>");
 	}
-	
+
 	/**
 	 * Gets a field requested by the user
 	 * @param userLevel The user's bitmask level
@@ -661,7 +661,7 @@ public class Bot extends PircBot {
 			sendMessage(cfg_data.irc_channel, tempServer.getField(keywords[2]));
 		}
 	}
-	
+
 	/**
 	 * Passes the host command off to a static method to create the server
 	 * @param userLevel The user's bitmask level
@@ -688,7 +688,7 @@ public class Bot extends PircBot {
 		else
 			sendMessage(cfg_data.irc_channel, "The bot is currently disabled from hosting for the time being. Sorry for any inconvenience!");
 	}
-	
+
 	/**
 	 * Attempts to kill a server based on the port
 	 * @param userLevel The user's bitmask level
@@ -702,19 +702,19 @@ public class Bot extends PircBot {
 			sendMessage(cfg_data.irc_channel, "Proper syntax: .kill <port>");
 			return;
 		}
-		
+
 		// Safety net
 		if (servers == null) {
 			sendMessage(cfg_data.irc_channel, "Critical error: Linkedlist is null, contact an administrator.");
 			return;
 		}
-		
+
 		// If server list is empty
-		if (servers.isEmpty()) { 
+		if (servers.isEmpty()) {
 			sendMessage(cfg_data.irc_channel, "There are currently no servers running!");
 			return;
 		}
-		
+
 		// Registered can only kill their own servers
 		if (isAccountTypeOf(userLevel, REGISTERED)) {
 			if (Functions.isNumeric(keywords[1])) {
@@ -732,14 +732,14 @@ public class Bot extends PircBot {
 				}
 				else
 					sendMessage(cfg_data.irc_channel, "Error: There is no server running on this port.");
-			} else 
+			} else
 				sendMessage(cfg_data.irc_channel, "Improper port number.");
 		// Admins/mods can kill anything
 		} else if (isAccountTypeOf(userLevel, ADMIN, MODERATOR)) {
 			killServer(keywords[1]); // Can pass string, will process it in the method safely if something goes wrong
 		}
 	}
-	
+
 	/**
 	 * When requested it will kill every server in the linked list
 	 * @param userLevel The user level of the person requesting
@@ -765,7 +765,7 @@ public class Bot extends PircBot {
 		else
 			sendMessage(cfg_data.irc_channel, "You do not have permission to use this command.");
 	}
-	
+
 	/**
 	 * This will look through the list and kill all the servers that the hostname owns
 	 * @param userLevel The level of the user
@@ -794,7 +794,7 @@ public class Bot extends PircBot {
 			}
 		}
 	}
-	
+
 	/**
 	 * This will kill inactive servers based on the days specified in the second parameter
 	 * @param userLevel The user's bitmask level
@@ -841,7 +841,7 @@ public class Bot extends PircBot {
 			}
 		}
 	}
-	
+
 	/**
 	 * Admins can turn off hosting with this
 	 * @param userLevel The user's bitmask level
@@ -855,7 +855,7 @@ public class Bot extends PircBot {
 			}
 		}
 	}
-	
+
 	/**
 	 * Admins can re-enable hosting with this
 	 * @param userLevel The user's bitmask level
@@ -869,7 +869,7 @@ public class Bot extends PircBot {
 			}
 		}
 	}
-	
+
 	/**
 	 * This checks for who owns the server on the specified port
 	 * @param userLevel The level of the user requesting the data
@@ -889,7 +889,7 @@ public class Bot extends PircBot {
 			} else
 				sendMessage(cfg_data.irc_channel, "Improper syntax, use: .owner <port>");
 	}
-	
+
 	/**
 	 * Will attempt to query a server and generate a line of text
 	 * @param userLevel The level of the user
@@ -905,7 +905,7 @@ public class Bot extends PircBot {
 						if (port > 0 && port < 65535) {
 							sendMessageToChannel("Attempting to query " + keywords[1] + ", please wait...");
 							ServerQueryRequest request = new ServerQueryRequest(ipFragment[0], port);
-							if (!queryManager.addRequest(request)) 
+							if (!queryManager.addRequest(request))
 								sendMessageToChannel("Too many people requesting queries. Please try again later.");
 						} else
 							sendMessageToChannel("Port value is not between 0 - 65536 (ends exclusive), please fix your IP:port and try again.");
@@ -1032,12 +1032,12 @@ public class Bot extends PircBot {
 					break;
 				case ".banwad":
 					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
-						MySQL.addWadToBlacklist(keywords[1], sender);
+						MySQL.addWadToBlacklist(Functions.implode(Arrays.copyOfRange(keywords, 1, keywords.length), " "), sender);
 					}
 					break;
 				case ".unbanwad":
 					if (isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
-						MySQL.removeWadFromBlacklist(keywords[1], sender);
+						MySQL.removeWadFromBlacklist(Functions.implode(Arrays.copyOfRange(keywords, 1, keywords.length), " "), sender);
 					}
 					break;
 				case ".delban":
@@ -1128,13 +1128,13 @@ public class Bot extends PircBot {
 			}
 		}
 	}
-	
+
 	/**
 	 * Contains the main methods that are run on start up for the bot
 	 * The arguments should contain the path to the Bot.cfg file only
 	 */
 	public static void main(String[] args) {
-		// We need only one argument to the config 
+		// We need only one argument to the config
 		if (args.length != 1) {
 			System.out.println("Incorrect arguments, please have only one arg to your ini path");
 			return;
@@ -1153,7 +1153,7 @@ public class Bot extends PircBot {
 			e.printStackTrace();
 			return;
 		}
-		
+
 		// Start the bot
 		new Bot(cfg_data);
 	}
