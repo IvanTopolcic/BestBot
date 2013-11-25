@@ -24,9 +24,23 @@ import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class Functions {
+
+	/**
+	 * Removes duplicates from an arraylist by casting to a set
+	 * @param l ArrayList - the list
+	 * @return cleaned ArrayList
+	 */
+	public static ArrayList<String> removeDuplicateWads(ArrayList<String> l) {
+		Set<String> setItems = new LinkedHashSet<>(l);
+		l.clear();
+		l.addAll(setItems);
+		return l;
+	}
 
 	/**
 	 * Generates an MD5 hash
@@ -79,7 +93,7 @@ public class Functions {
 			sb.append(String.format("%02x", b&0xff));
 		return sb.toString();
 	}
-	
+
 	/**
 	 * Gets the name of a user by splitting their hostname (*.users.zandronum.com)
 	 * @param hostname The user's host name
@@ -88,7 +102,7 @@ public class Functions {
 	public static String getUserName(String hostname) {
 		return hostname.replace(".users.zandronum.com", "");
 	}
-	
+
 	/**
 	 * Checks to see if a user is logged on their Zandronum IRC account
 	 * @param hostname The user's hostname
@@ -98,7 +112,7 @@ public class Functions {
 		hostname = hostname.replace(".users.zandronum.com", "");
 		return !hostname.contains(".");
 	}
-	
+
 	/**
 	 * Checks to see if a number is numeric
 	 * In a recent update, now checks safely for nulls should such a thing happen
@@ -115,7 +129,7 @@ public class Functions {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Checks to see if a given port is in use
 	 * @param checkport The port to check
@@ -142,7 +156,7 @@ public class Functions {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Checks for an available port from minport up to (but NOT including) maxport
 	 * @param minport The minimum port to check
@@ -156,7 +170,7 @@ public class Functions {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Function that takes a time in seconds
 	 * and converts it to a string with days, hours, minutes

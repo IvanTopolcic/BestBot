@@ -19,6 +19,8 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * This class is specifically for running the server only and notifying the
@@ -91,7 +93,8 @@ public class ServerProcess extends Thread {
 		else
 			addParameter("-port", Integer.toString(server.bot.getMinPort()));
 
-		addParameter("+exec", server.bot.cfg_data.bot_cfg_directory_path + "global.cfg"); // Load the global configuration file
+		// Load the global configuration file
+		addParameter("+exec", server.bot.cfg_data.bot_cfg_directory_path + "global.cfg");
 
 		if (server.iwad != null)
 			addParameter("-iwad", server.bot.cfg_data.bot_iwad_directory_path + server.iwad);
@@ -102,12 +105,14 @@ public class ServerProcess extends Thread {
 			server.wads.add(1, "skulltag_data_126.pk3");
 		}
 
+		// Add the extra wads and clean duplicates
+		server.wads.addAll(server.bot.cfg_data.bot_extra_wads);
+		server.wads = Functions.removeDuplicateWads(server.wads);
+
+		// Finally, add the wads
 		if (server.wads.size() > 0) {
 			for (String wad : server.wads) {
-				if (wad.startsWith("iwad:"))
-					addParameter("-file", server.bot.cfg_data.bot_iwad_directory_path + wad.replace("iwad:",""));
-				else
-					addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + wad);
+				addParameter("-file", server.bot.cfg_data.bot_iwad_directory_path + wad.replace("iwad:",""));
 			}
 		}
 
@@ -152,12 +157,6 @@ public class ServerProcess extends Thread {
 
 		// Add the RCON
 		server.rcon_password = server.server_id;
-
-		// Add any custom wads we have defined in the configuration file
-		for (String wad : server.bot.cfg_data.bot_extra_wads) {
-			addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + wad);
-			server.wads.add(wad);
-		}
 	}
 
 	/**
