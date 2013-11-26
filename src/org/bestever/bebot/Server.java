@@ -31,7 +31,7 @@ import static org.bestever.bebot.MySQL.SERVER_ONLINE;
 public class Server {
 
 	/**
-	 * Holds the temporary port (used for auto-restarting)
+	 * Holds the temporary port
 	 */
 	public int temp_port;
 
@@ -349,6 +349,18 @@ public class Server {
 				case "mapwad":
 					server.mapwads = addWads(m.group(2));
 					break;
+				case "port":
+					if (Functions.checkValidPort(m.group(2)))
+						server.temp_port = Integer.valueOf(m.group(2));
+					else {
+						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "You did not input a valid port.");
+						return;
+					}
+					if (server.checkPortExists(botReference, server.temp_port)) {
+						server.bot.sendMessage(server.bot.cfg_data.irc_channel, "Port " + server.temp_port + " is already in use.");
+						return;
+					}
+					break;
 				case "skill":
 					server.skill = handleSkill(m.group(2));
 					if (server.skill == -1) {
@@ -423,10 +435,6 @@ public class Server {
 		MySQL.logServer(server.servername, server.server_id, Functions.getUserName(server.irc_hostname));
 	}
 
-	public static boolean checkWadExists() {
-		return false;
-	}
-
 	/**
 	 * Servers stored in the database should be loaded upon invoking this
 	 * function on bot startup
@@ -497,6 +505,19 @@ public class Server {
 	private boolean checkConfig(String config) {
 		File f = new File(config);
 		return f.exists();
+	}
+
+	/**
+	 * Checks if a server exists on the port
+	 * @param b Bot - the bot object
+	 * @param port int - the port
+	 * @return true if taken, false if not
+	 */
+	private boolean checkPortExists(Bot b, int port) {
+		if (b.getServer(port) == null)
+			return false;
+		else
+			return true;
 	}
 
 	/**

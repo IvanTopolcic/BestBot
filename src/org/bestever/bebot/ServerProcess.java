@@ -75,8 +75,7 @@ public class ServerProcess extends Thread {
 	}
 
 	/**
-	 * The Server object is taken and
-	 * @return The hostbuilder string based on the data in the Server object
+	 * Parse the server object and run the server based on the configuration
 	 */
 	private void processServerRunCommand() {
 
@@ -86,7 +85,7 @@ public class ServerProcess extends Thread {
 		// This must always be first (we may also want a custom binary, so do that here as well)
 		serverRunCommands.add(server.executableType);
 
-		// Check if we have a temporary port (used for auto-restarting)
+		// Check if we have a temporary port
 		// This will try to host the server on the same port as before
 		if (server.temp_port != 0)
 			addParameter("-port", String.valueOf(server.temp_port));

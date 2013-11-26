@@ -39,12 +39,12 @@ public class Bot extends PircBot {
 	 * same so it can grab the proper ID (primary key) which corresponds to
 	 * server storage and ports.
 	 */
-	private int min_port;
+	public static int min_port;
 
 	/**
 	 * The highest included port number that the bot uses
 	 */
-	private int max_port;
+	public static int max_port;
 
 	/**
 	 * When the bot was started

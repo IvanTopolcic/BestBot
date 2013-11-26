@@ -31,6 +31,20 @@ import java.util.concurrent.TimeUnit;
 public class Functions {
 
 	/**
+	 * Checks for a valid port number
+	 * Must be an integer between Bot.MAX_PORT and Bot.MIN_PORT
+	 * @return true if the port is valid
+	 */
+	public static boolean checkValidPort(String port) {
+		if (isNumeric(port)) {
+			int numPort = Integer.valueOf(port);
+			return numPort >= Bot.min_port && numPort < Bot.max_port;
+		}
+		else
+			return false;
+	}
+
+	/**
 	 * Removes duplicates from an arraylist by casting to a set
 	 * @param l ArrayList - the list
 	 * @return cleaned ArrayList
