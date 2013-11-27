@@ -546,6 +546,33 @@ public class Server {
 	}
 
 	/**
+	 * Checks to see if a wad is an IWAD
+	 * @param wad String - name of the wad
+	 * @return True if IWAD / False if not
+	 */
+	public static boolean isIwad(String wad) {
+		switch (wad.toLowerCase()) {
+			case "doom2.wad":
+			case "doom.wad":
+			case "tnt.wad":
+			case "heretic.wad":
+			case "hexen.wad":
+			case "strife1.wad":
+			case "doom1.wad":
+			case "harmony.wad":
+			case "harm1.wad":
+			case "hacx.wad":
+			case "chex3.wad":
+			case "megagame.wad":
+			case "freedm.wad":
+			case "nerve.wad":
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	/**
 	 * Checks for the iwad based on the input
 	 * @param string The keyword with the iwad (ex: iwad=doom2.wad)
 	 * @return A string of the wad (lowercase), or null if there's no supported iwad name

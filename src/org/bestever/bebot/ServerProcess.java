@@ -111,7 +111,10 @@ public class ServerProcess extends Thread {
 		// Finally, add the wads
 		if (server.wads.size() > 0) {
 			for (String wad : server.wads) {
-				addParameter("-file", server.bot.cfg_data.bot_iwad_directory_path + wad.replace("iwad:",""));
+				if (Server.isIwad(wad))
+					addParameter("-file", server.bot.cfg_data.bot_iwad_directory_path + wad);
+				else
+					addParameter("-file", server.bot.cfg_data.bot_wad_directory_path + wad);
 			}
 		}
 
