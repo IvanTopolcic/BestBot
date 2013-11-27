@@ -751,7 +751,7 @@ public class Bot extends PircBot {
 			// This will throw a concurrent modification exception
 			// As a temporary solution, we can create a temporary list that will hold the values of the real list at the time it was called
 			List<Server> tempList = new LinkedList<>(servers);
-			byte serverCount = (byte)servers.size();
+			int serverCount = servers.size();
 			if (tempList.size() > 0) {
 				for (Server s : tempList) {
 					s.hide_stop_message = true;
