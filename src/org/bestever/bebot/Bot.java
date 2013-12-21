@@ -1052,6 +1052,9 @@ public class Bot extends PircBot {
 					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR))
 						purgeBans(keywords[1]);
 					break;
+				case ".raw":
+					if (isAccountTypeOf(userLevel, ADMIN))
+						sendRawLine(Functions.implode(Arrays.copyOfRange(keywords, 1, keywords.length), " "));
 				case ".rejoin":
 					if (isAccountTypeOf(userLevel, ADMIN))
 						rejoinChannel();
