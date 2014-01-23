@@ -758,7 +758,7 @@ public class Bot extends PircBot {
 					s.auto_restart = false;
 					s.killServer();
 				}
-				sendMessage(cfg_data.irc_channel, "Killed a total of " + serverCount + " server(s).");
+				sendMessage(cfg_data.irc_channel, Functions.pluralize("Killed a total of " + serverCount + " server{s}.", serverCount));
 			} else
 				sendMessage(cfg_data.irc_channel, "There are no servers running.");
 		}
@@ -784,7 +784,7 @@ public class Bot extends PircBot {
 					ports.add(String.valueOf(s.port));
 				}
 				if (ports.size() > 0) {
-					sendMessage(cfg_data.irc_channel, "Killed " + ports.size() + " server(s) (" + Functions.implode(ports, ", ") +")");
+					sendMessage(cfg_data.irc_channel, Functions.pluralize("Killed " + ports.size() + " server{s} (" + Functions.implode(ports, ", ") +")", ports.size()));
 				}
 				else {
 					sendMessage(cfg_data.irc_channel, "You do not have any servers running.");
@@ -831,7 +831,7 @@ public class Bot extends PircBot {
 						sendMessage(cfg_data.irc_channel, "No servers were killed.");
 					}
 					else {
-						sendMessage(cfg_data.irc_channel, "Killed " + ports.size() + " server(s) (" + Functions.implode(ports, ", ") + ")");
+						sendMessage(cfg_data.irc_channel, Functions.pluralize("Killed " + ports.size() + " server{s} (" + Functions.implode(ports, ", " + ")"), ports.size()));
 					}
 				} else {
 					sendMessage(cfg_data.irc_channel, "Using zero or less for .killinactive is not allowed.");
@@ -910,9 +910,9 @@ public class Bot extends PircBot {
 						} else
 							sendMessageToChannel("Port value is not between 0 - 65536 (ends exclusive), please fix your IP:port and try again.");
 					} else
-						sendMessageToChannel("Missing (or too many) port delimiter(s), Usage: .query <ip:port>   (example: .query 98.173.12.44:20555)");
+						sendMessageToChannel("Missing (or too many) port delimiters, Usage: .query <ip:port>   (example: .query 98.173.12.44:20555)");
 				} else
-					sendMessageToChannel("Missing (or too many) port delimiter(s), Usage: .query <ip:port>   (example: .query 98.173.12.44:20555)");
+					sendMessageToChannel("Missing (or too many) port delimiters, Usage: .query <ip:port>   (example: .query 98.173.12.44:20555)");
 			} else
 				sendMessageToChannel("Usage: .query <ip:port>   (example: .query 98.173.12.44:20555)");
 		}
@@ -981,7 +981,7 @@ public class Bot extends PircBot {
 				sendMessage(cfg_data.irc_channel, "User " + Functions.getUserName(keywords[1]) + " has no servers running.");
 		}
 		else if (keywords.length == 1) {
-			sendMessage(cfg_data.irc_channel, "There are " + servers.size() + " server(s).");
+			sendMessage(cfg_data.irc_channel, Functions.pluralize("There are " + servers.size() + " server{s}.", servers.size()));
 		}
 		else
 			sendMessage(cfg_data.irc_channel, "Incorrect syntax! Correct usage is .servers or .servers <username>");

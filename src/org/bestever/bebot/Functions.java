@@ -45,6 +45,25 @@ public class Functions {
 	}
 
 	/**
+	 * Checks a message and number and returns the pluralized version (if need be)
+	 * @param message String - the phrase to be checked
+	 * @param number Int - the number to be checked
+	 * @return String - the pluralized? string
+	 */
+	public static String pluralize(String message, int number) {
+		if (message.contains("{s}")) {
+			if (number == 1) {
+				return message.replace("{s}", "");
+			}
+			else {
+				return message.replace("{s}", "s");
+			}
+		}
+		// Passed a string withous {s}
+		return message;
+	}
+
+	/**
 	 * Removes duplicates from an arraylist by casting to a set
 	 * @param l ArrayList - the list
 	 * @return cleaned ArrayList
