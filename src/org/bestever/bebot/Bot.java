@@ -34,6 +34,11 @@ import org.jibble.pircbot.PircBot;
 public class Bot extends PircBot {
 
 	/**
+	 * Path to the configuration file relative to the bot
+	 */
+	private String config_file;
+
+	/**
 	 * The lowest port (the base port) that the bot uses. This should NEVER be
 	 * changed because the mysql table relies on the minimum port to stay the
 	 * same so it can grab the proper ID (primary key) which corresponds to
@@ -158,6 +163,17 @@ public class Bot extends PircBot {
 	 */
 	public int getMaxPort() {
 		return max_port;
+	}
+
+	/**
+	 * Reloads the configuration file
+	 */
+	public void reloadConfigFile() {
+		try {
+			this.cfg_data = new ConfigData(this.config_file);
+		} catch (IOException e) {
+			logMessage(LOGLEVEL_CRITICAL, "Could not reload configuration file.");
+		}
 	}
 
 	/**
@@ -493,6 +509,12 @@ public class Bot extends PircBot {
 				case ".rcon":
 					if (isAccountTypeOf(userLevel, ADMIN, MODERATOR, REGISTERED))
 						sendMessage(cfg_data.irc_channel, "Please PM the bot for the rcon.");
+					break;
+				case ".reloadconfig":
+					if (isAccountTypeOf(userLevel, ADMIN)) {
+						reloadConfigFile();
+						sendMessage(cfg_data.irc_channel, "Configuration file has been successfully reloaded.");
+					}
 					break;
 				case ".save":
 					MySQL.saveSlot(hostname, keywords);
@@ -1158,6 +1180,7 @@ public class Bot extends PircBot {
 		}
 
 		// Start the bot
-		new Bot(cfg_data);
+		Bot b = new Bot(cfg_data);
+		b.config_file = args[0];
 	}
 }
