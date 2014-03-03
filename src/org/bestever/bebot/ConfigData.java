@@ -207,6 +207,11 @@ public class ConfigData {
 	 * the beginning of their sv_hostname
 	 */
 	public String bot_hostname_base;
+
+	/**
+	 * Interval to run server cleanup
+	 */
+	public int cleanup_interval;
 	
 	/**
 	 * This constructor once initialized will parse the config file based on the path
@@ -291,6 +296,7 @@ public class ConfigData {
 		this.bot_public_rcon = Boolean.parseBoolean(bot.get("public_rcon"));
 		this.bot_hostname_base = bot.get("hostname_base");
 		this.bot_help = bot.get("help");
+		this.cleanup_interval = Integer.parseInt(bot.get("cleanup_interval"));
 		if (bot.get("notice") != null)
 			this.bot_notice = bot.get("notice");
 		if (bot.get("notice_interval") != null)
