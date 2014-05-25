@@ -16,6 +16,7 @@
 package org.bestever.bebot;
 
 import java.net.UnknownHostException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.*;
 
@@ -137,6 +138,24 @@ public class MySQL {
 	 */
 	private static Connection getConnection() throws SQLException {
 		return DriverManager.getConnection("jdbc:mysql://" + mysql_host + ":"+mysql_port+"/" + mysql_db, mysql_user, mysql_pass);
+	}
+
+	/**
+	 * Create a custom wadpage for our wads
+	 * @param wads String[] - the wads to add
+	 */
+	public static void createWadPage(String wads) {
+		String query = "INSERT INTO `" + mysql_db + "`.`wad_pages` (`key`, `wad_string`) VALUES (?, ?)";
+		try (Connection con = getConnection(); PreparedStatement pst = con.prepareStatement(query)) {
+			try {
+				pst.setString(1, Functions.generateHash());
+				pst.setString(2, wads);
+				pst.executeUpdate();
+			} catch (NoSuchAlgorithmException e) { }
+		} catch (SQLException e) {
+			e.printStackTrace();
+			logMessage(LOGLEVEL_IMPORTANT, "Could not add wad page. (SQL Error)");
+		}
 	}
 
 	/**

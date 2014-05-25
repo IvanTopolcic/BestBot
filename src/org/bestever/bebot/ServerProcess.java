@@ -17,6 +17,7 @@ package org.bestever.bebot;
 
 import java.io.*;
 import java.net.URLEncoder;
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -96,14 +97,8 @@ public class ServerProcess extends Thread {
 		// Load the global configuration file
 		addParameter("+exec", server.bot.cfg_data.bot_cfg_directory_path + "global.cfg");
 
-		// Set our custom download page here, to drastically reduce bandwidth
-		String wadURL = "http://www.best-ever.org/wadpage?";
-		for (String wad: this.server.wads) {
-			try {
-				wadURL += "wads=" + URLEncoder.encode(Functions.implode(this.server.wads, ","), "UTF-8");
-			} catch (UnsupportedEncodingException e) { }
-		}
-		addParameter("+sv_website", wadURL);
+		// Create a custom wadpage for us
+		MySQL.createWadPage(Functions.implode(this.server.wads, ","));
 
 		if (server.iwad != null)
 			addParameter("-iwad", server.bot.cfg_data.bot_iwad_directory_path + server.iwad);
