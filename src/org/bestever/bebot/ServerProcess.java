@@ -98,7 +98,10 @@ public class ServerProcess extends Thread {
 		addParameter("+exec", server.bot.cfg_data.bot_cfg_directory_path + "global.cfg");
 
 		// Create a custom wadpage for us
-		MySQL.createWadPage(Functions.implode(this.server.wads, ","));
+		String key = MySQL.createWadPage(Functions.implode(this.server.wads, ","));
+
+		// Add the custom page to sv_website to avoid large wad list lookups
+		addParameter("+sv_website", "http://www.best-ever.org/wadpage?key=" + key);
 
 		if (server.iwad != null)
 			addParameter("-iwad", server.bot.cfg_data.bot_iwad_directory_path + server.iwad);
