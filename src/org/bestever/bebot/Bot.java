@@ -853,7 +853,7 @@ public class Bot extends PircBot {
 						sendMessage(cfg_data.irc_channel, "No servers were killed.");
 					}
 					else {
-						sendMessage(cfg_data.irc_channel, Functions.pluralize("Killed " + ports.size() + " server{s} (" + Functions.implode(ports, ", " + ")"), ports.size()));
+						sendMessage(cfg_data.irc_channel, Functions.pluralize("Killed " + ports.size() + " server{s} (" + Functions.implode(ports, ", ") + ")", ports.size()));
 					}
 				} else {
 					sendMessage(cfg_data.irc_channel, "Using zero or less for .killinactive is not allowed.");
@@ -958,7 +958,7 @@ public class Bot extends PircBot {
 						if (Functions.getUserName(s.irc_hostname).equals(Functions.getUserName(hostname)) || isAccountTypeOf(userLevel, MODERATOR, ADMIN)) {
 							sendMessage(sender, "RCON: " + s.rcon_password);
 							sendMessage(sender, "ID: " + s.server_id);
-							sendMessage(sender, "LOG: http://www.best-ever.org/logs/" + s.server_id + ".txt");
+							sendMessage(sender, "LOG: http://static.best-ever.org/logs/" + s.server_id + ".txt");
 						}
 						else
 							sendMessage(sender, "You do not own this server.");

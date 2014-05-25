@@ -25,42 +25,42 @@ import static org.bestever.bebot.Logger.*;
  * MySQL Class for handling all of the database inserts/fetching
  */
 public class MySQL {
-	
+
 	/**
 	 * Holds the Bot
 	 */
 	private static Bot bot;
-	
+
 	/**
 	 * Holds the MySQL hostname
 	 */
 	private static String mysql_host;
-	
+
 	/**
 	 * Holds the MySQL username
 	 */
 	private static String mysql_user;
-	
+
 	/**
 	 * Holds the MySQL password
 	 */
 	private static String mysql_pass;
-	
+
 	/**
 	 * Holds the MySQL port
 	 */
 	private static int mysql_port;
-	
+
 	/**
 	 * Holds the MySQL database
 	 */
 	public static String mysql_db;
-	
+
 	/**
 	 * A constant in the database to indicate a server is considered online
 	 */
 	public static final int SERVER_ONLINE = 1;
-	
+
 	/**
 	 * Constructor for the MySQL Object
 	 * @param bot instance of the bot
@@ -357,7 +357,7 @@ public class MySQL {
 		}
 		return AccountType.GUEST; // Return 0, which is a guest and means it was not found; also returns this if not logged in
 	}
-	
+
 	/**
 	 * Queries the database and returns the level of the user
 	 * @param hostname of the user
@@ -380,7 +380,7 @@ public class MySQL {
 		}
 		return AccountType.GUEST; // Return 0, which is a guest and means it was not found; also returns this if not logged in
 	}
-	
+
 	/**
 	 * Inserts an account into the database
 	 * (assuming the user is logged in to IRC)
@@ -391,15 +391,15 @@ public class MySQL {
 		logMessage(LOGLEVEL_NORMAL, "Handling account registration from " + sender + ".");
 		// Query to check if the username already exists
 		String checkQuery = "SELECT `username` FROM " + mysql_db + ".`login` WHERE `username` = ?";
-		
+
 		// Query to add entry to database
-		String executeQuery = "INSERT INTO " + mysql_db + ".`login` ( `username`, `password`, `level`, `activated`, `server_limit` ) VALUES ( ?, ?, 1, 1, 4 )";
+		String executeQuery = "INSERT INTO " + mysql_db + ".`login` ( `username`, `password`, `level`, `activated`, `server_limit`, `remember_token` ) VALUES ( ?, ?, 1, 1, 4, null )";
 		try
 		(Connection con = getConnection(); PreparedStatement cs = con.prepareStatement(checkQuery); PreparedStatement xs = con.prepareStatement(executeQuery)){
 			// Query and check if see if the username exists
 			cs.setString(1, Functions.getUserName(hostname));
 			ResultSet r = cs.executeQuery();
-			
+
 			// The username already exists!
 			if (r.next())
 				bot.sendMessage(sender, "Account already exists!");
@@ -419,7 +419,7 @@ public class MySQL {
 				bot.sendMessage(sender, "There was an error registering your account.");
 		}
 	}
-	
+
 	/**
 	 * Changes the password of a logged in user
 	 * (assuming the user is logged into IRC)
@@ -430,7 +430,7 @@ public class MySQL {
 		logMessage(LOGLEVEL_NORMAL, "Password change request from " + sender + ".");
 		// Query to check if the username already exists
 		String checkQuery = "SELECT `username` FROM " + mysql_db + ".`login` WHERE `username` = ?";
-		
+
 		// Query to update password
 		String executeQuery = "UPDATE " + mysql_db + ".`login` SET `password` = ? WHERE `username` = ?";
 		try
@@ -438,11 +438,11 @@ public class MySQL {
 			// Query and check if see if the username exists
 			cs.setString(1, Functions.getUserName(hostname));
 			ResultSet r = cs.executeQuery();
-			
+
 			// The username doesn't exist!
 			if (!r.next())
 				bot.sendMessage(sender, "Username does not exist.");
-			
+
 			else {
 				// Prepare, bind & execute
 				xs.setString(1, BCrypt.hashpw(password, BCrypt.gensalt(14)));

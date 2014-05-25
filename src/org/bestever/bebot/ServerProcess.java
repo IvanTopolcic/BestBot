@@ -16,6 +16,7 @@
 package org.bestever.bebot;
 
 import java.io.*;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -94,6 +95,15 @@ public class ServerProcess extends Thread {
 
 		// Load the global configuration file
 		addParameter("+exec", server.bot.cfg_data.bot_cfg_directory_path + "global.cfg");
+
+		// Set our custom download page here, to drastically reduce bandwidth
+		String wadURL = "http://www.best-ever.org/wadpage?";
+		for (String wad: this.server.wads) {
+			try {
+				wadURL += "wads=" + URLEncoder.encode(Functions.implode(this.server.wads, ","), "UTF-8");
+			} catch (UnsupportedEncodingException e) { }
+		}
+		addParameter("+sv_website", wadURL);
 
 		if (server.iwad != null)
 			addParameter("-iwad", server.bot.cfg_data.bot_iwad_directory_path + server.iwad);
@@ -223,7 +233,7 @@ public class ServerProcess extends Thread {
 			// NOTE: As of now, BE users can still check the RCON password by accessing the control panel on the website.
 			// We'll fix this later by changing the RCON from the unique_id to a random MD5 hash
 			if (server.bot.cfg_data.bot_public_rcon || AccountType.isAccountTypeOf(server.user_level, AccountType.ADMIN, AccountType.MODERATOR, AccountType.RCON))
-				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using 'send_password "+server.server_id+"' via the in-game console. You can view your logfile at http://www.best-ever.org/logs/" + server.server_id + ".txt");
+				server.bot.sendMessage(server.sender, "Your unique server ID is: " + server.server_id + ". This is your RCON password, which can be used using 'send_password "+server.server_id+"' via the in-game console. You can view your logfile at http://static.best-ever.org/logs/" + server.server_id + ".txt");
 
 			// Process server while it outputs text
 			while ((strLine = br.readLine()) != null) {
