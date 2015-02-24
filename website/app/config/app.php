@@ -79,7 +79,7 @@ return array(
 	|
 	*/
 
-	'key' => 'n3hAVLKR96IPeH1z8hx2fYmyYwlq5BBz',
+	'key' => 'put_your_key_here',
 
 	/*
 	|--------------------------------------------------------------------------
