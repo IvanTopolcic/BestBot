@@ -295,7 +295,7 @@ public class ConfigData {
 		this.bot_banlistdir = bot.get("banlistdir");
 		this.bot_adminlistdir = bot.get("adminlistdir");
 		this.bot_logfiledir = bot.get("logfiledir");
-		this.bot_executable = bot.get("executable");
+		this.bot_executable = bot.get("doom_executable_path") + bot.get("executable");
 		this.bot_executable_kpatch = bot.get("executable_kpatch");
 		this.bot_executable_developerrepository = bot.get("executable_developerrepository");
 		this.bot_public_rcon = Boolean.parseBoolean(bot.get("public_rcon"));

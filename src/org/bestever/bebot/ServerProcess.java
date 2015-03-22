@@ -199,6 +199,7 @@ public class ServerProcess extends Thread {
 		try {
 			// Ensure we have the files created
 			banlist = new File(server.bot.cfg_data.bot_banlistdir + server.server_id + ".txt");
+			System.out.println(server.bot.cfg_data.bot_banlistdir + server.server_id + ".txt");
 			if (!banlist.exists())
 				banlist.createNewFile();
 			whitelist = new File(server.bot.cfg_data.bot_whitelistdir + server.server_id + ".txt");
