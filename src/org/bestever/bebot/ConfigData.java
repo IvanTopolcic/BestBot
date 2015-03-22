@@ -26,42 +26,42 @@ import org.ini4j.Ini;
 import org.ini4j.InvalidFileFormatException;
 
 public class ConfigData {
-	
+
 	/**
 	 * Contains the path to the config file
 	 */
 	public String filepath;
-	
+
 	/**
 	 * The name of the irc bot
 	 */
 	public String irc_name;
-	
+
 	/**
 	 * The username of the irc bot
 	 */
 	public String irc_user;
-	
+
 	/**
 	 * The version of the irc bot
 	 */
 	public String irc_version;
-	
+
 	/**
 	 * The network it will connect to
 	 */
 	public String irc_network;
-	
+
 	/**
 	 * The channel it will connect to
 	 */
 	public String irc_channel;
-	
+
 	/**
 	 * The port to which to connect with IRC
 	 */
 	public int irc_port;
-	
+
 	/**
 	 * The password to connect to IRC with
 	 */
@@ -76,22 +76,22 @@ public class ConfigData {
 	 * The mysql host
 	 */
 	public String mysql_host;
-	
+
 	/**
 	 * The username for mysql
 	 */
 	public String mysql_user;
-	
+
 	/**
 	 * The password for the database
 	 */
 	public String mysql_pass;
-	
+
 	/**
 	 * The database for mysql
 	 */
 	public String mysql_db;
-	
+
 	/**
 	 * The port for the database, int was used to include all port ranges since shorts cut off signed at 32767
 	 */
@@ -101,22 +101,22 @@ public class ConfigData {
 	 * The lowest port number, int was used to include all port ranges since shorts cut off signed at 32767
 	 */
 	public int bot_min_port;
-	
+
 	/**
 	 * The highest port number, int was used to include all port ranges since shorts cut off signed at 32767
 	 */
 	public int bot_max_port;
-	
+
 	/**
 	 * The logfile path
 	 */
 	public String bot_logfile;
-	
+
 	/**
 	 * Contains a path to the root directory for the bot (ex: /home/zandronum/)
 	 */
 	public String bot_directory_path;
-	
+
 	/**
 	 * Contains a path to the wad directory
 	 */
@@ -126,7 +126,12 @@ public class ConfigData {
 	 * Contains a path to the iwad directory
 	 */
 	public String bot_iwad_directory_path;
-	
+
+	/**
+	 * Contains a path to the doom executable
+	 */
+	public String doom_executable_path;
+
 	/**
 	 * Contains a path to the cfg directory
 	 */
@@ -151,17 +156,17 @@ public class ConfigData {
 	 * Log file directory
 	 */
 	public String bot_logfiledir;
-	
+
 	/**
 	 * Contains the file name of the executable, in linux this would be "./zandronum-server" for example, or in windows "zandronum.exe"
 	 */
 	public String bot_executable;
-	
+
 	/**
 	 * Contains the file name of the kpatch executable (ex: zandronum-server_kpatch)
 	 */
 	public String bot_executable_kpatch;
-	
+
 	/**
 	 * Contains the hg build of the latest repository (may not be stable)
 	 */
@@ -171,12 +176,12 @@ public class ConfigData {
 	 * Contains whether or not server RCON is accessible to everyone
 	 */
 	public boolean bot_public_rcon;
-	
+
 	/**
 	 * The account file path
 	 */
 	public String bot_accountfile;
-	
+
 	/**
 	 * If the bot will be verbose or not
 	 */
@@ -212,13 +217,13 @@ public class ConfigData {
 	 * Interval to run server cleanup
 	 */
 	public int cleanup_interval;
-	
+
 	/**
 	 * This constructor once initialized will parse the config file based on the path
 	 * @param filepath A string with the path to a file
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
-	 * @throws InvalidFileFormatException 
+	 * @throws IOException
+	 * @throws FileNotFoundException
+	 * @throws InvalidFileFormatException
 	 */
 	public ConfigData(String filepath) throws IOException, NumberFormatException {
 		this.filepath = filepath;
@@ -238,24 +243,24 @@ public class ConfigData {
 			wadList.addAll(Arrays.asList(wads.split(",")));
 		return wadList;
 	}
-	
+
 	/**
 	 * This parses the config file and fills up the fields for this object
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
-	 * @throws InvalidFileFormatException 
+	 * @throws IOException
+	 * @throws FileNotFoundException
+	 * @throws InvalidFileFormatException
 	 */
 	private void parseConfigFile() throws IOException, NumberFormatException {
-		
+
 		// Initialize the ini object
 		Ini ini = new Ini();
-		
+
 		// Set up the file
 		File configFile = new File(this.filepath);
-		
+
 		// Load from file
 		ini.load(new FileReader(configFile));
-		
+
 		// Load the IRC section
 		Ini.Section irc = ini.get("irc");
 		this.irc_channel = irc.get("channel");
@@ -266,7 +271,7 @@ public class ConfigData {
 		this.irc_pass = irc.get("pass");
 		this.irc_port = Integer.parseInt(irc.get("port"));
 		this.irc_mask = irc.get("hostmask");
-		
+
 		// Load the MYSQL section
 		Ini.Section mysql = ini.get("mysql");
 		this.mysql_user = mysql.get("user");
@@ -274,7 +279,7 @@ public class ConfigData {
 		this.mysql_host = mysql.get("host");
 		this.mysql_pass = mysql.get("pass");
 		this.mysql_port = Integer.parseInt(mysql.get("port"));
-		
+
 		// Load the bot section
 		Ini.Section bot = ini.get("bot");
 		this.bot_accountfile = bot.get("accountfile");
@@ -297,6 +302,7 @@ public class ConfigData {
 		this.bot_hostname_base = bot.get("hostname_base");
 		this.bot_help = bot.get("help");
 		this.cleanup_interval = Integer.parseInt(bot.get("cleanup_interval"));
+		this.doom_executable_path = bot.get("doom_executable_path");
 		if (bot.get("notice") != null)
 			this.bot_notice = bot.get("notice");
 		if (bot.get("notice_interval") != null)

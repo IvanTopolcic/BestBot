@@ -212,6 +212,8 @@ public class ServerProcess extends Thread {
 			ProcessBuilder pb = new ProcessBuilder(serverRunCommands.toArray(new String[serverRunCommands.size()]));
 			// Redirect stderr to stdout
 			pb.redirectErrorStream(true);
+			// Set our working directory
+			pb.directory(server.bot.cfg_data.doom_executable_path);
 			proc = pb.start();
 			br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
