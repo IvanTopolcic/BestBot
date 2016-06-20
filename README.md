@@ -1,3 +1,7 @@
+WARNING: THIS IS DEPRECATED, NO UPDATES (except maybe security patches) WILL BE PUSHED TO THIS REPOSITORY. YOU ARE WELCOME TO SEND PULL REQUESTS.
+
+WARNING: DO NOT USE THIS ON IMPORTANT MACHINES. BE itself has no known vulnerabilities, but with a combination of Zandronum could potentially post a risk. We do not take responsibility for any problems caused by this software.
+
 #BestBot
 
 BestBot is an IRC bot written in Java. It provides an easy interface for hosting Zandronum (DOOM) servers
